@@ -1,5 +1,6 @@
 package com.example.memesfeed.data.network.repository
 
+import android.util.Log
 import com.example.memesfeed.data.network.responseModels.Data
 import com.example.memesfeed.data.network.responseModels.Meme
 import com.example.memesfeed.data.network.service.MemesApiService
@@ -10,12 +11,12 @@ import javax.inject.Inject
 class MemesApiRepositoryImpl @Inject constructor(private val memesApiService: MemesApiService) : MemesApiRepository {
 
     override suspend fun getMemesListFromApi(): List<MemeModel> {
-        val memesDomainModelList : List<MemeModel> = listOf()
+        var memesDomainModelList : List<MemeModel> = listOf()
         val response = memesApiService.getMemesList()
         if(response.isSuccessful) {
             val memesApiList = response.body()?.data
-            val memesDomainModelList : List<MemeModel>
-            = memesApiList?.copyToDomainModelsList() ?: listOf()
+            memesDomainModelList =
+                memesApiList?.copyToDomainModelsList() ?: listOf()
         }
         return memesDomainModelList
     }
@@ -34,6 +35,7 @@ class MemesApiRepositoryImpl @Inject constructor(private val memesApiService: Me
             )
             result.add(memeModel)
         }
+        //Log.d("respBody", result.toString())
         return result
     }
 

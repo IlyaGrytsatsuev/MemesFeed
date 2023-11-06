@@ -9,5 +9,5 @@ interface MemesApiService {
 
     @GET("get_memes")
     suspend fun getMemesList(): Response<MemesListResponse>
-    //TODO()
+
 }
