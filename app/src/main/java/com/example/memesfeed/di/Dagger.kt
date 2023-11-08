@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.memesfeed.data.network.repository.MemesApiRepositoryImpl
 import com.example.memesfeed.data.network.service.MemesApiService
 import com.example.memesfeed.domain.repository.MemesApiRepository
+import com.example.memesfeed.presenter.ui.FeedFragment
 import com.example.memesfeed.presenter.ui.MainActivity
 import com.example.memesfeed.utils.Constants
 import com.google.gson.GsonBuilder
@@ -26,6 +27,7 @@ interface AppComponent{
         fun create(@BindsInstance context: Context):AppComponent
     }
     fun inject(activity:MainActivity)
+    fun inject(fragment: FeedFragment)
 }
 
 @Module

@@ -10,7 +10,7 @@ data class Meme(
     @SerializedName("height")
     val height: Int?,
     @SerializedName("id")
-    val id: String,
+    val id: String?,
     @SerializedName("name")
     val name: String?,
     @SerializedName("url")

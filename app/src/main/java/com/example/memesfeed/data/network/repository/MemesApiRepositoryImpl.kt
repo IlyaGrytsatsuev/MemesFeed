@@ -25,13 +25,13 @@ class MemesApiRepositoryImpl @Inject constructor(private val memesApiService: Me
         val result: MutableList<MemeModel> = mutableListOf()
         this.memes?.forEach {
             val memeModel = MemeModel(
-                boxCount = it.boxCount,
-                captions = it.captions,
-                height = it.height,
-                id = it.id,
-                name = it.name,
-                url = it.url,
-                width = it.width
+                boxCount = it.boxCount?:0,
+                captions = it.captions?:0,
+                height = it.height?:0,
+                id = it.id?:"",
+                name = it.name?: "",
+                url = it.url?: "",
+                width = it.width?:0
             )
             result.add(memeModel)
         }
