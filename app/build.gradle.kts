@@ -7,7 +7,7 @@ plugins {
 
 
 android {
-    namespace = "com.example.memesfeed"
+    namespace = "com.example.rickandmorty"
     compileSdk = 33
 
     defaultConfig {

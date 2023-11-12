@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "MemesFeed"
+rootProject.name = "RickAndMortyApi"
 include(":app")
