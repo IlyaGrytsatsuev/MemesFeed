@@ -1,9 +1,11 @@
 package com.example.rickandmortyapi.presenter.ui
 
 import android.content.Context
+import android.health.connect.datatypes.units.Length
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
+import androidx.fragment.app.Fragment
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
@@ -16,15 +18,18 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.rickandmortyapi.R
 import com.example.rickandmortyapi.databinding.FragmentFeedBinding
 import com.example.rickandmortyapi.di.MyApp
+import com.example.rickandmortyapi.domain.models.CharacterModel
 import com.example.rickandmortyapi.presenter.feedRecycler.FeedItemDelegate
 import com.example.rickandmortyapi.presenter.feedRecycler.FeedRecyclerAdapter
 import com.example.rickandmortyapi.presenter.feedRecycler.StandartRecyclerFeedItemDelegate
 import com.example.rickandmortyapi.presenter.viewmodels.FeedViewModel
+import com.example.rickandmortyapi.utils.State
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
-class FeedFragment : Fragment() {
+class FeedFragment : Fragment(R.layout.fragment_feed) {
 
     private lateinit var binding: FragmentFeedBinding
 
@@ -32,9 +37,11 @@ class FeedFragment : Fragment() {
     lateinit var feedViewModelFactory: ViewModelProvider.Factory
 
 
-    val feedViewModel:FeedViewModel by viewModels{feedViewModelFactory}
+    private val feedViewModel:FeedViewModel by viewModels{feedViewModelFactory}
 
     private var feedRecycler: RecyclerView? = null
+
+    var snackBar: Snackbar? = null
 
 
     override fun onAttach(context: Context) {
@@ -43,15 +50,22 @@ class FeedFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_feed, container, false)
-        binding = FragmentFeedBinding.bind(view)
-        initializeRecycler()
-        feedViewModel?.getMemesList()
-        return view
+        return super.onCreateView(inflater, container, savedInstanceState)
     }
+
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding = FragmentFeedBinding.bind(view)
+        feedViewModel.getCharacters()
+        initializeRecycler()
+    }
+
+
 
     private fun initializeRecycler(){
         val delegatesList = listOf<FeedItemDelegate>(
@@ -60,18 +74,55 @@ class FeedFragment : Fragment() {
         val adapter = FeedRecyclerAdapter(delegatesList)
         val layoutManager = LinearLayoutManager(requireContext(),
             LinearLayoutManager.VERTICAL, false)
-        setUpMemesListObserver(adapter)
+        setUpCharactersListStateObserver(adapter)
         feedRecycler?.adapter = adapter
         feedRecycler?.layoutManager = layoutManager
     }
-    private fun setUpMemesListObserver(adapter: FeedRecyclerAdapter){
+    private fun setUpCharactersListStateObserver(adapter: FeedRecyclerAdapter){
+        var curList: List<CharacterModel>? = mutableListOf()
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED){
-                feedViewModel?.memeslist?.collect{
-                    adapter.differ.submitList(it)
+                feedViewModel.charactersList.collect{
+                    when(it){
+                        is State.NoInternet -> {showSnackBar(it.message?:"")
+                        hideProgressBar()}
+                        is State.DbLoading -> showProgressBar()
+                        is State.DbSuccess -> {hideProgressBar()
+                        curList = it.data?.toList()}
+                        is State.DbEmpty -> showEmptyListMessage()
+                        is State.NetworkLoading -> showProgressBar()
+                        is State.NetworkSuccess -> {hideProgressBar()
+                            curList = it.data?.toList()
+                        }
+
+                        is State.NetworkError -> showSnackBar(it.message?:"")
+                    }
+                    Log.d("listDB", curList.toString())
+
+                    adapter.differ.submitList(curList)
                 }
             }
         }
+    }
+
+    private fun showEmptyListMessage(){
+        binding.emptyListTextView.visibility = View.VISIBLE
+    }
+    private fun hideEmptyListMessage(){
+        binding.emptyListTextView.visibility = View.GONE
+    }
+    private fun showProgressBar(){
+        binding.progressBar.visibility = View.VISIBLE
+    }
+
+    private fun hideProgressBar(){
+        binding.progressBar.visibility = View.GONE
+        hideEmptyListMessage()
+    }
+
+    private fun showSnackBar(message: String){
+        snackBar = Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG)
+        snackBar?.show()
     }
 
 

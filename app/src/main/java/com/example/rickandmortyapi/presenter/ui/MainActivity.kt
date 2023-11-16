@@ -15,7 +15,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        (application as MyApp).appComponent.inject(this)
         supportFragmentManager.commit {
             val fragment = FeedFragment()
             replace(R.id.fragment_container, fragment)

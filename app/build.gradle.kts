@@ -7,13 +7,13 @@ plugins {
 
 
 android {
-    namespace = "com.example.rickandmorty"
-    compileSdk = 33
+    namespace = "com.example.rickandmortyapi"
+    compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.memesfeed"
+        applicationId = "com.example.rickandmortyapi"
         minSdk = 21
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -69,8 +69,13 @@ dependencies {
     kapt ("com.google.dagger:dagger-compiler:2.44.2")
 
     implementation ("com.github.bumptech.glide:glide:4.12.0")
-
     annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
+
+    val room_version = "2.6.0"
+    implementation ("androidx.room:room-runtime:$room_version")
+    annotationProcessor ("androidx.room:room-compiler:$room_version")
+    kapt ("androidx.room:room-compiler:$room_version")
+    implementation ("androidx.room:room-ktx:$room_version")
 
 
 }

@@ -2,9 +2,15 @@ package com.example.rickandmortyapi.di
 
 import android.content.Context
 import androidx.lifecycle.ViewModelProvider
-import com.example.rickandmortyapi.data.network.repository.MemesApiRepositoryImpl
-import com.example.rickandmortyapi.data.network.service.MemesApiService
-import com.example.rickandmortyapi.domain.repository.MemesApiRepository
+import androidx.room.Room
+import com.example.rickandmortyapi.data.db.DB
+import com.example.rickandmortyapi.data.db.repository.CharactersDbRepositoryImpl
+import com.example.rickandmortyapi.data.network.InternetConnectionCheckerImpl
+import com.example.rickandmortyapi.data.network.repository.CharactersApiRepositoryImpl
+import com.example.rickandmortyapi.data.network.service.CharactersApiService
+import com.example.rickandmortyapi.domain.InternetConnectionChecker
+import com.example.rickandmortyapi.domain.repository.CharactersApiRepository
+import com.example.rickandmortyapi.domain.repository.CharactersDbRepository
 import com.example.rickandmortyapi.presenter.ui.FeedFragment
 import com.example.rickandmortyapi.presenter.ui.MainActivity
 import com.example.rickandmortyapi.presenter.viewmodels.FeedViewModelFactory
@@ -22,7 +28,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [ApiModule::class])
+@Component(modules = [ApiModule::class, DBModule::class])
 interface AppComponent{
     @Component.Factory
     interface ComponentBuilder{
@@ -32,6 +38,21 @@ interface AppComponent{
     fun inject(fragment: FeedFragment)
 }
 
+@Module
+interface DBModule{
+    companion object{
+        @Provides
+        fun provideDB(context:Context) =
+            Room.databaseBuilder(context,
+            DB::class.java, "rickandmortydb").build()
+        @Provides
+        fun provideCharacterDao(db: DB) = db.characterDao()
+    }
+
+    @Binds
+    fun provideCharactersDbRepository(charactersDbRepositoryImpl:
+                                      CharactersDbRepositoryImpl): CharactersDbRepository
+}
 @Module
 interface ApiModule{
     companion object{
@@ -47,20 +68,22 @@ interface ApiModule{
 
         @Provides
         fun provideMemesApiService(converterFactory: GsonConverterFactory, client: OkHttpClient)
-                : MemesApiService = Retrofit.Builder()
+                : CharactersApiService = Retrofit.Builder()
             .addConverterFactory(converterFactory)
             .client(client)
             .baseUrl(Constants.BASE_URL)
             .build()
-            .create(MemesApiService::class.java)
+            .create(CharactersApiService::class.java)
     }
 
     @Binds
     fun provideViewModelFactory(viewModelFactory: FeedViewModelFactory): ViewModelProvider.Factory
 
     @Binds
-    fun provideMemesApiRepository(memesApiRepositoryImpl: MemesApiRepositoryImpl) : MemesApiRepository
+    fun provideMemesApiRepository(memesApiRepositoryImpl: CharactersApiRepositoryImpl) : CharactersApiRepository
 
-
+    @Binds
+    fun provideInternetConnectionChecker(internetConnectionChecker: InternetConnectionCheckerImpl)
+    :InternetConnectionChecker
 
 }

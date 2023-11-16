@@ -5,9 +5,10 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rickandmortyapi.databinding.FeedRecyclerStandartItemBinding
+import com.example.rickandmortyapi.domain.models.CharacterModel
 
 class StandartRecyclerFeedItemDelegate(private val context: Context) : FeedItemDelegate {
-    override fun isOfViewType(memeItem: MemeModel): Boolean {
+    override fun isOfViewType(memeItem: CharacterModel): Boolean {
         //todo()
         return true
     }
@@ -19,7 +20,7 @@ class StandartRecyclerFeedItemDelegate(private val context: Context) : FeedItemD
 
     }
 
-    override fun bindViewHolder(viewHolder: RecyclerView.ViewHolder, memeItem: MemeModel) {
-        (viewHolder as FeedRecyclerViewHolder).let { viewHolder.onBind(memeItem, context) }
+    override fun bindViewHolder(viewHolder: RecyclerView.ViewHolder, characterItem: CharacterModel) {
+        (viewHolder as FeedRecyclerViewHolder).let { viewHolder.onBind(characterItem, context) }
     }
 }
