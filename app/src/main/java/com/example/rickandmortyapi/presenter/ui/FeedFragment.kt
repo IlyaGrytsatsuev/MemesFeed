@@ -21,6 +21,7 @@ import com.example.rickandmortyapi.di.MyApp
 import com.example.rickandmortyapi.domain.models.CharacterModel
 import com.example.rickandmortyapi.presenter.feedRecycler.FeedItemDelegate
 import com.example.rickandmortyapi.presenter.feedRecycler.FeedRecyclerAdapter
+import com.example.rickandmortyapi.presenter.feedRecycler.PaginationScrollListener
 import com.example.rickandmortyapi.presenter.feedRecycler.StandartRecyclerFeedItemDelegate
 import com.example.rickandmortyapi.presenter.viewmodels.FeedViewModel
 import com.example.rickandmortyapi.utils.State
@@ -29,7 +30,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
-class FeedFragment : Fragment(R.layout.fragment_feed) {
+class FeedFragment() : Fragment(R.layout.fragment_feed) {
 
     private lateinit var binding: FragmentFeedBinding
 
@@ -49,23 +50,12 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
         (activity?.application as MyApp).appComponent.inject(this)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return super.onCreateView(inflater, container, savedInstanceState)
-    }
-
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentFeedBinding.bind(view)
         feedViewModel.getCharacters()
         initializeRecycler()
     }
-
-
 
     private fun initializeRecycler(){
         val delegatesList = listOf<FeedItemDelegate>(
@@ -77,6 +67,7 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
         setUpCharactersListStateObserver(adapter)
         feedRecycler?.adapter = adapter
         feedRecycler?.layoutManager = layoutManager
+        feedRecycler?.addOnScrollListener(setUpPaginationScrollListener(layoutManager))
     }
     private fun setUpCharactersListStateObserver(adapter: FeedRecyclerAdapter){
         var curList: List<CharacterModel>? = mutableListOf()
@@ -99,11 +90,26 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
                     }
                     Log.d("listDB", curList.toString())
 
-                    adapter.differ.submitList(curList)
+                    curList?.let { it1 -> adapter.appendCharacters(it1) }
                 }
             }
         }
     }
+
+    private fun setUpPaginationScrollListener(layoutManager: LinearLayoutManager) =
+        object : PaginationScrollListener(layoutManager){
+            override fun isLoading(): Boolean =
+                feedViewModel.charactersList.value is State.NetworkLoading
+
+            override fun hasInternetConnection(): Boolean =
+                feedViewModel.charactersList.value !is State.NoInternet
+
+            override fun getNextPage() = feedViewModel.getCharacters()
+            override fun itemsNumInCache(): Int {
+                TODO("Not yet implemented")
+            }
+        }
+
 
     private fun showEmptyListMessage(){
         binding.emptyListTextView.visibility = View.VISIBLE

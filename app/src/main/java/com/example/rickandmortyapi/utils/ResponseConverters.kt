@@ -1,11 +1,13 @@
 package com.example.rickandmortyapi.utils
 
 import com.example.rickandmortyapi.data.network.responseModels.CharactersResponse
+import com.example.rickandmortyapi.data.network.responseModels.Info
 import com.example.rickandmortyapi.data.network.responseModels.Location
 import com.example.rickandmortyapi.data.network.responseModels.Origin
 import com.example.rickandmortyapi.domain.models.CharacterLocation
 import com.example.rickandmortyapi.domain.models.CharacterModel
 import com.example.rickandmortyapi.domain.models.CharacterOrigin
+import com.example.rickandmortyapi.domain.models.InfoModel
 
 fun CharactersResponse.toDomainCharactersModelsList(): MutableList<CharacterModel> {
     val result: MutableList<CharacterModel> = mutableListOf()
@@ -45,5 +47,9 @@ fun Origin.toCharacterOrigin(): CharacterOrigin =
         url = this.url?:""
     )
 
-
+fun Info.toDomainModel(): InfoModel =
+    InfoModel(count = this.count?:0,
+        next = this.next?:"",
+        pages = this.pages?:0,
+        prev = this.prev?:"")
 

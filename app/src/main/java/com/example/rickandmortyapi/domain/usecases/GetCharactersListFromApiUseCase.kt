@@ -9,8 +9,8 @@ import javax.inject.Inject
 class GetCharactersListFromApiUseCase @Inject constructor(
     private val apiRepository: CharactersApiRepository) {
 
-    suspend fun execute() : State<List<CharacterModel>> {
-        val resList = apiRepository.getMemesListFromApi()
+    suspend fun execute(page:Int) : State<List<CharacterModel>> {
+        val resList = apiRepository.getMemesListFromApi(page)
         Log.d("memesList", resList.toString())
         return resList
     }

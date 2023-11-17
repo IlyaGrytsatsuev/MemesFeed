@@ -12,16 +12,16 @@ class FeedRecyclerViewHolder(private val binding: FeedRecyclerStandartItemBindin
 
 
     fun onBind(characterModel :CharacterModel, context: Context){
-        Glide.with(itemView.context)
-            .load(characterModel.image)
-            .override(400,400)
-            .placeholder(R.drawable.glide_placeholder)
-            .into(binding.recyclerItemImage)
-
         binding.name.text = characterModel.name
         binding.status.text = characterModel.status
         binding.species.text = characterModel.species
         binding.type.text = characterModel.type
         binding.gender.text = characterModel.gender
+        Glide.with(itemView.context)
+            .load(characterModel.image)
+            .placeholder(R.drawable.glide_placeholder)
+            .override(400,400)
+            .into(binding.recyclerItemImage)
+
     }
 }

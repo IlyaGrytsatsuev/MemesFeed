@@ -38,4 +38,12 @@ class FeedRecyclerAdapter(private val delegates: List<FeedItemDelegate>)
     }
 
     val differ = AsyncListDiffer(this, diffUtilCallback)
+
+    fun appendCharacters(list: List<CharacterModel>){
+        val res = differ.currentList.toMutableList()
+        list.forEach{
+            res.add(it)
+        }
+        differ.submitList(res)
+    }
 }

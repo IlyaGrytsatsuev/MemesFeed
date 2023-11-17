@@ -5,5 +5,5 @@ import com.example.rickandmortyapi.utils.State
 
 interface CharactersApiRepository {
 
-    suspend fun getMemesListFromApi(): State<List<CharacterModel>>
+    suspend fun getMemesListFromApi(page:Int): State<List<CharacterModel>>
 }

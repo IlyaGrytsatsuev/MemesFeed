@@ -28,9 +28,18 @@ class FeedViewModel (
 
     val charactersList:StateFlow<State<List<CharacterModel>>> = privateCharactersList
 
+    private val apiRequestQueue: List<()->Unit> = mutableListOf()
+
+    private var curPage: Int = 1
+    private var totalPageNum: Int = 2
+
     private fun getCharactersFromApi() =
         viewModelScope.launch(Dispatchers.IO) {
-            privateCharactersList.value = getCharactersListFromApiUseCase.execute()
+            privateCharactersList.value = State.NetworkLoading()
+            //Log.d("listNetwork", "loading page $curPage")
+            privateCharactersList.value = getCharactersListFromApiUseCase.execute(curPage)
+            totalPageNum = privateCharactersList.value.info?.pages?:0
+            curPage++
         }
 
 
@@ -42,9 +51,12 @@ class FeedViewModel (
 
     fun getCharacters(){
         viewModelScope.launch(Dispatchers.IO) {
-            getCharactersFromDb().join()
+            if(privateCharactersList.value.data == null)
+                getCharactersFromDb().join()
             checkInternetConnection().join()
-            if(privateCharactersList.value !is  State.NoInternet) {
+            if(privateCharactersList.value !is State.NoInternet
+                && curPage < totalPageNum) {
+               // Log.d("listNetwork", "loading page $curPage")
                 getCharactersFromApi().join()
                 saveCharactersToDb(charactersList = privateCharactersList.value.data)
             }
