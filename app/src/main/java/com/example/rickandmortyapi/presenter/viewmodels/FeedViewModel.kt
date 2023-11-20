@@ -8,12 +8,14 @@ import com.example.rickandmortyapi.domain.usecases.CheckInternetConnectionUsecas
 import com.example.rickandmortyapi.domain.usecases.GetCharactersFromDbUsecase
 import com.example.rickandmortyapi.domain.usecases.GetCharactersListFromApiUseCase
 import com.example.rickandmortyapi.domain.usecases.UpsertCharactersIntoDbUsecase
+import com.example.rickandmortyapi.utils.Constants
 import com.example.rickandmortyapi.utils.State
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class FeedViewModel (
     private val getCharactersListFromApiUseCase: GetCharactersListFromApiUseCase,
@@ -24,28 +26,45 @@ class FeedViewModel (
 
     private val privateCharactersList:
             MutableStateFlow<State<List<CharacterModel>>>
-    = MutableStateFlow(State.DbLoading())
+    = MutableStateFlow(State.Loading())
 
     val charactersList:StateFlow<State<List<CharacterModel>>> = privateCharactersList
 
-    private val apiRequestQueue: List<()->Unit> = mutableListOf()
+    //private val apiRequestQueue: List<()->Unit> = mutableListOf()
 
+    var itemsInCacheNum = 0
     private var curPage: Int = 1
-    private var totalPageNum: Int = 2
+    private var totalPageNum: Int = 1
+    private var hasPagesInfo = false
 
     private fun getCharactersFromApi() =
         viewModelScope.launch(Dispatchers.IO) {
-            privateCharactersList.value = State.NetworkLoading()
-            //Log.d("listNetwork", "loading page $curPage")
-            privateCharactersList.value = getCharactersListFromApiUseCase.execute(curPage)
-            totalPageNum = privateCharactersList.value.info?.pages?:0
-            curPage++
+            if(hasPagesInfo)
+                doNextPageRequest()
+            else
+                doFirstApiRequest()
+            if(privateCharactersList.value is State.NetworkSuccess)
+                itemsInCacheNum+=Constants.ITEMS_PER_PAGE
         }
 
+    private suspend fun doFirstApiRequest(){
+        curPage = if(itemsInCacheNum > 0)
+            itemsInCacheNum/Constants.ITEMS_PER_PAGE + 1 else 1
+
+        privateCharactersList.value = getCharactersListFromApiUseCase.execute(curPage)
+        totalPageNum = privateCharactersList.value.info?.pages ?: 0
+    }
+    private suspend fun doNextPageRequest(){
+        if(curPage <= totalPageNum) {
+            privateCharactersList.value = getCharactersListFromApiUseCase.execute(curPage)
+            totalPageNum = privateCharactersList.value.info?.pages ?: 0
+        }
+    }
 
    private fun getCharactersFromDb() =
         viewModelScope.launch(Dispatchers.IO){
             privateCharactersList.value = getCharactersFromDbUsecase.execute()
+            itemsInCacheNum = privateCharactersList.value.data?.size ?: 0
         }
 
 
@@ -54,11 +73,11 @@ class FeedViewModel (
             if(privateCharactersList.value.data == null)
                 getCharactersFromDb().join()
             checkInternetConnection().join()
-            if(privateCharactersList.value !is State.NoInternet
-                && curPage < totalPageNum) {
-               // Log.d("listNetwork", "loading page $curPage")
+            if(privateCharactersList.value !is State.NoInternet) {
+                // Log.d("listNetwork", "loading page $curPage")
                 getCharactersFromApi().join()
                 saveCharactersToDb(charactersList = privateCharactersList.value.data)
+                curPage = itemsInCacheNum/Constants.ITEMS_PER_PAGE + 1
             }
         }
     }

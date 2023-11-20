@@ -11,7 +11,8 @@ RecyclerView.OnScrollListener(){
     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
         super.onScrolled(recyclerView, dx, dy)
         val lastVisiblePosition = layoutManager.findLastVisibleItemPosition()
-        if(!isLoading()&& !(Constants.ITEMS_PER_PAGE - lastVisiblePosition <= 5)) {
+        if(!isLoading() && (itemsNumInCache() - lastVisiblePosition) <= 2
+            && itemsNumInCache() !=0) {
             getNextPage()
             Log.d("listNetwork", "page2 is called")
         }

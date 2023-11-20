@@ -25,9 +25,9 @@ class InternetConnectionCheckerImpl @Inject constructor(val context: Context):In
 
             return when {
                 activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ->
-                    return State.NetworkLoading()
+                    return State.Loading()
                 activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ->
-                    return State.NetworkLoading()
+                    return State.Loading()
                 else ->
                     return State.NoInternet(message = context.getString(R.string.no_internet_message))
             }
@@ -36,7 +36,7 @@ class InternetConnectionCheckerImpl @Inject constructor(val context: Context):In
                 connectivityManager.activeNetworkInfo ?:
                 return State.NoInternet(message = context.getString(R.string.no_internet_message))
             @Suppress("DEPRECATION")
-            return State.NetworkLoading()
+            return State.Loading()
         }
     }
 }

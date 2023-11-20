@@ -21,7 +21,6 @@ class CharactersDbRepositoryImpl @Inject constructor
         charactersDbList.forEach {
             characterModelsList.add(it.toCharacterModel())
         }
-        //Log.d("listDB", charactersDbList.toString())
         return State.DbSuccess(characterModelsList)
     }
 

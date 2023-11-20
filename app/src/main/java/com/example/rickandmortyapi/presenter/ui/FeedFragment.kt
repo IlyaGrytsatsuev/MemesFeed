@@ -24,6 +24,7 @@ import com.example.rickandmortyapi.presenter.feedRecycler.FeedRecyclerAdapter
 import com.example.rickandmortyapi.presenter.feedRecycler.PaginationScrollListener
 import com.example.rickandmortyapi.presenter.feedRecycler.StandartRecyclerFeedItemDelegate
 import com.example.rickandmortyapi.presenter.viewmodels.FeedViewModel
+import com.example.rickandmortyapi.utils.Constants
 import com.example.rickandmortyapi.utils.State
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
@@ -75,13 +76,15 @@ class FeedFragment() : Fragment(R.layout.fragment_feed) {
             repeatOnLifecycle(Lifecycle.State.CREATED){
                 feedViewModel.charactersList.collect{
                     when(it){
-                        is State.NoInternet -> {showSnackBar(it.message?:"")
-                        hideProgressBar()}
-                        is State.DbLoading -> showProgressBar()
+                        is State.NoInternet -> {
+                            //hideProgressBar()
+                            showSnackBar(it.message?:"") }
+                        is State.Loading -> showProgressBar()
                         is State.DbSuccess -> {hideProgressBar()
                         curList = it.data?.toList()}
-                        is State.DbEmpty -> showEmptyListMessage()
-                        is State.NetworkLoading -> showProgressBar()
+                        is State.DbEmpty -> {
+                            hideProgressBar()
+                            showEmptyListMessage() }
                         is State.NetworkSuccess -> {hideProgressBar()
                             curList = it.data?.toList()
                         }
@@ -99,16 +102,16 @@ class FeedFragment() : Fragment(R.layout.fragment_feed) {
     private fun setUpPaginationScrollListener(layoutManager: LinearLayoutManager) =
         object : PaginationScrollListener(layoutManager){
             override fun isLoading(): Boolean =
-                feedViewModel.charactersList.value is State.NetworkLoading
+                feedViewModel.charactersList.value is State.Loading
+
 
             override fun hasInternetConnection(): Boolean =
                 feedViewModel.charactersList.value !is State.NoInternet
 
             override fun getNextPage() = feedViewModel.getCharacters()
-            override fun itemsNumInCache(): Int {
-                TODO("Not yet implemented")
-            }
+            override fun itemsNumInCache() = feedViewModel.itemsInCacheNum
         }
+
 
 
     private fun showEmptyListMessage(){

@@ -23,7 +23,7 @@ class CharactersApiRepositoryImpl @Inject constructor(private val memesApiServic
             }
         }
         catch (e:Exception){
-            return State.NetworkError(charactersDomainModelList, "Network error")
+            return State.NetworkError(charactersDomainModelList, "Network exception")
         }
         return State.NetworkError(charactersDomainModelList, "network error")
     }
