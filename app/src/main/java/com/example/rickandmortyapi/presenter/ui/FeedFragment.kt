@@ -1,13 +1,10 @@
 package com.example.rickandmortyapi.presenter.ui
 
 import android.content.Context
-import android.health.connect.datatypes.units.Length
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import androidx.fragment.app.Fragment
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -24,7 +21,6 @@ import com.example.rickandmortyapi.presenter.feedRecycler.FeedRecyclerAdapter
 import com.example.rickandmortyapi.presenter.feedRecycler.PaginationScrollListener
 import com.example.rickandmortyapi.presenter.feedRecycler.StandartRecyclerFeedItemDelegate
 import com.example.rickandmortyapi.presenter.viewmodels.FeedViewModel
-import com.example.rickandmortyapi.utils.Constants
 import com.example.rickandmortyapi.utils.State
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
@@ -58,6 +54,10 @@ class FeedFragment() : Fragment(R.layout.fragment_feed) {
         initializeRecycler()
     }
 
+    override fun onPause() {
+        super.onPause()
+//        feedViewModel.saveCharactersToDb()
+    }
     private fun initializeRecycler(){
         val delegatesList = listOf<FeedItemDelegate>(
             StandartRecyclerFeedItemDelegate(requireContext()))
@@ -81,19 +81,26 @@ class FeedFragment() : Fragment(R.layout.fragment_feed) {
                             showSnackBar(it.message?:"") }
                         is State.Loading -> showProgressBar()
                         is State.DbSuccess -> {hideProgressBar()
-                        curList = it.data?.toList()}
+                        //curList = it.data?.toList()
+                            it.data?.toList()?.let {
+                                    it1 -> adapter.appendItems(it1) }
+                        }
                         is State.DbEmpty -> {
                             hideProgressBar()
                             showEmptyListMessage() }
                         is State.NetworkSuccess -> {hideProgressBar()
-                            curList = it.data?.toList()
+//                            curList = it.data?.toList()
+                            it.data?.toList()?.let {
+                                    it1 -> adapter.appendItems(it1) }
                         }
 
                         is State.NetworkError -> showSnackBar(it.message?:"")
                     }
-                    Log.d("listDB", curList.toString())
+                    Log.d("listNet", it.toString())
 
-                    curList?.let { it1 -> adapter.appendCharacters(it1) }
+//                    curList?.let { it1 -> adapter.appendItems(it1)
+//                        curList = mutableListOf()
+//                    }
                 }
             }
         }
@@ -109,7 +116,7 @@ class FeedFragment() : Fragment(R.layout.fragment_feed) {
                 feedViewModel.charactersList.value !is State.NoInternet
 
             override fun getNextPage() = feedViewModel.getCharacters()
-            override fun itemsNumInCache() = feedViewModel.itemsInCacheNum
+            override fun downloadedItemsNum() = feedViewModel.downloadedItemsNum
         }
 
 

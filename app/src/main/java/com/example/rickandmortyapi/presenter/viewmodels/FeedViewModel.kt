@@ -11,11 +11,9 @@ import com.example.rickandmortyapi.domain.usecases.UpsertCharactersIntoDbUsecase
 import com.example.rickandmortyapi.utils.Constants
 import com.example.rickandmortyapi.utils.State
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class FeedViewModel (
     private val getCharactersListFromApiUseCase: GetCharactersListFromApiUseCase,
@@ -30,26 +28,35 @@ class FeedViewModel (
 
     val charactersList:StateFlow<State<List<CharacterModel>>> = privateCharactersList
 
-    //private val apiRequestQueue: List<()->Unit> = mutableListOf()
+    private val charactersListToSaveInCache: MutableList<CharacterModel> = mutableListOf()
 
-    var itemsInCacheNum = 0
+    var downloadedItemsNum = 0
     private var curPage: Int = 1
     private var totalPageNum: Int = 1
     private var hasPagesInfo = false
+    private var dbIsEmptyFromStart = false
 
     private fun getCharactersFromApi() =
         viewModelScope.launch(Dispatchers.IO) {
+            privateCharactersList.value = State.Loading()
             if(hasPagesInfo)
                 doNextPageRequest()
             else
                 doFirstApiRequest()
-            if(privateCharactersList.value is State.NetworkSuccess)
-                itemsInCacheNum+=Constants.ITEMS_PER_PAGE
+            Log.d("listNet", "call page${curPage}")
+            if(privateCharactersList.value is State.NetworkSuccess) {
+                curPage++
+                downloadedItemsNum += Constants.ITEMS_PER_PAGE
+                saveCharactersToDb(charactersList = privateCharactersList.value.data?.toList())
+
+//                privateCharactersList.value.data?.let {
+//                    charactersListToSaveInCache.addAll(it.toList()) }
+            }
         }
 
     private suspend fun doFirstApiRequest(){
-        curPage = if(itemsInCacheNum > 0)
-            itemsInCacheNum/Constants.ITEMS_PER_PAGE + 1 else 1
+        curPage = if(downloadedItemsNum > 0)
+            downloadedItemsNum/Constants.ITEMS_PER_PAGE + 1 else 1
 
         privateCharactersList.value = getCharactersListFromApiUseCase.execute(curPage)
         totalPageNum = privateCharactersList.value.info?.pages ?: 0
@@ -64,20 +71,22 @@ class FeedViewModel (
    private fun getCharactersFromDb() =
         viewModelScope.launch(Dispatchers.IO){
             privateCharactersList.value = getCharactersFromDbUsecase.execute()
-            itemsInCacheNum = privateCharactersList.value.data?.size ?: 0
+            downloadedItemsNum = privateCharactersList.value.data?.size ?: 0
+            if(downloadedItemsNum == 0)
+                dbIsEmptyFromStart = true
         }
 
 
     fun getCharacters(){
         viewModelScope.launch(Dispatchers.IO) {
-            if(privateCharactersList.value.data == null)
+            if(privateCharactersList.value.data == null
+                && !dbIsEmptyFromStart)
                 getCharactersFromDb().join()
             checkInternetConnection().join()
             if(privateCharactersList.value !is State.NoInternet) {
-                // Log.d("listNetwork", "loading page $curPage")
                 getCharactersFromApi().join()
-                saveCharactersToDb(charactersList = privateCharactersList.value.data)
-                curPage = itemsInCacheNum/Constants.ITEMS_PER_PAGE + 1
+                //saveCharactersToDb(charactersList = privateCharactersList.value.data)
+                //curPage = downloadedItemsNum/Constants.ITEMS_PER_PAGE + 1
             }
         }
     }

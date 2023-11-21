@@ -1,5 +1,6 @@
 package com.example.rickandmortyapi.presenter.feedRecycler
 
+import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
@@ -39,11 +40,14 @@ class FeedRecyclerAdapter(private val delegates: List<FeedItemDelegate>)
 
     val differ = AsyncListDiffer(this, diffUtilCallback)
 
-    fun appendCharacters(list: List<CharacterModel>){
+    fun appendItems(list: List<CharacterModel>){
         val res = differ.currentList.toMutableList()
+        val idsList = mutableListOf<Int>()
         list.forEach{
             res.add(it)
+            idsList.add(it.id)
         }
+        Log.d("listNetAppend", idsList.toString())
         differ.submitList(res)
     }
 }
