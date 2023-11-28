@@ -6,13 +6,11 @@ import androidx.fragment.app.Fragment
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Spinner
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.example.rickandmortyapi.R
 import com.example.rickandmortyapi.databinding.FragmentFiltersBinding
 import com.example.rickandmortyapi.di.MyApp
-import com.example.rickandmortyapi.presenter.viewmodels.FilteredFeedViewModel
 import com.example.rickandmortyapi.utils.CharacterGender
 import com.example.rickandmortyapi.utils.CharacterStatus
 import javax.inject.Inject
@@ -21,10 +19,9 @@ import javax.inject.Named
 
 class FiltersFragment : Fragment(R.layout.fragment_filters) {
     @Inject
-    @Named("filteredCharacterFeed")
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
-    private val filteredFeedViewModel: FilteredFeedViewModel by viewModels { viewModelFactory }
+    //private val filteredFeedViewModel: FilteredFeedViewModel by viewModels { viewModelFactory }
 
     private lateinit var binding: FragmentFiltersBinding
 
@@ -55,7 +52,7 @@ class FiltersFragment : Fragment(R.layout.fragment_filters) {
             val statusObjectsList = listOf(CharacterStatus.UNCHOSEN, CharacterStatus.ALIVE,
                 CharacterStatus.DEAD, CharacterStatus.UNKNOWN)
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                filteredFeedViewModel.setCharacterStatus(statusObjectsList[p2])
+                //filteredFeedViewModel.setCharacterStatus(statusObjectsList[p2])
             }
             override fun onNothingSelected(p0: AdapterView<*>?) {
             }
@@ -78,7 +75,7 @@ class FiltersFragment : Fragment(R.layout.fragment_filters) {
                 CharacterGender.UNCHOSEN, CharacterGender.FEMALE,
                 CharacterGender.MALE, CharacterGender.GENDERLESS, CharacterGender.UNKNOWN)
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                filteredFeedViewModel.setCharacterGender(genderObjectsList[p2])
+                //filteredFeedViewModel.setCharacterGender(genderObjectsList[p2])
             }
             override fun onNothingSelected(p0: AdapterView<*>?) {
             }

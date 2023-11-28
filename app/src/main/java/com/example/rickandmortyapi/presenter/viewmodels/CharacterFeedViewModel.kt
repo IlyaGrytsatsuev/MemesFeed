@@ -1,25 +1,19 @@
 package com.example.rickandmortyapi.presenter.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.rickandmortyapi.data.network.InternetConnectionChecker
 import com.example.rickandmortyapi.domain.models.CharacterModel
-import com.example.rickandmortyapi.domain.usecases.GetCharactersFromDbUsecase
-import com.example.rickandmortyapi.domain.usecases.GetCharactersListFromApiUseCase
-import com.example.rickandmortyapi.domain.usecases.UpsertCharactersIntoDbUsecase
-import com.example.rickandmortyapi.utils.Constants
-import com.example.rickandmortyapi.utils.State
+import com.example.rickandmortyapi.domain.usecases.GetCharactersListUseCase
+import com.example.rickandmortyapi.presenter.State
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.lang.Exception
 
 class CharacterFeedViewModel (
-    private val getCharactersListFromApiUseCase: GetCharactersListFromApiUseCase,
-    private val internetConnectionChecker: InternetConnectionChecker,
-    private val getCharactersFromDbUsecase: GetCharactersFromDbUsecase,
-    private val upsertCharactersIntoDbUsecase: UpsertCharactersIntoDbUsecase
+    private val getCharactersListUseCase: GetCharactersListUseCase,
+    //private val internetConnectionChecker: InternetConnectionChecker,
 ): ViewModel() {
 
     private val privateCharactersList:
@@ -28,84 +22,30 @@ class CharacterFeedViewModel (
 
     val charactersList:StateFlow<State<List<CharacterModel>>> = privateCharactersList
 
-    private val charactersListToSaveInCache: MutableList<CharacterModel> = mutableListOf()
 
-    private var downloadedItemsNum = 0
-    //val downloadedItemsNum = privateDownloadedItemsNum
-
-    private var curPage: Int = 1
-    private var totalPageNum: Int = 1
-    private var hasPagesInfo = false
-    private var dbIsEmptyFromStart = false
-
-    fun getDownloadedItemsNum() = downloadedItemsNum
-    private fun getCharactersFromApi() =
-        viewModelScope.launch(Dispatchers.IO) {
-            privateCharactersList.value = State.Loading()
-            if(hasPagesInfo)
-                doNextPageRequest()
-            else
-                doFirstApiRequest()
-            Log.d("listNet", "call page${curPage}")
-            if(privateCharactersList.value is State.NetworkSuccess) {
-                curPage++
-                downloadedItemsNum += Constants.ITEMS_PER_PAGE
-                saveCharactersToDb(charactersList =
-                privateCharactersList.value.data?.toList())
-
-//                privateCharactersList.value.data?.let {
-//                    charactersListToSaveInCache.addAll(it.toList()) }
-            }
-        }
-
-    private suspend fun doFirstApiRequest(){
-        curPage = if(downloadedItemsNum > 0)
-            curPage + 1 else 1
-
-        privateCharactersList.value = getCharactersListFromApiUseCase.execute(curPage)
-        totalPageNum = privateCharactersList.value.info?.pages ?: 0
+    init{
+        getCharacters()
     }
-    private suspend fun doNextPageRequest(){
-        if(curPage <= totalPageNum) {
-            privateCharactersList.value = getCharactersListFromApiUseCase.execute(curPage)
-            totalPageNum = privateCharactersList.value.info?.pages ?: 0
-        }
-    }
-
-   private fun getCharactersFromDb() =
-        viewModelScope.launch(Dispatchers.IO){
-            privateCharactersList.value = getCharactersFromDbUsecase.execute()
-            downloadedItemsNum = privateCharactersList.value.data?.size ?: 0
-            if(downloadedItemsNum == 0)
-                dbIsEmptyFromStart = true
-        }
 
 
     fun getCharacters(){
+        privateCharactersList.value = State.Loading()
         viewModelScope.launch(Dispatchers.IO) {
-            if(privateCharactersList.value.data == null
-                && !dbIsEmptyFromStart)
-                getCharactersFromDb().join()
-            checkInternetConnection().join()
-            if(privateCharactersList.value !is State.NoInternet) {
-                getCharactersFromApi().join()
-                //saveCharactersToDb(charactersList = privateCharactersList.value.data)
-                //curPage = downloadedItemsNum/Constants.ITEMS_PER_PAGE + 1
+            try {
+                privateCharactersList.value = State
+                    .Success(getCharactersListUseCase.execute())
+            }
+            catch (e:Exception){
+                privateCharactersList.value = State
+                    .Error()
             }
         }
     }
 
-
-    private fun saveCharactersToDb(characterModel: CharacterModel? = null,
-                                   charactersList: List<CharacterModel>? = null){
-        viewModelScope.launch(Dispatchers.IO) {
-            upsertCharactersIntoDbUsecase.execute(characterModel, charactersList)
-        }
-    }
-    private fun checkInternetConnection() =
-        viewModelScope.launch {
-            privateCharactersList.value = internetConnectionChecker.checkInternetConnection()
-        }
+//    private fun checkInternetConnection() =
+//        viewModelScope.launch {
+//            privateCharactersList.value = internetConnectionChecker.checkInternetConnection()
+//        }
 
 
 }

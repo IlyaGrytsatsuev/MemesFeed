@@ -1,31 +1,32 @@
 package com.example.rickandmortyapi.data.db.repository
 
+import com.example.rickandmortyapi.data.PaginationData
 import com.example.rickandmortyapi.data.db.dao.CharacterDao
 import com.example.rickandmortyapi.data.db.entities.CharacterWithEpisodesUrls
 import com.example.rickandmortyapi.domain.models.CharacterModel
 import com.example.rickandmortyapi.domain.repository.CharactersDbRepository
-import com.example.rickandmortyapi.utils.State
 import com.example.rickandmortyapi.data.converters.toCharacterModel
 import com.example.rickandmortyapi.data.converters.toDbEntity
-import com.example.rickandmortyapi.utils.CharacterGender
-import com.example.rickandmortyapi.utils.CharacterStatus
+import com.example.rickandmortyapi.utils.Constants
 import javax.inject.Inject
 
 class CharactersDbRepositoryImpl @Inject constructor
-    (private val characterDao: CharacterDao) : CharactersDbRepository {
-    override suspend fun getCharactersFromDB(name:String?,
-                                             status:CharacterStatus?,
-                                             gender: CharacterGender?)
-    : State<List<CharacterModel>> {
+    (private val characterDao: CharacterDao,
+     private val paginationData: PaginationData
+) : CharactersDbRepository {
+    override suspend fun getCharactersFromDB()
+    : List<CharacterModel> {
+        val limit = Constants.ITEMS_PER_PAGE
+        val offset = limit*(paginationData.curPage-1)
         val charactersDbList = characterDao
-            .getCharactersWithEpisodesUrls(name, status?.text, gender?.text)
+            .getCharactersWithEpisodesUrls(limit = limit,
+                offset = offset)
         val characterModelsList = mutableListOf<CharacterModel>()
-        if(charactersDbList.isEmpty())
-            return State.DbEmpty("List is empty")
-        charactersDbList.forEach {
-            characterModelsList.add(it.toCharacterModel())
-        }
-        return State.DbSuccess(characterModelsList)
+        if(charactersDbList.isNotEmpty())
+            charactersDbList.forEach {
+                characterModelsList.add(it.toCharacterModel())
+            }
+        return characterModelsList
     }
 
     override suspend fun upsertCharatersIntoDb(

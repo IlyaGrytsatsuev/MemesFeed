@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingTop="10dp"
@@ -11,35 +12,34 @@
     android:layout_marginEnd="5dp"
     android:background="@drawable/recycler_item_shape"
     android:elevation="2dp">
+
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/recyclerItemImage"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginStart="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toStartOf="@id/guideline"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/titles_linear_layout"
-        android:layout_marginStart="10dp"
-        >
-    </androidx.appcompat.widget.AppCompatImageView>
+        app:layout_constraintTop_toTopOf="parent"></androidx.appcompat.widget.AppCompatImageView>
 
-    <androidx.appcompat.widget.LinearLayoutCompat
-        android:id="@+id/titles_linear_layout"
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toEndOf="@id/recyclerItemImage"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginStart="10dp"
-        android:orientation="vertical">
-
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.4">
+    </androidx.constraintlayout.widget.Guideline>
         <TextView
             android:id="@+id/name_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/name_title"
-            android:layout_gravity="start"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintBottom_toTopOf="@id/status_title"
+            android:layout_marginStart="10dp"
             >
         </TextView>
 
@@ -48,7 +48,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/status_title"
-            android:layout_gravity="start"
+            app:layout_constraintTop_toBottomOf="@id/name_title"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintBottom_toTopOf="@id/species_title"
+            android:layout_marginStart="10dp"
 
             >
         </TextView>
@@ -58,6 +61,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/species_title"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintTop_toBottomOf="@id/status_title"
+            app:layout_constraintBottom_toTopOf="@id/type_title"
+            android:layout_marginStart="10dp"
+
             >
         </TextView>
 
@@ -67,6 +75,12 @@
             android:layout_height="wrap_content"
             android:layout_gravity="start"
             android:text="@string/type_title"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintTop_toBottomOf="@id/species_title"
+            app:layout_constraintBottom_toTopOf="@id/gender_title"
+            android:layout_marginStart="10dp"
+
+
             >
         </TextView>
 
@@ -76,25 +90,31 @@
             android:layout_height="wrap_content"
             android:layout_gravity="start"
             android:text="@string/gender_title"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintTop_toBottomOf="@id/type_title"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginStart="10dp"
+
+
             >
         </TextView>
 
-    </androidx.appcompat.widget.LinearLayoutCompat>
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.6">
+        </androidx.constraintlayout.widget.Guideline>
 
-    <androidx.appcompat.widget.LinearLayoutCompat
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toEndOf="@id/titles_linear_layout"
-        android:layout_marginStart="10dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:orientation="vertical">
 
         <TextView
             android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
+            app:layout_constraintStart_toEndOf="@id/guideline2"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/status"
             >
         </TextView>
 
@@ -102,7 +122,9 @@
             android:id="@+id/status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
+            app:layout_constraintStart_toEndOf="@id/guideline2"
+            app:layout_constraintTop_toBottomOf="@id/name"
+            app:layout_constraintBottom_toTopOf="@id/species"
             >
         </TextView>
 
@@ -110,7 +132,9 @@
             android:id="@+id/species"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
+            app:layout_constraintStart_toEndOf="@id/guideline2"
+            app:layout_constraintTop_toBottomOf="@id/status"
+            app:layout_constraintBottom_toTopOf="@id/type"
             >
         </TextView>
 
@@ -118,8 +142,9 @@
             android:id="@+id/type"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
-
+            app:layout_constraintStart_toEndOf="@id/guideline2"
+            app:layout_constraintTop_toBottomOf="@id/species"
+            app:layout_constraintBottom_toTopOf="@id/gender"
             >
         </TextView>
 
@@ -127,9 +152,10 @@
             android:id="@+id/gender"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
+            app:layout_constraintStart_toEndOf="@id/guideline2"
+            app:layout_constraintTop_toBottomOf="@id/type"
+            app:layout_constraintBottom_toBottomOf="parent"
             >
         </TextView>
-    </androidx.appcompat.widget.LinearLayoutCompat>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -27,6 +27,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/status_filter_title"
         android:layout_marginStart="15dp"
+
         >
     </Spinner>
     <TextView

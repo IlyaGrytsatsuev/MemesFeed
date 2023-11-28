@@ -1,5 +1,6 @@
 package com.example.rickandmortyapi.data.db.dao
 
+import android.content.Context
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -10,16 +11,14 @@ import com.example.rickandmortyapi.data.db.entities.CharacterEntity
 import com.example.rickandmortyapi.data.db.entities.CharacterWithEpisodesUrls
 import com.example.rickandmortyapi.data.db.entities.CharactersAndEpisodesUrlsEntity
 import com.example.rickandmortyapi.data.db.entities.EpisodeUrlEntity
+import com.example.rickandmortyapi.utils.Constants
 
 @Dao
 interface CharacterDao {
 
     @Transaction
-    @Query("select * from CharacterEntity where (:name is null or name = :name) " +
-            "and (:status is null or status = :status)" +
-            "and (:gender is null or gender = :gender)")
-    suspend fun getCharactersWithEpisodesUrls(name:String?, status:String?,
-    gender:String?): List<CharacterWithEpisodesUrls>
+    @Query("select * from CharacterEntity LIMIT :limit OFFSET :offset")
+    suspend fun getCharactersWithEpisodesUrls(limit:Int , offset:Int ): List<CharacterWithEpisodesUrls>
 
     @Upsert
     suspend fun upsertCharacterEntity(character: CharacterEntity)

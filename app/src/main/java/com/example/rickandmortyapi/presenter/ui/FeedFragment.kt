@@ -2,11 +2,8 @@ package com.example.rickandmortyapi.presenter.ui
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.View
-import android.widget.Button
-import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -15,20 +12,18 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rickandmortyapi.R
+import com.example.rickandmortyapi.data.PaginationData
 import com.example.rickandmortyapi.databinding.FragmentFeedBinding
 import com.example.rickandmortyapi.di.MyApp
-import com.example.rickandmortyapi.di.appComponent
 import com.example.rickandmortyapi.presenter.feedRecycler.FeedItemDelegate
 import com.example.rickandmortyapi.presenter.feedRecycler.FeedRecyclerAdapter
 import com.example.rickandmortyapi.presenter.feedRecycler.PaginationScrollListener
 import com.example.rickandmortyapi.presenter.feedRecycler.CharacterFeedItemDelegate
 import com.example.rickandmortyapi.presenter.viewmodels.CharacterFeedViewModel
-import com.example.rickandmortyapi.presenter.viewmodels.FilteredFeedViewModel
-import com.example.rickandmortyapi.utils.State
+import com.example.rickandmortyapi.presenter.State
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Named
 
 
 class FeedFragment() : Fragment(R.layout.fragment_feed) {
@@ -36,14 +31,11 @@ class FeedFragment() : Fragment(R.layout.fragment_feed) {
     private lateinit var binding: FragmentFeedBinding
 
     @Inject
-    @Named("characterFeed")
     lateinit var feedViewModelFactory: ViewModelProvider.Factory
 
-//    @Inject
-//    @Named("filteredCharacterFeed")
-//    lateinit var filteredViewModelFactory: ViewModelProvider.Factory
-//
-//    private val filteredFeedViewModel: FilteredFeedViewModel by viewModels{filteredViewModelFactory}
+    @Inject
+    lateinit var paginationData:PaginationData
+
 
     private val feedViewModel:CharacterFeedViewModel by viewModels{feedViewModelFactory}
 
@@ -61,15 +53,10 @@ class FeedFragment() : Fragment(R.layout.fragment_feed) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentFeedBinding.bind(view)
-        feedViewModel.getCharacters()
         initializeRecycler()
         //setUpFilterButtonListener()
     }
 
-    override fun onPause() {
-        super.onPause()
-//        feedViewModel.saveCharactersToDb()
-    }
     private fun initializeRecycler(){
         val delegatesList = listOf<FeedItemDelegate>(
             CharacterFeedItemDelegate())
@@ -83,31 +70,24 @@ class FeedFragment() : Fragment(R.layout.fragment_feed) {
         feedRecycler?.addOnScrollListener(setUpPaginationScrollListener(layoutManager))
     }
     private fun setUpCharactersListStateObserver(adapter: FeedRecyclerAdapter){
-        //var curList: List<CharacterModel> = mutableListOf()
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED){
                 feedViewModel.charactersList.collect{
                     when(it){
-                        is State.NoInternet ->
-                            showSnackBar(it.message?:"")
+                        is State.Error ->{
+                            showSnackBar(getString(R.string.error_message))
+                            hideProgressBar()
+                        }
                         is State.Loading -> showProgressBar()
-                        is State.DbSuccess -> {
+                        is State.Success -> {
                             hideProgressBar()
                             it.data?.toList()?.let {
-                                    it1 -> adapter.appendItems(it1) }
+                                    it1 -> adapter.appendItems(it1)
+                            }
                         }
-                        is State.DbEmpty -> {
-                            hideProgressBar()
-                            showEmptyListMessage() }
-                        is State.NetworkSuccess -> { hideProgressBar()
-                            it.data?.toList()?.let {
-                                    it1 -> adapter.appendItems(it1) }
-                        }
-
-                        is State.NetworkError -> showSnackBar(it.message?:"")
                     }
-                    Log.d("listNet", it.toString())
-
+                    if(adapter.itemCount == 0)
+                        showEmptyListMessage()
                 }
             }
         }
@@ -118,12 +98,8 @@ class FeedFragment() : Fragment(R.layout.fragment_feed) {
             override fun isLoading(): Boolean =
                 feedViewModel.charactersList.value is State.Loading
 
-
-            override fun hasInternetConnection(): Boolean =
-                feedViewModel.charactersList.value !is State.NoInternet
-
             override fun getNextPage() = feedViewModel.getCharacters()
-            override fun downloadedItemsNum() = feedViewModel.getDownloadedItemsNum()
+            override fun displayedItemsNum() = paginationData.displayedItemsNum
         }
 
 

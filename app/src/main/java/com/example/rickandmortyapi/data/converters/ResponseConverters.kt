@@ -9,7 +9,7 @@ import com.example.rickandmortyapi.domain.models.CharacterModel
 import com.example.rickandmortyapi.domain.models.CharacterOrigin
 import com.example.rickandmortyapi.domain.models.InfoModel
 
-fun CharactersResponse.toDomainCharactersModelsList(): MutableList<CharacterModel> {
+fun CharactersResponse.toDomainCharactersModelsList(): List<CharacterModel> {
     val result: MutableList<CharacterModel> = mutableListOf()
     this.results?.forEach {
         val characterModel = CharacterModel(
@@ -47,6 +47,7 @@ fun Origin.toCharacterOrigin(): CharacterOrigin =
         url = this.url?:""
     )
 
+fun CharactersResponse.getPagesNum() = this.info?.pages ?: 0
 fun Info.toDomainModel(): InfoModel =
     InfoModel(count = this.count?:0,
         next = this.next?:"",
