@@ -8,6 +8,30 @@
     <string name="type_title">Type:</string>
     <string name="gender_title">Gender:</string>
 
+    <string name="status_filter_title">Status</string>
+    <string name="gender_filter_title">Gender</string>
+
+    <string-array name="status_values_array">
+        <item>not chosen</item>
+        <item>alive</item>
+        <item>dead</item>
+        <item>uncknown</item>
+    </string-array>
+
+    <string-array name="gender_values_array">
+        <item>not chosen</item>
+        <item>female</item>
+        <item>male</item>
+        <item>genderless</item>
+        <item>uncknown</item>
+    </string-array>
+
+
+    <string name="gender_female">female</string>
+    <string name="gender_male">male</string>
+    <string name="gender_genderless">genderless</string>
+    <string name="gender_unknown">unknown</string>
+
 
     <string name="no_internet_message">No Internet Connection</string>
     <string name="empty_list_message">List is empty</string>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    tools:context=".presenter.ui.FiltersFragment"
+    >
+
+    <TextView
+        android:id="@+id/status_filter_title"
+        android:fontFamily="sans-serif-medium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:text="@string/status_filter_title"
+        android:textSize="20sp"
+        android:layout_margin="20dp"
+        >
+    </TextView>
+    <Spinner
+        android:id="@+id/status_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/status_filter_title"
+        android:layout_marginStart="15dp"
+        >
+    </Spinner>
+    <TextView
+        android:id="@+id/gender_filter_title"
+        android:fontFamily="sans-serif-medium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@id/status_spinner"
+        app:layout_constraintTop_toTopOf="parent"
+        android:text="@string/gender_filter_title"
+        android:textSize="20sp"
+        android:layout_margin="20dp"
+        >
+    </TextView>
+    <Spinner
+        android:id="@+id/gender_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@id/status_spinner"
+        app:layout_constraintTop_toBottomOf="@id/gender_filter_title"
+        android:layout_marginStart="15dp"
+        >
+    </Spinner>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

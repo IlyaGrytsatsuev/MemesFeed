@@ -8,16 +8,16 @@ import com.example.rickandmortyapi.domain.usecases.GetCharactersListFromApiUseCa
 import com.example.rickandmortyapi.domain.usecases.UpsertCharactersIntoDbUsecase
 import javax.inject.Inject
 
-class FeedViewModelFactory @Inject constructor(
+class FilteredFeedViewModelFactory @Inject constructor(
     private val getCharactersListFromApiUseCase: GetCharactersListFromApiUseCase,
     private val internetConnectionChecker: InternetConnectionChecker,
     private val getCharactersFromDbUsecase: GetCharactersFromDbUsecase,
     private val upsertCharactersIntoDbUsecase: UpsertCharactersIntoDbUsecase
-
 )
     : ViewModelProvider.Factory {
+
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return CharacterFeedViewModel(getCharactersListFromApiUseCase,
+        return FilteredFeedViewModel(getCharactersListFromApiUseCase,
             internetConnectionChecker,
             getCharactersFromDbUsecase,
             upsertCharactersIntoDbUsecase) as T

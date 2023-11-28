@@ -4,15 +4,13 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
-import androidx.core.content.ContextCompat
 import com.example.rickandmortyapi.R
-import com.example.rickandmortyapi.domain.InternetConnectionChecker
 import com.example.rickandmortyapi.domain.models.CharacterModel
 import com.example.rickandmortyapi.utils.State
 import javax.inject.Inject
 
-class InternetConnectionCheckerImpl @Inject constructor(val context: Context):InternetConnectionChecker {
-    override fun isConnectedToInternet(): State<List<CharacterModel>> {
+class InternetConnectionChecker @Inject constructor(val context: Context) {
+    fun checkInternetConnection(): State<List<CharacterModel>> {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

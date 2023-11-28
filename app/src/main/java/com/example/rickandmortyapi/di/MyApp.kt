@@ -14,10 +14,11 @@ class MyApp : Application() {
            .create(context = this)
     }
 
-    val Context.appComponent: AppComponent?
-        get() = when (this) {
-            is MyApp -> appComponent
-            else -> this.applicationContext.appComponent
-        }
+
 }
 
+val Context.appComponent: AppComponent?
+    get() = when (this) {
+        is MyApp -> appComponent
+        else -> this.applicationContext.appComponent
+    }

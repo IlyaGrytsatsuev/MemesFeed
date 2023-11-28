@@ -15,8 +15,11 @@ import com.example.rickandmortyapi.data.db.entities.EpisodeUrlEntity
 interface CharacterDao {
 
     @Transaction
-    @Query("select * from CharacterEntity")
-    suspend fun getCharactersWithEpisodesUrls(): List<CharacterWithEpisodesUrls>
+    @Query("select * from CharacterEntity where (:name is null or name = :name) " +
+            "and (:status is null or status = :status)" +
+            "and (:gender is null or gender = :gender)")
+    suspend fun getCharactersWithEpisodesUrls(name:String?, status:String?,
+    gender:String?): List<CharacterWithEpisodesUrls>
 
     @Upsert
     suspend fun upsertCharacterEntity(character: CharacterEntity)

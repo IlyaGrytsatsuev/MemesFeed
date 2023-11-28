@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rickandmortyapi.domain.models.CharacterModel
+import com.example.rickandmortyapi.domain.models.RecyclerModel
 
 class FeedRecyclerAdapter(private val delegates: List<FeedItemDelegate>)
     : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -28,19 +29,19 @@ class FeedRecyclerAdapter(private val delegates: List<FeedItemDelegate>)
             .bindViewHolder(holder, differ.currentList[position])
     }
 
-    private val diffUtilCallback = object : DiffUtil.ItemCallback<CharacterModel>() {
-        override fun areItemsTheSame(oldItem: CharacterModel, newItem: CharacterModel): Boolean {
+    private val diffUtilCallback = object : DiffUtil.ItemCallback<RecyclerModel>() {
+        override fun areItemsTheSame(oldItem: RecyclerModel, newItem: RecyclerModel): Boolean {
             return oldItem.id == newItem.id
         }
 
-        override fun areContentsTheSame(oldItem: CharacterModel, newItem: CharacterModel): Boolean {
+        override fun areContentsTheSame(oldItem: RecyclerModel, newItem: RecyclerModel): Boolean {
             return oldItem == newItem
         }
     }
 
-    val differ = AsyncListDiffer(this, diffUtilCallback)
+    private val differ = AsyncListDiffer(this, diffUtilCallback)
 
-    fun appendItems(list: List<CharacterModel>){
+    fun appendItems(list: List<RecyclerModel>){
         val res = differ.currentList.toMutableList()
         val idsList = mutableListOf<Int>()
         list.forEach{

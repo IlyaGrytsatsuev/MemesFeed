@@ -3,8 +3,8 @@ package com.example.rickandmortyapi.presenter.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.rickandmortyapi.data.network.InternetConnectionChecker
 import com.example.rickandmortyapi.domain.models.CharacterModel
-import com.example.rickandmortyapi.domain.usecases.CheckInternetConnectionUsecase
 import com.example.rickandmortyapi.domain.usecases.GetCharactersFromDbUsecase
 import com.example.rickandmortyapi.domain.usecases.GetCharactersListFromApiUseCase
 import com.example.rickandmortyapi.domain.usecases.UpsertCharactersIntoDbUsecase
@@ -15,9 +15,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class FeedViewModel (
+class CharacterFeedViewModel (
     private val getCharactersListFromApiUseCase: GetCharactersListFromApiUseCase,
-    private val checkInternetConnectionUsecase: CheckInternetConnectionUsecase,
+    private val internetConnectionChecker: InternetConnectionChecker,
     private val getCharactersFromDbUsecase: GetCharactersFromDbUsecase,
     private val upsertCharactersIntoDbUsecase: UpsertCharactersIntoDbUsecase
 ): ViewModel() {
@@ -30,12 +30,15 @@ class FeedViewModel (
 
     private val charactersListToSaveInCache: MutableList<CharacterModel> = mutableListOf()
 
-    var downloadedItemsNum = 0
+    private var downloadedItemsNum = 0
+    //val downloadedItemsNum = privateDownloadedItemsNum
+
     private var curPage: Int = 1
     private var totalPageNum: Int = 1
     private var hasPagesInfo = false
     private var dbIsEmptyFromStart = false
 
+    fun getDownloadedItemsNum() = downloadedItemsNum
     private fun getCharactersFromApi() =
         viewModelScope.launch(Dispatchers.IO) {
             privateCharactersList.value = State.Loading()
@@ -47,7 +50,8 @@ class FeedViewModel (
             if(privateCharactersList.value is State.NetworkSuccess) {
                 curPage++
                 downloadedItemsNum += Constants.ITEMS_PER_PAGE
-                saveCharactersToDb(charactersList = privateCharactersList.value.data?.toList())
+                saveCharactersToDb(charactersList =
+                privateCharactersList.value.data?.toList())
 
 //                privateCharactersList.value.data?.let {
 //                    charactersListToSaveInCache.addAll(it.toList()) }
@@ -56,7 +60,7 @@ class FeedViewModel (
 
     private suspend fun doFirstApiRequest(){
         curPage = if(downloadedItemsNum > 0)
-            downloadedItemsNum/Constants.ITEMS_PER_PAGE + 1 else 1
+            curPage + 1 else 1
 
         privateCharactersList.value = getCharactersListFromApiUseCase.execute(curPage)
         totalPageNum = privateCharactersList.value.info?.pages ?: 0
@@ -92,15 +96,15 @@ class FeedViewModel (
     }
 
 
-    fun saveCharactersToDb(characterModel: CharacterModel? = null,
-                           charactersList: List<CharacterModel>? = null){
+    private fun saveCharactersToDb(characterModel: CharacterModel? = null,
+                                   charactersList: List<CharacterModel>? = null){
         viewModelScope.launch(Dispatchers.IO) {
             upsertCharactersIntoDbUsecase.execute(characterModel, charactersList)
         }
     }
     private fun checkInternetConnection() =
         viewModelScope.launch {
-            privateCharactersList.value = checkInternetConnectionUsecase.execute()
+            privateCharactersList.value = internetConnectionChecker.checkInternetConnection()
         }
 
 
