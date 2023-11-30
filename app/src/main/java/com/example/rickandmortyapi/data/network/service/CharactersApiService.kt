@@ -9,10 +9,9 @@ interface CharactersApiService {
 
     @GET("character/")
     suspend fun getCharactersList(@Query("page")page: Int,
-//                                  @Query("name")name:String?,
-//                                  @Query("status")status:String?,
-//                                  @Query("gender")gender:String?
-    )
+                                  @Query("name")name:String?,
+                                  @Query("status")status:String?,
+                                  @Query("gender")gender:String?)
     : CharactersResponse
 
 

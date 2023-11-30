@@ -17,7 +17,7 @@
         android:id="@+id/recyclerItemImage"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="10dp"
+        android:layout_margin="15dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toStartOf="@id/guideline"
@@ -29,7 +29,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.4">
+        app:layout_constraintGuide_percent="0.5">
     </androidx.constraintlayout.widget.Guideline>
         <TextView
             android:id="@+id/name_title"
@@ -104,7 +104,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.6">
+            app:layout_constraintGuide_percent="0.7">
         </androidx.constraintlayout.widget.Guideline>
 
 

@@ -51,4 +51,8 @@ class FeedRecyclerAdapter(private val delegates: List<FeedItemDelegate>)
         Log.d("listNetAppend", idsList.toString())
         differ.submitList(res)
     }
+
+    fun clearItemsList(){
+        differ.submitList(listOf())
+    }
 }

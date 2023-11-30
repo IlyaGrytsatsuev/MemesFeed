@@ -17,8 +17,14 @@ import com.example.rickandmortyapi.utils.Constants
 interface CharacterDao {
 
     @Transaction
-    @Query("select * from CharacterEntity LIMIT :limit OFFSET :offset")
-    suspend fun getCharactersWithEpisodesUrls(limit:Int , offset:Int ): List<CharacterWithEpisodesUrls>
+    @Query("select * from CharacterEntity where " +
+            "(:name = null or name = :name)" +
+            "and(:status = null or status = :status)" +
+            "and (:gender = null or gender = :gender) " +
+            "LIMIT :limit OFFSET :offset")
+    suspend fun getCharactersWithEpisodesUrls(limit:Int, offset:Int,
+                                              name:String?, status:String?,
+                                              gender:String?): List<CharacterWithEpisodesUrls>
 
     @Upsert
     suspend fun upsertCharacterEntity(character: CharacterEntity)

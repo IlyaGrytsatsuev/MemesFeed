@@ -1,6 +1,7 @@
 package com.example.rickandmortyapi.di
 
 import android.content.Context
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
 import com.example.rickandmortyapi.data.PaginationData
@@ -13,6 +14,7 @@ import com.example.rickandmortyapi.domain.repository.CharactersApiRepository
 import com.example.rickandmortyapi.domain.repository.CharactersDbRepository
 import com.example.rickandmortyapi.presenter.ui.FeedFragment
 import com.example.rickandmortyapi.presenter.ui.MainActivity
+import com.example.rickandmortyapi.presenter.viewmodels.FeedViewModel
 import com.example.rickandmortyapi.presenter.viewmodels.FeedViewModelFactory
 import com.example.rickandmortyapi.utils.Constants
 import com.google.gson.GsonBuilder
@@ -21,6 +23,7 @@ import dagger.BindsInstance
 import dagger.Component
 import dagger.Module
 import dagger.Provides
+import dagger.multibindings.IntoMap
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -82,6 +85,10 @@ interface ApiModule{
         fun providePaginationData():PaginationData = PaginationData()
     }
 
+
+    @Binds
+    @[IntoMap ViewModelKey(FeedViewModel::class)]
+    fun provideFeedViewModel(feedViewModel: FeedViewModel):ViewModel
 
     @Binds
     fun provideCharacterFeedViewModelFactory(viewModelFactory: FeedViewModelFactory): ViewModelProvider.Factory

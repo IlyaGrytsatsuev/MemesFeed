@@ -52,4 +52,19 @@
         >
     </Spinner>
 
+
+    <Button
+        android:id="@+id/close_button"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:theme="@style/Widget.Material3.Button.Icon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:drawableTop="@drawable/close_button_icon"
+        android:background="@android:color/transparent"
+        android:layout_margin="15dp"
+        >
+
+    </Button>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

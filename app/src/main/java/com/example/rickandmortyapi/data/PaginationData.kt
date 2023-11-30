@@ -5,5 +5,5 @@ data class PaginationData(
     var curPage: Int = 1,
     var totalPageNum: Int = 1,
     var hasPagesInfo:Boolean = false,
-    var dbIsEmptyFromStart: Boolean = false
+    var isWholePageLoaded:Boolean = true
 )

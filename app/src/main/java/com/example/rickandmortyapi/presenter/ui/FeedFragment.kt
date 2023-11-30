@@ -2,8 +2,10 @@ package com.example.rickandmortyapi.presenter.ui
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.View
+import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -19,30 +21,37 @@ import com.example.rickandmortyapi.presenter.feedRecycler.FeedItemDelegate
 import com.example.rickandmortyapi.presenter.feedRecycler.FeedRecyclerAdapter
 import com.example.rickandmortyapi.presenter.feedRecycler.PaginationScrollListener
 import com.example.rickandmortyapi.presenter.feedRecycler.CharacterFeedItemDelegate
-import com.example.rickandmortyapi.presenter.viewmodels.CharacterFeedViewModel
+import com.example.rickandmortyapi.presenter.viewmodels.FeedViewModel
 import com.example.rickandmortyapi.presenter.State
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
-class FeedFragment() : Fragment(R.layout.fragment_feed) {
+class FeedFragment : Fragment(R.layout.fragment_feed) {
 
     private lateinit var binding: FragmentFeedBinding
 
     @Inject
-    lateinit var feedViewModelFactory: ViewModelProvider.Factory
+    lateinit var viewModelFactory: ViewModelProvider.Factory
 
     @Inject
     lateinit var paginationData:PaginationData
 
 
-    private val feedViewModel:CharacterFeedViewModel by viewModels{feedViewModelFactory}
+    private val viewModel: FeedViewModel by viewModels {viewModelFactory}
+
 
     private var feedRecycler: RecyclerView? = null
 
     private var snackBar: Snackbar? = null
 
+
+    private var isFirstStatusFilterCollect = true
+    private var isFirstGenderFilterCollect = true
+    private var isFirstNameCollect = true
+    private var isFilterFragmentVisible = false
 
 
     override fun onAttach(context: Context) {
@@ -54,7 +63,7 @@ class FeedFragment() : Fragment(R.layout.fragment_feed) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentFeedBinding.bind(view)
         initializeRecycler()
-        //setUpFilterButtonListener()
+        setUpFilterButtonListener()
     }
 
     private fun initializeRecycler(){
@@ -68,11 +77,14 @@ class FeedFragment() : Fragment(R.layout.fragment_feed) {
         feedRecycler?.adapter = adapter
         feedRecycler?.layoutManager = layoutManager
         feedRecycler?.addOnScrollListener(setUpPaginationScrollListener(layoutManager))
+        setUpNameFilterObserver(adapter)
+        setUpStatusFilterObserver(adapter)
+        setUpGenderFilterObserver(adapter)
     }
     private fun setUpCharactersListStateObserver(adapter: FeedRecyclerAdapter){
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED){
-                feedViewModel.charactersList.collect{
+                viewModel.charactersList.collect{
                     when(it){
                         is State.Error ->{
                             showSnackBar(getString(R.string.error_message))
@@ -88,6 +100,8 @@ class FeedFragment() : Fragment(R.layout.fragment_feed) {
                     }
                     if(adapter.itemCount == 0)
                         showEmptyListMessage()
+                    else
+                        hideEmptyListMessage()
                 }
             }
         }
@@ -96,24 +110,74 @@ class FeedFragment() : Fragment(R.layout.fragment_feed) {
     private fun setUpPaginationScrollListener(layoutManager: LinearLayoutManager) =
         object : PaginationScrollListener(layoutManager){
             override fun isLoading(): Boolean =
-                feedViewModel.charactersList.value is State.Loading
+                viewModel.charactersList.value is State.Loading
 
-            override fun getNextPage() = feedViewModel.getCharacters()
+            override fun getNextPage() = viewModel.getCharacters()
             override fun displayedItemsNum() = paginationData.displayedItemsNum
         }
 
 
-//    private fun setUpFilterButtonListener(){
-//        binding.filterButton.setOnClickListener {
-//            childFragmentManager.commit {
-//                val fragment = FiltersFragment()
-//                replace(R.id.child_container, fragment)
-//                setReorderingAllowed(true)
-//            }
-//
-//        }
-//    }
+    private fun setUpFilterButtonListener(){
+        binding.filterButton.setOnClickListener {
+            childFragmentManager.commit {
+                val fragment = FiltersFragment()
+                add(R.id.child_container, fragment)
+                setReorderingAllowed(true)
 
+            }
+
+        }
+    }
+
+    private fun setUpNameFilterObserver(adapter: FeedRecyclerAdapter){
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.nameState.collect {
+                    if(!isFirstNameCollect) {
+                        adapter.clearItemsList()
+                        viewModel.clearPaginationData()
+                        viewModel.getCharacters()
+                    }
+                        isFirstNameCollect = false
+                }
+            }
+        }
+    }
+
+    private fun setUpStatusFilterObserver(adapter: FeedRecyclerAdapter){
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.characterStatusFilter.collect {
+                    if(!isFirstStatusFilterCollect) {
+                        adapter.clearItemsList()
+                        viewModel.clearPaginationData()
+                        viewModel.getCharacters()
+                    }
+                    isFirstStatusFilterCollect = false
+                }
+            }
+        }
+    }
+
+    private fun setUpGenderFilterObserver(adapter: FeedRecyclerAdapter){
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.characterGenderFilter.collect {
+                    if(!isFirstGenderFilterCollect) {
+                        adapter.clearItemsList()
+                        viewModel.clearPaginationData()
+                        viewModel.getCharacters()
+                    }
+                    isFirstGenderFilterCollect = false
+                }
+            }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d("net","onPause() is called")
+    }
     private fun showEmptyListMessage(){
         binding.emptyListTextView.visibility = View.VISIBLE
     }
