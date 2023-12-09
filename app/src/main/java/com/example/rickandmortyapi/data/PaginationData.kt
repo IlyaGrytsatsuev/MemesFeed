@@ -1,9 +1,42 @@
 package com.example.rickandmortyapi.data
 
-data class PaginationData(
-    var displayedItemsNum: Int = 0,
-    var curPage: Int = 1,
-    var totalPageNum: Int = 1,
-    var hasPagesInfo:Boolean = false,
-    var isWholePageLoaded:Boolean = true
-)
+import com.example.rickandmortyapi.utils.Constants
+
+class PaginationData{
+     private var displayedItemsNum: Int = 0
+     private var curPage: Int = 1
+     private var totalPageNum: Int = 1
+     private var hasPagesInfo:Boolean = false
+
+
+     fun getDisplayedItemsNum() = displayedItemsNum
+
+     fun increaseDisplayedItemsNum(){
+         displayedItemsNum+=Constants.ITEMS_PER_PAGE
+     }
+
+     fun getCurPage() = curPage
+
+     fun incremetPageCounter(){
+         curPage++
+     }
+
+     fun getTotalPaggeNum() = totalPageNum
+
+     fun setTotalPageNum(value:Int){
+         totalPageNum  = value
+     }
+     fun hasPagesInfo() = hasPagesInfo
+     fun setHasPagesInfo(){
+         hasPagesInfo = true
+     }
+
+    fun resetData(){
+        curPage = 1
+        displayedItemsNum = 0
+        totalPageNum = 1
+        hasPagesInfo = false
+    }
+ }
+
+

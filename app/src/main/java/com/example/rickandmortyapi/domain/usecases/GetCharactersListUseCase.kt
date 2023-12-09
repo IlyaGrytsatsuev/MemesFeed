@@ -19,7 +19,5 @@ class GetCharactersListUseCase @Inject constructor(
         Log.d("memesList", resList.toString())
         return resList
     }
-    fun clearPaginationData(){
-        apiRepository.clearPaginationData()
-    }
+
 }

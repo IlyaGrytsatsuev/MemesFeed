@@ -38,9 +38,7 @@ class FiltersFragment : Fragment(R.layout.fragment_filters) {
         CharacterGender.UNCHOSEN, CharacterGender.FEMALE,
         CharacterGender.MALE, CharacterGender.GENDERLESS, CharacterGender.UNKNOWN)
 
-    private var isFirstStatusFilterCollect = true
-    private var isFirstGenderFilterCollect = true
-    private var isFirstNameCollect = true
+
 
 
 
@@ -108,7 +106,7 @@ class FiltersFragment : Fragment(R.layout.fragment_filters) {
 
     private fun setUpOnCloseListener(){
         binding.closeButton.setOnClickListener {
-            parentFragmentManager.popBackStack()
+            (activity as MainActivity).removeUpperFragment()
         }
     }
     private fun onGenderSelectedListener() =

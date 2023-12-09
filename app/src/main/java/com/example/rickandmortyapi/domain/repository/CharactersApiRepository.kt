@@ -10,7 +10,6 @@ interface CharactersApiRepository {
                                   gender: CharacterGender?)
     : List<CharacterModel>
 
-    fun clearPaginationData()
 
 
 

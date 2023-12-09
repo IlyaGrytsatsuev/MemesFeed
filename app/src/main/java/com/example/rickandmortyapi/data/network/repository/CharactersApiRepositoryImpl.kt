@@ -8,9 +8,11 @@ import com.example.rickandmortyapi.domain.models.CharacterModel
 import com.example.rickandmortyapi.domain.repository.CharactersApiRepository
 import com.example.rickandmortyapi.data.converters.toDomainCharactersModelsList
 import com.example.rickandmortyapi.domain.repository.CharactersDbRepository
+import com.example.rickandmortyapi.domain.repository.PaginationDataRepository
 import com.example.rickandmortyapi.utils.CharacterGender
 import com.example.rickandmortyapi.utils.CharacterStatus
 import com.example.rickandmortyapi.utils.Constants
+import com.example.rickandmortyapi.utils.InternetConnectionChecker
 import javax.inject.Inject
 
 
@@ -21,41 +23,43 @@ class CharactersApiRepositoryImpl @Inject constructor
     (
     private val charactersApiService: CharactersApiService,
     private val dbRepository: CharactersDbRepository,
-    private val paginationData: PaginationData
+    private val paginationDataRepository: PaginationDataRepository,
+    private val internetConnectionChecker: InternetConnectionChecker
 ) : CharactersApiRepository {
 
     override suspend fun getCharactersList(name:String?, status: CharacterStatus?,
                                            gender: CharacterGender?): List<CharacterModel> {
         var resultList:List<CharacterModel> = listOf()
-        if(paginationData.isWholePageLoaded)
+        val hasInternet = internetConnectionChecker.hasInternetConnection()
+        if(hasInternet) {
+            resultList = getCharactersFromApi(
+                name = name,
+                status = status,
+                gender = gender
+            )
+            Log.d("netlist", "api call success")
+            dbRepository.upsertCharatersIntoDb(characterList = resultList.toList())
+        }
+        else {
             resultList = dbRepository.getCharactersFromDB(
                 name = name,
                 status = status,
                 gender = gender
             )
-        if(resultList.isEmpty()) {
-            resultList = getCharactersFromApi(name = name,
-                status = status,
-                gender = gender)
-            Log.d("net", "api call")
-            dbRepository.upsertCharatersIntoDb(characterList = resultList.toList())
+            Log.d("netlist", "db call")
         }
-        val curDisplayedItemsNum = paginationData.displayedItemsNum + resultList.size
-        if(curDisplayedItemsNum % Constants.ITEMS_PER_PAGE == 0){
-            paginationData.curPage++
-            paginationData.displayedItemsNum += Constants.ITEMS_PER_PAGE
-            paginationData.isWholePageLoaded = true
-        }
-        else
-           paginationData.isWholePageLoaded = false
 
-        Log.d("net", "pagination = $paginationData")
+        paginationDataRepository.incrementPageCounter()
+        paginationDataRepository.increaseDisplayedItemsNum()
+        Log.d("netlist", "page = ${paginationDataRepository.getCurPage()} " +
+                "items = ${paginationDataRepository.getDisplayedItemsNum()}")
+
         return resultList
     }
 
     private suspend fun getCharactersFromApi(name:String?, status: CharacterStatus?,
                                              gender: CharacterGender?): List<CharacterModel> =
-        if (paginationData.hasPagesInfo)
+        if (paginationDataRepository.hasPagesInfo())
             doNextPageRequest(name = name,
                 status = status,
                 gender = gender)
@@ -69,7 +73,8 @@ class CharactersApiRepositoryImpl @Inject constructor
     private suspend fun doNextPageRequest(name:String?, status: CharacterStatus?,
                                           gender: CharacterGender?): List<CharacterModel> {
         var downloadedList: List<CharacterModel> = listOf()
-        if (paginationData.curPage <= paginationData.totalPageNum) {
+        if (paginationDataRepository.getCurPage() <=
+            paginationDataRepository.getTotalPageNum()) {
             downloadedList = downloadPage(name = name,
                 status = status,
                 gender = gender)
@@ -82,22 +87,16 @@ class CharactersApiRepositoryImpl @Inject constructor
                                      gender: CharacterGender?): List<CharacterModel> {
         val downloadedList: List<CharacterModel>
         val apiResult = charactersApiService
-            .getCharactersList(page = paginationData.curPage,
+            .getCharactersList(
+                page = paginationDataRepository.getCurPage(),
                 name = name,
                 status = status?.text,
                 gender = gender?.text)
-        paginationData.totalPageNum = apiResult.getPagesNum()
+        paginationDataRepository.setTotalPageNum(apiResult.getPagesNum())
         downloadedList = apiResult.toDomainCharactersModelsList()
         return downloadedList
     }
 
-    override fun clearPaginationData(){
-        paginationData.curPage = 1
-        paginationData.displayedItemsNum = 0
-        paginationData.totalPageNum = 1
-        paginationData.hasPagesInfo = false
-        paginationData.isWholePageLoaded = true
-    }
 
 
 }

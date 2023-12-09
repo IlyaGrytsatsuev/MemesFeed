@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.room.Room
 import com.example.rickandmortyapi.data.PaginationData
+import com.example.rickandmortyapi.data.PaginationDataRepositoryImpl
 import com.example.rickandmortyapi.presenter.ui.FiltersFragment
 import com.example.rickandmortyapi.data.db.DB
 import com.example.rickandmortyapi.data.db.repository.CharactersDbRepositoryImpl
@@ -12,10 +13,11 @@ import com.example.rickandmortyapi.data.network.repository.CharactersApiReposito
 import com.example.rickandmortyapi.data.network.service.CharactersApiService
 import com.example.rickandmortyapi.domain.repository.CharactersApiRepository
 import com.example.rickandmortyapi.domain.repository.CharactersDbRepository
+import com.example.rickandmortyapi.domain.repository.PaginationDataRepository
 import com.example.rickandmortyapi.presenter.ui.FeedFragment
 import com.example.rickandmortyapi.presenter.ui.MainActivity
 import com.example.rickandmortyapi.presenter.viewmodels.FeedViewModel
-import com.example.rickandmortyapi.presenter.viewmodels.FeedViewModelFactory
+import com.example.rickandmortyapi.presenter.viewmodels.MultiViewModelFactory
 import com.example.rickandmortyapi.utils.Constants
 import com.google.gson.GsonBuilder
 import dagger.Binds
@@ -31,7 +33,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [ApiModule::class, DBModule::class])
+@Component(modules = [ApiModule::class, DBModule::class,
+    PaginationModule::class, ViewModelModule::class])
 interface AppComponent{
     @Component.Factory
     interface ComponentBuilder{
@@ -80,19 +83,35 @@ interface ApiModule{
             .build()
             .create(CharactersApiService::class.java)
 
+
+    }
+
+    @Binds
+    fun provideMemesApiRepository(memesApiRepositoryImpl: CharactersApiRepositoryImpl)
+    : CharactersApiRepository
+
+}
+@Module
+interface PaginationModule{
+    companion object{
         @Provides
         @Singleton
         fun providePaginationData():PaginationData = PaginationData()
     }
+    @Binds
+    fun providePaginationRepository(paginationDataRepositoryImpl: PaginationDataRepositoryImpl)
+    :PaginationDataRepository
+}
 
-
+@Module
+interface ViewModelModule{
     @Binds
     @[IntoMap ViewModelKey(FeedViewModel::class)]
     fun provideFeedViewModel(feedViewModel: FeedViewModel):ViewModel
 
     @Binds
-    fun provideCharacterFeedViewModelFactory(viewModelFactory: FeedViewModelFactory): ViewModelProvider.Factory
-    @Binds
-    fun provideMemesApiRepository(memesApiRepositoryImpl: CharactersApiRepositoryImpl) : CharactersApiRepository
+    fun provideCharacterFeedViewModelFactory(viewModelFactory: MultiViewModelFactory): ViewModelProvider.Factory
+    companion object{
 
+    }
 }

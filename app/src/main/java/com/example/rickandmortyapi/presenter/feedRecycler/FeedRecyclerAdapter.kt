@@ -39,7 +39,7 @@ class FeedRecyclerAdapter(private val delegates: List<FeedItemDelegate>)
         }
     }
 
-    private val differ = AsyncListDiffer(this, diffUtilCallback)
+    val differ = AsyncListDiffer(this, diffUtilCallback)
 
     fun appendItems(list: List<RecyclerModel>){
         val res = differ.currentList.toMutableList()

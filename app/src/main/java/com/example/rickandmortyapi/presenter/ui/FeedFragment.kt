@@ -13,10 +13,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.rickandmortyapi.R
 import com.example.rickandmortyapi.data.PaginationData
 import com.example.rickandmortyapi.databinding.FragmentFeedBinding
 import com.example.rickandmortyapi.di.MyApp
+import com.example.rickandmortyapi.domain.models.RecyclerModel
 import com.example.rickandmortyapi.presenter.feedRecycler.FeedItemDelegate
 import com.example.rickandmortyapi.presenter.feedRecycler.FeedRecyclerAdapter
 import com.example.rickandmortyapi.presenter.feedRecycler.PaginationScrollListener
@@ -24,7 +26,6 @@ import com.example.rickandmortyapi.presenter.feedRecycler.CharacterFeedItemDeleg
 import com.example.rickandmortyapi.presenter.viewmodels.FeedViewModel
 import com.example.rickandmortyapi.presenter.State
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -47,12 +48,7 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
 
     private var snackBar: Snackbar? = null
 
-
-    private var isFirstStatusFilterCollect = true
-    private var isFirstGenderFilterCollect = true
-    private var isFirstNameCollect = true
-    private var isFilterFragmentVisible = false
-
+    private var adapter : RecyclerView.Adapter<ViewHolder>? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -64,24 +60,26 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
         binding = FragmentFeedBinding.bind(view)
         initializeRecycler()
         setUpFilterButtonListener()
+        setUpNameFilterObserver()
+        setUpStatusFilterObserver()
+        setUpGenderFilterObserver()
+        setOnReloadButtonListener()
     }
 
     private fun initializeRecycler(){
         val delegatesList = listOf<FeedItemDelegate>(
             CharacterFeedItemDelegate())
         feedRecycler = binding.feedRecycler
-        val adapter = FeedRecyclerAdapter(delegatesList)
+        adapter = FeedRecyclerAdapter(delegatesList)
         val layoutManager = LinearLayoutManager(requireContext(),
             LinearLayoutManager.VERTICAL, false)
-        setUpCharactersListStateObserver(adapter)
+        setUpCharactersListStateObserver()
         feedRecycler?.adapter = adapter
         feedRecycler?.layoutManager = layoutManager
         feedRecycler?.addOnScrollListener(setUpPaginationScrollListener(layoutManager))
-        setUpNameFilterObserver(adapter)
-        setUpStatusFilterObserver(adapter)
-        setUpGenderFilterObserver(adapter)
+
     }
-    private fun setUpCharactersListStateObserver(adapter: FeedRecyclerAdapter){
+    private fun setUpCharactersListStateObserver(){
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED){
                 viewModel.charactersList.collect{
@@ -90,21 +88,28 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
                             showSnackBar(getString(R.string.error_message))
                             hideProgressBar()
                         }
+                        is State.Empty ->{
+                            hideProgressBar()
+                            showEmptyListMessage()
+                        }
                         is State.Loading -> showProgressBar()
                         is State.Success -> {
                             hideProgressBar()
-                            it.data?.toList()?.let {
-                                    it1 -> adapter.appendItems(it1)
-                            }
+                            moveToAdapter(it.data)
                         }
                     }
-                    if(adapter.itemCount == 0)
-                        showEmptyListMessage()
-                    else
-                        hideEmptyListMessage()
                 }
             }
         }
+    }
+
+    private fun moveToAdapter(data : List<RecyclerModel>?){
+            data?.toList()?.let {
+                if(viewModel.getCurPage() == 2)
+                    (adapter as FeedRecyclerAdapter).differ.submitList(it)
+                else
+                    (adapter as FeedRecyclerAdapter).appendItems(it)
+            }
     }
 
     private fun setUpPaginationScrollListener(layoutManager: LinearLayoutManager) =
@@ -113,62 +118,48 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
                 viewModel.charactersList.value is State.Loading
 
             override fun getNextPage() = viewModel.getCharacters()
-            override fun displayedItemsNum() = paginationData.displayedItemsNum
+            override fun displayedItemsNum() = viewModel.getDisplayedItemsNum()
         }
 
 
+    private fun setOnReloadButtonListener(){
+        binding.reloadButton.setOnClickListener {
+            viewModel.reloadCharactersList()
+        }
+    }
     private fun setUpFilterButtonListener(){
         binding.filterButton.setOnClickListener {
-            childFragmentManager.commit {
-                val fragment = FiltersFragment()
-                add(R.id.child_container, fragment)
-                setReorderingAllowed(true)
-
-            }
+            (activity as MainActivity).moveToFragment(R.id.container
+                , FiltersFragment())
 
         }
     }
 
-    private fun setUpNameFilterObserver(adapter: FeedRecyclerAdapter){
+    private fun setUpNameFilterObserver(){
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.nameState.collect {
-                    if(!isFirstNameCollect) {
-                        adapter.clearItemsList()
-                        viewModel.clearPaginationData()
-                        viewModel.getCharacters()
-                    }
-                        isFirstNameCollect = false
+                    viewModel.reloadCharactersList()
                 }
             }
         }
     }
 
-    private fun setUpStatusFilterObserver(adapter: FeedRecyclerAdapter){
+    private fun setUpStatusFilterObserver(){
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.characterStatusFilter.collect {
-                    if(!isFirstStatusFilterCollect) {
-                        adapter.clearItemsList()
-                        viewModel.clearPaginationData()
-                        viewModel.getCharacters()
-                    }
-                    isFirstStatusFilterCollect = false
+                    viewModel.reloadCharactersList()
                 }
             }
         }
     }
 
-    private fun setUpGenderFilterObserver(adapter: FeedRecyclerAdapter){
+    private fun setUpGenderFilterObserver(){
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.characterGenderFilter.collect {
-                    if(!isFirstGenderFilterCollect) {
-                        adapter.clearItemsList()
-                        viewModel.clearPaginationData()
-                        viewModel.getCharacters()
-                    }
-                    isFirstGenderFilterCollect = false
+                    viewModel.reloadCharactersList()
                 }
             }
         }

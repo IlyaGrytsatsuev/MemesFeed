@@ -5,10 +5,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rickandmortyapi.domain.models.RecyclerModel
 import com.example.rickandmortyapi.domain.usecases.GetCharactersListUseCase
+import com.example.rickandmortyapi.domain.usecases.GetCurPageUseCase
+import com.example.rickandmortyapi.domain.usecases.GetDisplayedItemsNumUseCase
+import com.example.rickandmortyapi.domain.usecases.ResetPaginationDataUseCase
 import com.example.rickandmortyapi.presenter.State
 import com.example.rickandmortyapi.utils.CharacterGender
 import com.example.rickandmortyapi.utils.CharacterStatus
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -19,9 +25,13 @@ import javax.inject.Singleton
 @Singleton
 class FeedViewModel @Inject constructor(
     private val getCharactersListUseCase: GetCharactersListUseCase,
+    private val resetPaginationDataUseCase: ResetPaginationDataUseCase,
+    private val getDisplayedItemsNumUseCase: GetDisplayedItemsNumUseCase,
+    private val getCurPageUseCase: GetCurPageUseCase
     //private val internetConnectionChecker: InternetConnectionChecker,
 ): ViewModel() {
 
+    private var pageLoadJob: Job? = null
     private val privateRecyclerList:
             MutableStateFlow<State<List<RecyclerModel>>>
     = MutableStateFlow(State.Loading())
@@ -47,9 +57,8 @@ class FeedViewModel @Inject constructor(
 
     init{
         getCharacters()
-        Log.d("net", "init is called")
+        Log.d("netlist", "init is called")
     }
-
 
     fun setCharacterStatusFilter(value:CharacterStatus){
         privateCharacterStatusFilter.value = value
@@ -61,14 +70,19 @@ class FeedViewModel @Inject constructor(
 
     fun getCharacters(){
         privateRecyclerList.value = State.Loading()
-        viewModelScope.launch(Dispatchers.IO) {
+        pageLoadJob = viewModelScope.launch(Dispatchers.IO) {
             try {
-                privateRecyclerList.value = State
-                    .Success(getCharactersListUseCase.execute(
-                        name = privateNameState.value,
-                        status = privateCharacterStatusFilter.value,
-                        gender = privateCharacterGenderFilter.value
-                    ))
+                val loadedList = getCharactersListUseCase.execute(
+                    name = privateNameState.value,
+                    status = privateCharacterStatusFilter.value,
+                    gender = privateCharacterGenderFilter.value
+                )
+                privateRecyclerList.value = if(loadedList.isEmpty())
+                    State.Empty() else State
+                        .Success(loadedList)
+            }
+            catch (c:CancellationException){
+                Log.d("netList", "cancelled")
             }
             catch (e:Exception){
                 privateRecyclerList.value = State
@@ -78,8 +92,20 @@ class FeedViewModel @Inject constructor(
 
     }
 
-    fun clearPaginationData(){
-        getCharactersListUseCase.clearPaginationData()
+    private fun resetPaginationData(){
+        resetPaginationDataUseCase.execute()
+    }
+
+    fun getDisplayedItemsNum() =
+        getDisplayedItemsNumUseCase.execute()
+
+    fun getCurPage() = getCurPageUseCase.execute()
+    fun reloadCharactersList(){
+        viewModelScope.launch {
+            pageLoadJob?.cancelAndJoin()
+            resetPaginationData()
+            getCharacters()
+        }
     }
 
 //    private fun checkInternetConnection() =

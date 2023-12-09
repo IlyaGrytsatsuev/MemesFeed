@@ -18,9 +18,9 @@ interface CharacterDao {
 
     @Transaction
     @Query("select * from CharacterEntity where " +
-            "(:name = null or name = :name)" +
-            "and(:status = null or status = :status)" +
-            "and (:gender = null or gender = :gender) " +
+            "(:name = null or name LIKE :name)" +
+            "and(:status = null or status LIKE :status)" +
+            "and (:gender = null or gender LIKE :gender) " +
             "LIMIT :limit OFFSET :offset")
     suspend fun getCharactersWithEpisodesUrls(limit:Int, offset:Int,
                                               name:String?, status:String?,
