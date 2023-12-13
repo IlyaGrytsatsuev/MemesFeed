@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.View
-import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -19,12 +18,13 @@ import com.example.rickandmortyapi.data.PaginationData
 import com.example.rickandmortyapi.databinding.FragmentFeedBinding
 import com.example.rickandmortyapi.di.MyApp
 import com.example.rickandmortyapi.domain.models.RecyclerModel
-import com.example.rickandmortyapi.presenter.feedRecycler.FeedItemDelegate
+import com.example.rickandmortyapi.presenter.RecyclerItemDelegate
 import com.example.rickandmortyapi.presenter.feedRecycler.FeedRecyclerAdapter
 import com.example.rickandmortyapi.presenter.feedRecycler.PaginationScrollListener
 import com.example.rickandmortyapi.presenter.feedRecycler.CharacterFeedItemDelegate
 import com.example.rickandmortyapi.presenter.viewmodels.FeedViewModel
 import com.example.rickandmortyapi.presenter.State
+import com.example.rickandmortyapi.presenter.viewmodels.CharacterDetailsViewModel
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -42,6 +42,9 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
 
 
     private val viewModel: FeedViewModel by viewModels {viewModelFactory}
+
+    private val characterDetailsViewModel: CharacterDetailsViewModel
+    by viewModels {viewModelFactory}
 
 
     private var feedRecycler: RecyclerView? = null
@@ -67,8 +70,8 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
     }
 
     private fun initializeRecycler(){
-        val delegatesList = listOf<FeedItemDelegate>(
-            CharacterFeedItemDelegate())
+        val delegatesList = listOf<RecyclerItemDelegate>(
+            CharacterFeedItemDelegate(moveToCharacterDetailsFragmentFun))
         feedRecycler = binding.feedRecycler
         adapter = FeedRecyclerAdapter(delegatesList)
         val layoutManager = LinearLayoutManager(requireContext(),
@@ -189,5 +192,11 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
         snackBar?.show()
     }
 
+    private val moveToCharacterDetailsFragmentFun:(characterId:Int)->Unit = {
+        characterDetailsViewModel.setCharacterId(it)
+        characterDetailsViewModel.getCharacterDetails()
+        (activity as MainActivity).moveToFragment(R.id.fragment_container
+            , CharacterDetailsFragment())
+    }
 
 }

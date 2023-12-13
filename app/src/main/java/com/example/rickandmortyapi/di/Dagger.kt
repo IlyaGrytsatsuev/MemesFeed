@@ -9,13 +9,20 @@ import com.example.rickandmortyapi.data.PaginationDataRepositoryImpl
 import com.example.rickandmortyapi.presenter.ui.FiltersFragment
 import com.example.rickandmortyapi.data.db.DB
 import com.example.rickandmortyapi.data.db.repository.CharactersDbRepositoryImpl
+import com.example.rickandmortyapi.data.db.repository.EpisodesDbRepositoryImpl
 import com.example.rickandmortyapi.data.network.repository.CharactersApiRepositoryImpl
+import com.example.rickandmortyapi.data.network.repository.EpisodesApiRepositoryImpl
 import com.example.rickandmortyapi.data.network.service.CharactersApiService
+import com.example.rickandmortyapi.data.network.service.EpisodesApiService
 import com.example.rickandmortyapi.domain.repository.CharactersApiRepository
 import com.example.rickandmortyapi.domain.repository.CharactersDbRepository
+import com.example.rickandmortyapi.domain.repository.EpisodesApiRepository
+import com.example.rickandmortyapi.domain.repository.EpisodesDbRepository
 import com.example.rickandmortyapi.domain.repository.PaginationDataRepository
+import com.example.rickandmortyapi.presenter.ui.CharacterDetailsFragment
 import com.example.rickandmortyapi.presenter.ui.FeedFragment
 import com.example.rickandmortyapi.presenter.ui.MainActivity
+import com.example.rickandmortyapi.presenter.viewmodels.CharacterDetailsViewModel
 import com.example.rickandmortyapi.presenter.viewmodels.FeedViewModel
 import com.example.rickandmortyapi.presenter.viewmodels.MultiViewModelFactory
 import com.example.rickandmortyapi.utils.Constants
@@ -25,6 +32,7 @@ import dagger.BindsInstance
 import dagger.Component
 import dagger.Module
 import dagger.Provides
+import dagger.assisted.AssistedInject
 import dagger.multibindings.IntoMap
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -44,6 +52,8 @@ interface AppComponent{
     fun inject(fragment: FeedFragment)
     fun inject(fragment: FiltersFragment)
 
+    fun inject(fragment: CharacterDetailsFragment)
+
 }
 
 @Module
@@ -55,11 +65,18 @@ interface DBModule{
             DB::class.java, "rickandmortydb").build()
         @Provides
         fun provideCharacterDao(db: DB) = db.characterDao()
+
+        @Provides
+        fun provideEpisodeDao(db: DB) = db.episodeDao()
     }
 
     @Binds
     fun provideCharactersDbRepository(charactersDbRepositoryImpl:
                                       CharactersDbRepositoryImpl): CharactersDbRepository
+
+    @Binds
+    fun provideEpisodesDbRepository(episodesDbRepositoryImpl:
+                                    EpisodesDbRepositoryImpl): EpisodesDbRepository
 }
 @Module
 interface ApiModule{
@@ -75,7 +92,7 @@ interface ApiModule{
                .build()
 
         @Provides
-        fun provideMemesApiService(converterFactory: GsonConverterFactory, client: OkHttpClient)
+        fun provideCharactersApiService(converterFactory: GsonConverterFactory, client: OkHttpClient)
                 : CharactersApiService = Retrofit.Builder()
             .addConverterFactory(converterFactory)
             .client(client)
@@ -83,12 +100,27 @@ interface ApiModule{
             .build()
             .create(CharactersApiService::class.java)
 
+        @Provides
+        fun provideEpisodesApiService(converterFactory: GsonConverterFactory, client: OkHttpClient)
+                : EpisodesApiService = Retrofit.Builder()
+            .addConverterFactory(converterFactory)
+            .client(client)
+            .baseUrl(Constants.BASE_URL)
+            .build()
+            .create(EpisodesApiService::class.java)
+
 
     }
 
     @Binds
-    fun provideMemesApiRepository(memesApiRepositoryImpl: CharactersApiRepositoryImpl)
+    fun provideCharactersApiRepository(charactersApiRepositoryImpl: CharactersApiRepositoryImpl)
     : CharactersApiRepository
+
+    @Binds
+    fun provideEpisodesApiRepository(episodesApiRepositoryImpl: EpisodesApiRepositoryImpl)
+    : EpisodesApiRepository
+
+
 
 }
 @Module
@@ -110,7 +142,14 @@ interface ViewModelModule{
     fun provideFeedViewModel(feedViewModel: FeedViewModel):ViewModel
 
     @Binds
+    @[IntoMap ViewModelKey(CharacterDetailsViewModel::class)]
+    fun provideCharacterDetailsViewModel(characterDetailsViewModel:
+                                         CharacterDetailsViewModel):ViewModel
+
+    @Binds
     fun provideCharacterFeedViewModelFactory(viewModelFactory: MultiViewModelFactory): ViewModelProvider.Factory
+
+
     companion object{
 
     }

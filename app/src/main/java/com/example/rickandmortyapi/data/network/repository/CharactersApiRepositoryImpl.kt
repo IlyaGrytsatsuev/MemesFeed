@@ -1,35 +1,38 @@
 package com.example.rickandmortyapi.data.network.repository
 
 import android.util.Log
-import com.example.rickandmortyapi.data.PaginationData
+import com.example.rickandmortyapi.data.converters.appendEpisodesDetails
 import com.example.rickandmortyapi.data.converters.getPagesNum
+import com.example.rickandmortyapi.data.converters.toCharacterDetailsDomainModel
 import com.example.rickandmortyapi.data.network.service.CharactersApiService
 import com.example.rickandmortyapi.domain.models.CharacterModel
 import com.example.rickandmortyapi.domain.repository.CharactersApiRepository
 import com.example.rickandmortyapi.data.converters.toDomainCharactersModelsList
 import com.example.rickandmortyapi.domain.repository.CharactersDbRepository
 import com.example.rickandmortyapi.domain.repository.PaginationDataRepository
+import com.example.rickandmortyapi.domain.models.CharacterDetailsModel
+import com.example.rickandmortyapi.domain.models.EpisodeModel
+import com.example.rickandmortyapi.domain.repository.EpisodesApiRepository
+import com.example.rickandmortyapi.domain.repository.EpisodesDbRepository
 import com.example.rickandmortyapi.utils.CharacterGender
 import com.example.rickandmortyapi.utils.CharacterStatus
-import com.example.rickandmortyapi.utils.Constants
 import com.example.rickandmortyapi.utils.InternetConnectionChecker
 import javax.inject.Inject
 
 
-//todo()
-//возврат списков из реплозиториев, стейты во вьюмодели , ошибки во вьюмодели , стейты в презентер, подсчет страниц в репозитория, хранение в синглтон классе,
-// возрат model без обертки Response в service, кэширование в api репозитории
 class CharactersApiRepositoryImpl @Inject constructor
     (
     private val charactersApiService: CharactersApiService,
-    private val dbRepository: CharactersDbRepository,
+    private val charactersDbRepository: CharactersDbRepository,
+    private val episodesApiRepository: EpisodesApiRepository,
+    private val episodesDbRepository: EpisodesDbRepository,
     private val paginationDataRepository: PaginationDataRepository,
     private val internetConnectionChecker: InternetConnectionChecker
 ) : CharactersApiRepository {
 
     override suspend fun getCharactersList(name:String?, status: CharacterStatus?,
                                            gender: CharacterGender?): List<CharacterModel> {
-        var resultList:List<CharacterModel> = listOf()
+        val resultList:List<CharacterModel>
         val hasInternet = internetConnectionChecker.hasInternetConnection()
         if(hasInternet) {
             resultList = getCharactersFromApi(
@@ -38,10 +41,11 @@ class CharactersApiRepositoryImpl @Inject constructor
                 gender = gender
             )
             Log.d("netlist", "api call success")
-            dbRepository.upsertCharatersIntoDb(characterList = resultList.toList())
+            charactersDbRepository.upsertCharactersIntoDb(characterList = resultList.toList())
         }
         else {
-            resultList = dbRepository.getCharactersFromDB(
+            resultList = charactersDbRepository.getCharactersFromDB(
+                id = null,
                 name = name,
                 status = status,
                 gender = gender
@@ -75,7 +79,8 @@ class CharactersApiRepositoryImpl @Inject constructor
         var downloadedList: List<CharacterModel> = listOf()
         if (paginationDataRepository.getCurPage() <=
             paginationDataRepository.getTotalPageNum()) {
-            downloadedList = downloadPage(name = name,
+            downloadedList = downloadPage(
+                name = name,
                 status = status,
                 gender = gender)
         }
@@ -83,7 +88,7 @@ class CharactersApiRepositoryImpl @Inject constructor
 
     }
 
-    private suspend fun downloadPage(name:String?, status: CharacterStatus?,
+    private suspend fun downloadPage( name:String?, status: CharacterStatus?,
                                      gender: CharacterGender?): List<CharacterModel> {
         val downloadedList: List<CharacterModel>
         val apiResult = charactersApiService
@@ -96,6 +101,39 @@ class CharactersApiRepositoryImpl @Inject constructor
         downloadedList = apiResult.toDomainCharactersModelsList()
         return downloadedList
     }
+
+    private suspend fun getCharacterFromApiById(id:Int): CharacterDetailsModel {
+        val response = charactersApiService.getCharacterById(id)
+        val result = response.toCharacterDetailsDomainModel()
+
+        return result
+    }
+    override suspend fun getCharacterDetails(id:Int): CharacterDetailsModel{
+        val hasInternet = internetConnectionChecker.hasInternetConnection()
+        var characterDetails: CharacterDetailsModel
+        val episodesList = mutableListOf<EpisodeModel>()
+        if(hasInternet) {
+            characterDetails = getCharacterFromApiById(id)
+
+            characterDetails.episodeIds.forEach {
+                episodesList.add(episodesApiRepository.getEpisodeById(it))
+            }
+            characterDetails.appendEpisodesDetails(episodesList)
+            charactersDbRepository
+                .upsertCharacterWithEpisodesIntoDb(characterDetails)
+        }
+        else{
+            characterDetails = charactersDbRepository
+                .getCharacterWithEpisodesByIdFromDB(id)
+        }
+
+        Log.d("netlist","Loaded Character Details " +
+                "= ${characterDetails.episode}")
+
+
+        return characterDetails
+    }
+
 
 
 

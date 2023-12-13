@@ -1,12 +1,11 @@
-package com.example.rickandmortyapi.presenter.feedRecycler
+package com.example.rickandmortyapi.presenter
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import com.example.rickandmortyapi.domain.models.CharacterModel
 import com.example.rickandmortyapi.domain.models.RecyclerModel
 
-interface FeedItemDelegate{
+interface RecyclerItemDelegate{
 
     fun isOfViewType(item: RecyclerModel):Boolean
     fun getViewHolder(parent: ViewGroup): RecyclerView.ViewHolder

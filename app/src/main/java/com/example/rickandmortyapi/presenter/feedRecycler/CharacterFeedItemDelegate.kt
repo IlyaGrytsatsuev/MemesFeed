@@ -6,11 +6,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.rickandmortyapi.databinding.FeedRecyclerCharacterItemBinding
 import com.example.rickandmortyapi.domain.models.CharacterModel
 import com.example.rickandmortyapi.domain.models.RecyclerModel
+import com.example.rickandmortyapi.presenter.RecyclerItemDelegate
 
-class CharacterFeedItemDelegate : FeedItemDelegate {
+class CharacterFeedItemDelegate(private val itemChoiceFun
+:(characterId:Int)->Unit) : RecyclerItemDelegate {
     override fun isOfViewType(characterItem: RecyclerModel): Boolean {
-        //todo()
-        return true
+        return characterItem is CharacterModel
     }
 
     override fun getViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
@@ -21,6 +22,7 @@ class CharacterFeedItemDelegate : FeedItemDelegate {
     }
 
     override fun bindViewHolder(viewHolder: RecyclerView.ViewHolder, characterItem: RecyclerModel) {
-        (viewHolder as FeedRecyclerViewHolder).let { viewHolder.onBind(characterItem as CharacterModel) }
+        (viewHolder as FeedRecyclerViewHolder).let {
+            viewHolder.onBind(characterItem as CharacterModel, itemChoiceFun) }
     }
 }

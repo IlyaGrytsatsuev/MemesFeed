@@ -37,14 +37,18 @@ data class CharacterEntity (
 )
 
 @Entity
-data class EpisodeUrlEntity(
+data class EpisodeEntity(
     @PrimaryKey(autoGenerate = false)
-    @ColumnInfo(name = "episodeUrl")
-    val url: String = ""
+    @ColumnInfo(name = "episodeId")
+    val id: Int = 0,
+    @ColumnInfo(name = "name")
+    val name:String = "",
+    @ColumnInfo(name = "episode")
+    val episode:String = ""
 )
 
 
-@Entity(primaryKeys = ["characterId", "episodeUrl"],
+@Entity(primaryKeys = ["characterId", "episodeId"],
     foreignKeys = [
         ForeignKey(
             entity = CharacterEntity::class,
@@ -53,27 +57,39 @@ data class EpisodeUrlEntity(
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
-            entity = EpisodeUrlEntity::class,
-            parentColumns = ["episodeUrl"],
-            childColumns = ["episodeUrl"],
+            entity = EpisodeEntity::class,
+            parentColumns = ["episodeId"],
+            childColumns = ["episodeId"],
             onDelete = ForeignKey.CASCADE
         )
     ]  )
-data class CharactersAndEpisodesUrlsEntity(
+data class CharactersAndEpisodesIdsEntity(
     val characterId: Int = 0,
-    val episodeUrl: String = ""
+    val episodeId: Int = 0
 )
 
-data class CharacterWithEpisodesUrls(
+data class CharacterWithEpisodes(
     @Embedded
     val characterEntity: CharacterEntity = CharacterEntity(),
     @Relation(
         parentColumn = "characterId",
-        entityColumn = "episodeUrl",
-        associateBy = Junction(CharactersAndEpisodesUrlsEntity::class)
+        entityColumn = "episodeId",
+        associateBy = Junction(CharactersAndEpisodesIdsEntity::class)
     )
-    val episodesUrls: List<EpisodeUrlEntity> = emptyList()
+    val episodes: List<EpisodeEntity> = emptyList()
 )
+
+data class EpisodeWithCharacters(
+    @Embedded
+    val episodeEntity: EpisodeEntity = EpisodeEntity(),
+    @Relation(
+        parentColumn = "episodeId",
+        entityColumn = "characterId",
+        associateBy = Junction(CharactersAndEpisodesIdsEntity::class)
+    )
+    val characters: List<CharacterEntity> = emptyList()
+)
+
 
 
 data class CharacterLocation(

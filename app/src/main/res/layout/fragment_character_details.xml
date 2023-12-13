@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".presenter.ui.CharacterDetailsFragment">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        app:elevation="20dp"
+        >
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsing_toolbar_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            >
+
+           <FrameLayout
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               >
+               <ImageView
+                   android:id="@+id/character_image"
+                   android:layout_width="match_parent"
+                   android:layout_height="match_parent"
+                   >
+               </ImageView>
+               <TextView
+                   android:id="@+id/character_name"
+                   android:layout_width="wrap_content"
+                   android:fontFamily="sans-serif-medium"
+                   android:layout_height="wrap_content"
+                   android:layout_gravity="bottom|start"
+                   android:layout_marginStart="20dp"
+                   android:layout_marginBottom="20dp"
+                   android:textSize="30sp"
+                   android:textFontWeight="700"
+                   tools:text="Rick">
+               </TextView>
+           </FrameLayout>
+
+            <androidx.appcompat.widget.Toolbar
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize">
+            </androidx.appcompat.widget.Toolbar>
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/details_recycler"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        >
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

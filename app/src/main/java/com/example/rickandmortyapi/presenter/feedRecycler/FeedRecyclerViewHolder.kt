@@ -10,7 +10,8 @@ class FeedRecyclerViewHolder(private val binding: FeedRecyclerCharacterItemBindi
     : RecyclerView.ViewHolder(binding.root) {
 
 
-    fun onBind(characterModel :CharacterModel){
+    fun onBind(characterModel :CharacterModel,
+               onItemChoiceFun:(characterId:Int)->Unit){
         binding.name.text = characterModel.name
         binding.status.text = characterModel.status
         binding.species.text = characterModel.species
@@ -23,5 +24,8 @@ class FeedRecyclerViewHolder(private val binding: FeedRecyclerCharacterItemBindi
             .centerCrop()
             .into(binding.recyclerItemImage)
 
+        itemView.setOnClickListener {
+            onItemChoiceFun(characterModel.id)
+        }
     }
 }

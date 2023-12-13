@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rickandmortyapi.domain.models.RecyclerModel
+import com.example.rickandmortyapi.domain.usecases.GetCharacterDetailsUseCase
 import com.example.rickandmortyapi.domain.usecases.GetCharactersListUseCase
 import com.example.rickandmortyapi.domain.usecases.GetCurPageUseCase
 import com.example.rickandmortyapi.domain.usecases.GetDisplayedItemsNumUseCase
@@ -18,15 +19,16 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.lang.Exception
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.Exception
 
 @Singleton
 class FeedViewModel @Inject constructor(
     private val getCharactersListUseCase: GetCharactersListUseCase,
     private val resetPaginationDataUseCase: ResetPaginationDataUseCase,
     private val getDisplayedItemsNumUseCase: GetDisplayedItemsNumUseCase,
+    private val getCharacterDetailsUseCase: GetCharacterDetailsUseCase,
     private val getCurPageUseCase: GetCurPageUseCase
     //private val internetConnectionChecker: InternetConnectionChecker,
 ): ViewModel() {
@@ -54,10 +56,29 @@ class FeedViewModel @Inject constructor(
 
     val nameState:StateFlow<String?> = privateNameState
 
+    private var privateCurCharacter: MutableStateFlow<State<RecyclerModel?>>
+    = MutableStateFlow(State.Loading())
+
+    val curCharacter: StateFlow<State<RecyclerModel?>> = privateCurCharacter
+
 
     init{
         getCharacters()
         Log.d("netlist", "init is called")
+    }
+
+    fun getCharacterDetails(id:Int){
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                privateCurCharacter.value = State.Loading()
+                privateCurCharacter.value = State
+                    .Success(getCharacterDetailsUseCase.execute(id))
+            }
+            catch (e:Exception){
+                privateCurCharacter.value = State.Error()
+            }
+        }
+
     }
 
     fun setCharacterStatusFilter(value:CharacterStatus){

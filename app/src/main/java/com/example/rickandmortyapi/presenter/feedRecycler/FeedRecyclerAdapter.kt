@@ -5,10 +5,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.example.rickandmortyapi.domain.models.CharacterModel
 import com.example.rickandmortyapi.domain.models.RecyclerModel
+import com.example.rickandmortyapi.presenter.RecyclerItemDelegate
 
-class FeedRecyclerAdapter(private val delegates: List<FeedItemDelegate>)
+class FeedRecyclerAdapter(private val delegates: List<RecyclerItemDelegate>)
     : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
         delegates[viewType].getViewHolder(parent)

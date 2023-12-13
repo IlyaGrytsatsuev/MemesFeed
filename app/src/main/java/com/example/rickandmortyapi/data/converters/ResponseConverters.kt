@@ -1,32 +1,42 @@
 package com.example.rickandmortyapi.data.converters
 
+import android.util.Log
 import com.example.rickandmortyapi.data.network.responseModels.CharactersResponse
+import com.example.rickandmortyapi.data.network.responseModels.EpisodeResponse
 import com.example.rickandmortyapi.data.network.responseModels.Info
 import com.example.rickandmortyapi.data.network.responseModels.Location
 import com.example.rickandmortyapi.data.network.responseModels.Origin
-import com.example.rickandmortyapi.domain.models.CharacterLocation
+import com.example.rickandmortyapi.data.network.responseModels.SingleCharacterResponse
+import com.example.rickandmortyapi.domain.models.CharacterDetailsModel
+import com.example.rickandmortyapi.domain.models.CharacterModelLocation
 import com.example.rickandmortyapi.domain.models.CharacterModel
-import com.example.rickandmortyapi.domain.models.CharacterOrigin
+import com.example.rickandmortyapi.domain.models.CharacterModelOrigin
+import com.example.rickandmortyapi.domain.models.EpisodeModel
 import com.example.rickandmortyapi.domain.models.InfoModel
 
 fun CharactersResponse.toDomainCharactersModelsList(): List<CharacterModel> {
     val result: MutableList<CharacterModel> = mutableListOf()
-    this.results?.forEach {
+    this.results?.forEach { result1 ->
+//        val episodeIndexes = mutableListOf<Int>()
+//            result1.episode?.forEach {
+//                val indexStr = "${it.toCharArray()[it.length-1]}"
+//                episodeIndexes.add(indexStr.toInt())
+//            }
         val characterModel = CharacterModel(
-            created = it.created?:"",
-            episode = it.episode?: emptyList(),
-            gender = it.gender?:"",
-            id = it.id?:0,
-            image = it.image?:"",
-            location = it.location?.toCharacterLocation()
-                ?:CharacterLocation("",""),
-            name = it.name?:"",
-            origin = it.origin?.toCharacterOrigin()
-                ?:CharacterOrigin("",""),
-            species = it.species?:"",
-            status = it.status?:"",
-            type = it.type?:"",
-            url = it.url?:""
+            created = result1.created?:"",
+            //episode = episodeIndexes,
+            gender = result1.gender?:"",
+            id = result1.id?:0,
+            image = result1.image?:"",
+            location = result1.location?.toCharacterLocation()
+                ?:CharacterModelLocation("",""),
+            name = result1.name?:"",
+            origin = result1.origin?.toCharacterOrigin()
+                ?:CharacterModelOrigin("",""),
+            species = result1.species?:"",
+            status = result1.status?:"",
+            type = result1.type?:"",
+            url = result1.url?:""
         )
         result.add(characterModel)
     }
@@ -34,15 +44,62 @@ fun CharactersResponse.toDomainCharactersModelsList(): List<CharacterModel> {
     return result
 }
 
-fun Location.toCharacterLocation(): CharacterLocation {
-    return CharacterLocation(
+fun SingleCharacterResponse.toCharacterDetailsDomainModel(): CharacterDetailsModel {
+
+    val episodeIds = mutableListOf<Int>()
+    this.episode?.forEach {
+        val idStr = it.substringAfterLast("/")
+        episodeIds.add(idStr.toInt())
+    }
+    return  CharacterDetailsModel(
+            created = this.created?:"",
+            episodeIds = episodeIds,
+            episode = mutableListOf(),
+            gender = this.gender?:"",
+            id = this.id?:0,
+            image = this.image?:"",
+            location = this.location?.toCharacterLocation()
+                ?:CharacterModelLocation("",""),
+            name = this.name?:"",
+            origin = this.origin?.toCharacterOrigin()
+                ?:CharacterModelOrigin("",""),
+            species = this.species?:"",
+            status = this.status?:"",
+            type = this.type?:"",
+            url = this.url?:""
+        )
+}
+
+fun EpisodeResponse.toEpisodeDomainModel() : EpisodeModel{
+//    val idsList = mutableListOf<Int>()
+//    this.characters.forEach {
+//            val idStr = "${it.toCharArray()[it.length-1]}"
+//            idsList.add(idStr.toInt())
+//    }
+
+    Log.d("listnet", "episodeModel = $this")
+    return EpisodeModel(id = this.id,
+        name = this.name,
+        episode = this.episode,
+        //charactersIds = idsList
+        )
+}
+fun CharacterDetailsModel.appendEpisodesDetails(episodes:List<EpisodeModel>){
+    episodes.forEach {
+        this.episode.add(it)
+    }
+
+}
+
+fun Location.toCharacterLocation(): CharacterModelLocation {
+    return CharacterModelLocation(
         name = this.name ?: "",
         url = this.url ?: ""
     )
 }
 
-fun Origin.toCharacterOrigin(): CharacterOrigin =
-    CharacterOrigin(
+fun Origin.toCharacterOrigin(): CharacterModelOrigin =
+    CharacterModelOrigin(
         name = this.name?:"",
         url = this.url?:""
     )
