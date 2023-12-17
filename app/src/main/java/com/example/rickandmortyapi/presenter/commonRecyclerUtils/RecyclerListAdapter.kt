@@ -1,4 +1,4 @@
-package com.example.rickandmortyapi.presenter.feedRecycler
+package com.example.rickandmortyapi.presenter.commonRecyclerUtils
 
 import android.util.Log
 import android.view.ViewGroup
@@ -6,9 +6,8 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rickandmortyapi.domain.models.RecyclerModel
-import com.example.rickandmortyapi.presenter.RecyclerItemDelegate
 
-class FeedRecyclerAdapter(private val delegates: List<RecyclerItemDelegate>)
+class RecyclerListAdapter(private val delegates: List<RecyclerItemDelegate>)
     : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
         delegates[viewType].getViewHolder(parent)
@@ -17,11 +16,9 @@ class FeedRecyclerAdapter(private val delegates: List<RecyclerItemDelegate>)
     override fun getItemCount() = differ.currentList.size
 
     override fun getItemViewType(position: Int) : Int {
-        if(delegates.size > 1)
-            return delegates.indexOfFirst { delegate ->
-                delegate.isOfViewType(differ.currentList[position])
-            }
-        return 0
+        return delegates.indexOfFirst { delegate ->
+            delegate.isOfViewType(differ.currentList[position])
+        }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

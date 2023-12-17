@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.rickandmortyapi.databinding.FeedRecyclerCharacterItemBinding
 import com.example.rickandmortyapi.domain.models.CharacterModel
 import com.example.rickandmortyapi.domain.models.RecyclerModel
-import com.example.rickandmortyapi.presenter.RecyclerItemDelegate
+import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerItemDelegate
 
 class CharacterFeedItemDelegate(private val itemChoiceFun
 :(characterId:Int)->Unit) : RecyclerItemDelegate {

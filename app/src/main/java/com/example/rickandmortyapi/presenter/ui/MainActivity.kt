@@ -5,12 +5,11 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.example.rickandmortyapi.R
 import com.example.rickandmortyapi.databinding.ActivityMainBinding
 import com.example.rickandmortyapi.di.MyApp
-import com.example.rickandmortyapi.presenter.FragmentNavigator
+import com.example.rickandmortyapi.presenter.commonRecyclerUtils.FragmentNavigator
 import com.example.rickandmortyapi.presenter.viewmodels.FeedViewModel
 import javax.inject.Inject
 
@@ -21,7 +20,7 @@ class MainActivity : AppCompatActivity(), FragmentNavigator {
     @Inject
     lateinit var feedViewModelFactory: ViewModelProvider.Factory
 
-    private val viewModel: FeedViewModel by viewModels{feedViewModelFactory}
+    //private val viewModel: FeedViewModel by viewModels{feedViewModelFactory}
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,13 +31,17 @@ class MainActivity : AppCompatActivity(), FragmentNavigator {
         supportFragmentManager.commit {
             val fragment = FeedFragment()
             add(R.id.fragment_container, fragment)
-            addToBackStack(FeedFragment::javaClass.name)
             setReorderingAllowed(true)
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+    }
+
     override fun moveToFragment(container: Int, fragment: Fragment) {
         supportFragmentManager.commit {
+            //replace(container, fragment)
             add(container, fragment)
             addToBackStack(fragment::javaClass.name)
             setReorderingAllowed(true)

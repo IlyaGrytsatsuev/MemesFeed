@@ -52,7 +52,7 @@ class CharacterDetailsViewModel @Inject constructor
                     .Success(loadedList)
                 Log.d("netList",
                     "status = ${privateCurCharacter.value}" +
-                            " details = ${(privateCurCharacter.value.data as CharacterDetailsModel).id}")
+                            " details = ${privateCurCharacter.value.data as CharacterDetailsModel}")
             }
             catch (e:Exception){
                 privateCurCharacter.value = State.Error()

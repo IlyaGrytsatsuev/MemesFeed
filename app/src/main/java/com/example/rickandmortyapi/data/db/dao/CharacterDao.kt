@@ -26,7 +26,7 @@ interface CharacterDao {
 
     @Transaction
     @Query("select * from CharacterEntity where characterId = :id")
-    suspend fun getCharactersWithEpisodesById(id:Int): CharacterWithEpisodes
+    suspend fun getCharactersWithEpisodesById(id:Int): CharacterWithEpisodes //todo ?
 
     @Query("select * from CharacterEntity where " +
             "(:name is null or name LIKE :name)" +

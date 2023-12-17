@@ -1,4 +1,4 @@
-package com.example.rickandmortyapi.presenter
+package com.example.rickandmortyapi.presenter.commonRecyclerUtils
 
 import androidx.fragment.app.Fragment
 

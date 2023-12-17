@@ -6,6 +6,7 @@ import android.net.NetworkCapabilities
 import android.os.Build
 import javax.inject.Inject
 
+//todo удалить, обсервер над интернетом
 class InternetConnectionChecker @Inject constructor(val context: Context) {
     fun hasInternetConnection():Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager

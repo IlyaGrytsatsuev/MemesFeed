@@ -123,7 +123,7 @@ class FeedViewModel @Inject constructor(
     fun getCurPage() = getCurPageUseCase.execute()
     fun reloadCharactersList(){
         viewModelScope.launch {
-            pageLoadJob?.cancelAndJoin()
+            pageLoadJob?.cancel()
             resetPaginationData()
             getCharacters()
         }

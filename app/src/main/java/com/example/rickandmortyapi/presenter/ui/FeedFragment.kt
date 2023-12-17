@@ -18,12 +18,13 @@ import com.example.rickandmortyapi.data.PaginationData
 import com.example.rickandmortyapi.databinding.FragmentFeedBinding
 import com.example.rickandmortyapi.di.MyApp
 import com.example.rickandmortyapi.domain.models.RecyclerModel
-import com.example.rickandmortyapi.presenter.RecyclerItemDelegate
-import com.example.rickandmortyapi.presenter.feedRecycler.FeedRecyclerAdapter
+import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerItemDelegate
+import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerListAdapter
 import com.example.rickandmortyapi.presenter.feedRecycler.PaginationScrollListener
 import com.example.rickandmortyapi.presenter.feedRecycler.CharacterFeedItemDelegate
 import com.example.rickandmortyapi.presenter.viewmodels.FeedViewModel
 import com.example.rickandmortyapi.presenter.State
+import com.example.rickandmortyapi.presenter.commonRecyclerUtils.FragmentNavigator
 import com.example.rickandmortyapi.presenter.viewmodels.CharacterDetailsViewModel
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
@@ -47,11 +48,14 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
     by viewModels {viewModelFactory}
 
 
-    private var feedRecycler: RecyclerView? = null
+    private var feedRecycler: RecyclerView? = null //todo remove
 
     private var snackBar: Snackbar? = null
 
-    private var adapter : RecyclerView.Adapter<ViewHolder>? = null
+    private val adapter : RecyclerView.Adapter<ViewHolder> by lazy {
+        RecyclerListAdapter(listOf<RecyclerItemDelegate>(
+            CharacterFeedItemDelegate(moveToCharacterDetailsFragmentFun)))
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -70,10 +74,7 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
     }
 
     private fun initializeRecycler(){
-        val delegatesList = listOf<RecyclerItemDelegate>(
-            CharacterFeedItemDelegate(moveToCharacterDetailsFragmentFun))
         feedRecycler = binding.feedRecycler
-        adapter = FeedRecyclerAdapter(delegatesList)
         val layoutManager = LinearLayoutManager(requireContext(),
             LinearLayoutManager.VERTICAL, false)
         setUpCharactersListStateObserver()
@@ -109,9 +110,9 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
     private fun moveToAdapter(data : List<RecyclerModel>?){
             data?.toList()?.let {
                 if(viewModel.getCurPage() == 2)
-                    (adapter as FeedRecyclerAdapter).differ.submitList(it)
+                    (adapter as RecyclerListAdapter).differ.submitList(it)
                 else
-                    (adapter as FeedRecyclerAdapter).appendItems(it)
+                    (adapter as RecyclerListAdapter).appendItems(it)
             }
     }
 
@@ -132,7 +133,7 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
     }
     private fun setUpFilterButtonListener(){
         binding.filterButton.setOnClickListener {
-            (activity as MainActivity).moveToFragment(R.id.container
+            (activity as? FragmentNavigator)?.moveToFragment(R.id.container
                 , FiltersFragment())
 
         }
@@ -192,6 +193,7 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
         snackBar?.show()
     }
 
+    //todo remove
     private val moveToCharacterDetailsFragmentFun:(characterId:Int)->Unit = {
         characterDetailsViewModel.setCharacterId(it)
         characterDetailsViewModel.getCharacterDetails()
