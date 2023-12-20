@@ -19,7 +19,8 @@ import javax.inject.Singleton
 
 @Singleton
 class CharacterDetailsViewModel @Inject constructor
-    (private val getCharacterDetailsUseCase: GetCharacterDetailsUseCase): ViewModel() {
+    (private val getCharacterDetailsUseCase: GetCharacterDetailsUseCase,
+     private val characterId:Int): ViewModel() {
 
 
     private var privateCurCharacter: MutableStateFlow<State<RecyclerModel?>>
@@ -27,29 +28,22 @@ class CharacterDetailsViewModel @Inject constructor
 
     val curCharacter: StateFlow<State<RecyclerModel?>> = privateCurCharacter
 
-    private var characterId: Int = 0
 
-    fun setCharacterId(id:Int){
-        characterId = id
+    init{
+        getCharacterDetails()
+        Log.d("netlist", "init is called")
     }
 
-    fun getCharacterId() = characterId
-
-
-//    init{
-//        getCharacterDetails(characterId)
-//        Log.d("netlist", "init is called")
-//    }
-
-     fun getCharacterDetails(){
+     private fun getCharacterDetails(){
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 Log.d("netList",
                     "id in viewModel = $characterId")
                 privateCurCharacter.value = State.Loading()
                 val loadedList = getCharacterDetailsUseCase.execute(characterId)
-                privateCurCharacter.value = State
-                    .Success(loadedList)
+                privateCurCharacter.value = if(loadedList == null)
+                        State.Empty()
+                    else State.Success(loadedList)
                 Log.d("netList",
                     "status = ${privateCurCharacter.value}" +
                             " details = ${privateCurCharacter.value.data as CharacterDetailsModel}")

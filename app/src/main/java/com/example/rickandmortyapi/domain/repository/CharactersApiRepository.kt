@@ -11,7 +11,7 @@ interface CharactersApiRepository {
                                   gender: CharacterGender?)
     : List<CharacterModel>
 
-    suspend fun getCharacterDetails(id:Int): CharacterDetailsModel
+    suspend fun getCharacterDetails(id:Int): CharacterDetailsModel?
 
 
 

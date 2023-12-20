@@ -9,25 +9,29 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.rickandmortyapi.R
 import com.example.rickandmortyapi.databinding.ActivityMainBinding
 import com.example.rickandmortyapi.di.MyApp
+import com.example.rickandmortyapi.di.daggerComponents.MainActitvityComponent
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.FragmentNavigator
 import com.example.rickandmortyapi.presenter.viewmodels.FeedViewModel
+import com.example.rickandmortyapi.presenter.viewmodels.InternetConnectionObserverViewModel
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(), FragmentNavigator {
 
     private lateinit var binding: ActivityMainBinding
 
-    @Inject
-    lateinit var feedViewModelFactory: ViewModelProvider.Factory
 
-    //private val viewModel: FeedViewModel by viewModels{feedViewModelFactory}
-
+//    private val viewModel: InternetConnectionObserverViewModel by viewModels{feedViewModelFactory}
+//
+//
+//    private val activityComponent: MainActitvityComponent by lazy {
+//
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        (applicationContext as MyApp).appComponent.inject(this)
+        //(applicationContext as MyApp).appComponent.inject(this)
         supportFragmentManager.commit {
             val fragment = FeedFragment()
             add(R.id.fragment_container, fragment)

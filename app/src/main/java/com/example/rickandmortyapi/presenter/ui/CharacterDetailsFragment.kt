@@ -13,21 +13,21 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.rickandmortyapi.R
 import com.example.rickandmortyapi.databinding.FragmentCharacterDetailsBinding
-import com.example.rickandmortyapi.di.MyApp
+import com.example.rickandmortyapi.di.daggerComponents.CharacterDetailsFragmentComponent
+import com.example.rickandmortyapi.di.daggerComponents.DaggerCharacterDetailsFragmentComponent
 import com.example.rickandmortyapi.domain.models.CharacterDetailsModel
 import com.example.rickandmortyapi.domain.models.RecyclerModel
+import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.CharacterDetailsEpisodesListItemDelegate
+import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.CharacterDetailsRecyclerItemDecorator
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.DetailsRecyclerAdapter
-import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerItemDelegate
-import com.example.rickandmortyapi.presenter.viewmodels.FeedViewModel
+import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.EpisodeListTitleItemDelegate
 import javax.inject.Inject
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.GenderParameterItemDelegate
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.LocationParameterItemDelegate
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.OriginParameterItemDelegate
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.SpeciesParameterItemDelegate
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.StatusParameterItemDelegate
-import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.episodesListRecycler.CharacterDetailsEpisodesListDelegate
 import com.example.rickandmortyapi.presenter.State
-import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerListAdapter
 import com.example.rickandmortyapi.presenter.viewmodels.CharacterDetailsViewModel
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
@@ -39,25 +39,29 @@ class CharacterDetailsFragment : Fragment(R.layout.fragment_character_details) {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
-    private val viewModel : CharacterDetailsViewModel by viewModels { viewModelFactory }
+    private val viewModel : CharacterDetailsViewModel
+    by viewModels { viewModelFactory }
 
     private var snackBar: Snackbar? = null
 
     private var recyclerIsInitialized = false
 
+    private val component: CharacterDetailsFragmentComponent by lazy {
+        DaggerCharacterDetailsFragmentComponent.factory().create(requireContext(),
+            arguments?.getInt(CHARACTER_ID_PARAM, 0) ?: 0 )
+    }
+
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        (activity?.application as MyApp).appComponent.inject(this)
+        component.inject(this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentCharacterDetailsBinding.bind(view)
-        //initializeCharacterDetailsRecycler()
+        initializeCharacterDetailsRecycler()
         setUpCurCharacterObserver()
-        val id = arguments?.getInt(CHARACTER_ID_PARAM, 0) ?: 0
-        viewModel.getCharacterDetails()
     }
 
     private fun initializeCharacterDetailsRecycler(){
@@ -67,18 +71,20 @@ class CharacterDetailsFragment : Fragment(R.layout.fragment_character_details) {
             SpeciesParameterItemDelegate(),
             OriginParameterItemDelegate(),
             LocationParameterItemDelegate(),
-            CharacterDetailsEpisodesListDelegate()
+            EpisodeListTitleItemDelegate(),
+            CharacterDetailsEpisodesListItemDelegate()
         )
         binding.detailsRecycler.adapter = DetailsRecyclerAdapter(delegates)
         binding.detailsRecycler.layoutManager = LinearLayoutManager(requireContext(),
             LinearLayoutManager.VERTICAL, false)
+        binding.detailsRecycler
+            .addItemDecoration(CharacterDetailsRecyclerItemDecorator())
     }
 
     private fun setUpCharacterImageAndName(){
         Glide.with(requireContext())
             .load((viewModel.curCharacter.value.data
                     as CharacterDetailsModel).image)
-            //.error(R.drawable.glide_placeholder)
             .placeholder(R.drawable.glide_placeholder)
             .centerCrop()
             .into(binding.characterImage)
@@ -100,13 +106,9 @@ class CharacterDetailsFragment : Fragment(R.layout.fragment_character_details) {
                         }
                         is State.Loading -> showProgressBar()
                         is State.Success -> {
-                            if(!recyclerIsInitialized) {
-                                initializeCharacterDetailsRecycler()
-                                recyclerIsInitialized = false
-                            }
+                            moveToAdapter(it.data)
                             hideProgressBar()
                             setUpCharacterImageAndName()
-                            moveToAdapter(it.data)
                         }
                     }
                 }
@@ -117,7 +119,7 @@ class CharacterDetailsFragment : Fragment(R.layout.fragment_character_details) {
     private fun moveToAdapter(data : RecyclerModel?){
         data?.let {
             (binding.detailsRecycler.adapter as DetailsRecyclerAdapter)
-                .differ.submitList(listOf(it))
+                .setCharacterDetailsModel(it)
         }
     }
 

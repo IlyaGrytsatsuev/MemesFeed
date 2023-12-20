@@ -49,7 +49,4 @@ class RecyclerListAdapter(private val delegates: List<RecyclerItemDelegate>)
         differ.submitList(res)
     }
 
-    fun clearItemsList(){
-        differ.submitList(listOf())
-    }
 }

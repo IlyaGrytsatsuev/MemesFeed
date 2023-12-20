@@ -4,11 +4,11 @@ import com.google.gson.annotations.SerializedName
 
 data class EpisodeResponse (
     @SerializedName("id")
-    val id:Int,
+    val id:Int?,
     @SerializedName("name")
-    val name:String, //todo ?
+    val name:String?,
     @SerializedName("episode")
-    val episode:String,
+    val episode:String?,
     @SerializedName("characters")
-    val characters:List<String>
+    val characters:List<String>?
 )

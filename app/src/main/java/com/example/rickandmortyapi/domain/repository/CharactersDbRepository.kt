@@ -12,7 +12,7 @@ interface CharactersDbRepository {
     : List<CharacterModel>
     suspend fun upsertCharactersIntoDb(characterList: List<CharacterModel>?)
 
-    suspend fun getCharacterWithEpisodesByIdFromDB(id:Int):CharacterDetailsModel
+    suspend fun getCharacterWithEpisodesByIdFromDB(id:Int):CharacterDetailsModel?
 
     suspend fun upsertCharacterWithEpisodesIntoDb(characterDetailsModel: CharacterDetailsModel)
 

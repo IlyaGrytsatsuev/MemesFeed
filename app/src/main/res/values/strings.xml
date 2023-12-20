@@ -9,6 +9,8 @@
     <string name="gender_title">Gender:</string>
     <string name="location_title">Location:</string>
     <string name="origin_title">Origin:</string>
+    <string name="episodes_title">Episodes:</string>
+
 
     <string name="status_filter_title">Status</string>
     <string name="gender_filter_title">Gender</string>

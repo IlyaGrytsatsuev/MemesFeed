@@ -28,9 +28,7 @@ class FeedViewModel @Inject constructor(
     private val getCharactersListUseCase: GetCharactersListUseCase,
     private val resetPaginationDataUseCase: ResetPaginationDataUseCase,
     private val getDisplayedItemsNumUseCase: GetDisplayedItemsNumUseCase,
-    private val getCharacterDetailsUseCase: GetCharacterDetailsUseCase,
     private val getCurPageUseCase: GetCurPageUseCase
-    //private val internetConnectionChecker: InternetConnectionChecker,
 ): ViewModel() {
 
     private var pageLoadJob: Job? = null
@@ -56,29 +54,9 @@ class FeedViewModel @Inject constructor(
 
     val nameState:StateFlow<String?> = privateNameState
 
-    private var privateCurCharacter: MutableStateFlow<State<RecyclerModel?>>
-    = MutableStateFlow(State.Loading())
-
-    val curCharacter: StateFlow<State<RecyclerModel?>> = privateCurCharacter
-
-
     init{
         getCharacters()
         Log.d("netlist", "init is called")
-    }
-
-    fun getCharacterDetails(id:Int){
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                privateCurCharacter.value = State.Loading()
-                privateCurCharacter.value = State
-                    .Success(getCharacterDetailsUseCase.execute(id))
-            }
-            catch (e:Exception){
-                privateCurCharacter.value = State.Error()
-            }
-        }
-
     }
 
     fun setCharacterStatusFilter(value:CharacterStatus){

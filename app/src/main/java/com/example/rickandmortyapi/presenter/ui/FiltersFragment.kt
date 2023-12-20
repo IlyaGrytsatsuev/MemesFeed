@@ -44,7 +44,7 @@ class FiltersFragment : Fragment(R.layout.fragment_filters) {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        (activity?.application as MyApp).appComponent.inject(this)
+        //(activity?.application as MyApp).appComponent.inject(this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

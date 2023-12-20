@@ -17,11 +17,6 @@ import com.example.rickandmortyapi.domain.models.InfoModel
 fun CharactersResponse.toDomainCharactersModelsList(): List<CharacterModel> {
     val result: MutableList<CharacterModel> = mutableListOf()
     this.results?.forEach { result1 ->
-//        val episodeIndexes = mutableListOf<Int>()
-//            result1.episode?.forEach {
-//                val indexStr = "${it.toCharArray()[it.length-1]}"
-//                episodeIndexes.add(indexStr.toInt())
-//            }
         val characterModel = CharacterModel(
             created = result1.created?:"",
             //episode = episodeIndexes,
@@ -40,7 +35,6 @@ fun CharactersResponse.toDomainCharactersModelsList(): List<CharacterModel> {
         )
         result.add(characterModel)
     }
-    //Log.d("respBody", result.toString())
     return result
 }
 
@@ -71,17 +65,11 @@ fun SingleCharacterResponse.toCharacterDetailsDomainModel(): CharacterDetailsMod
 }
 
 fun EpisodeResponse.toEpisodeDomainModel() : EpisodeModel{
-//    val idsList = mutableListOf<Int>()
-//    this.characters.forEach {
-//            val idStr = "${it.toCharArray()[it.length-1]}"
-//            idsList.add(idStr.toInt())
-//    }
 
     Log.d("listnet", "episodeModel = $this")
-    return EpisodeModel(id = this.id,
-        name = this.name,
-        episode = this.episode,
-        //charactersIds = idsList
+    return EpisodeModel(id = this.id?:0,
+        name = this.name?:"",
+        episode = this.episode?:"",
         )
 }
 fun CharacterDetailsModel.appendEpisodesDetails(episodes:List<EpisodeModel>){

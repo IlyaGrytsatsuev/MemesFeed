@@ -2,7 +2,6 @@ package com.example.rickandmortyapi.presenter.ui
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.View
 import androidx.fragment.app.viewModels
@@ -16,7 +15,8 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.rickandmortyapi.R
 import com.example.rickandmortyapi.data.PaginationData
 import com.example.rickandmortyapi.databinding.FragmentFeedBinding
-import com.example.rickandmortyapi.di.MyApp
+import com.example.rickandmortyapi.di.daggerComponents.CharacterFeedFragmentComponent
+import com.example.rickandmortyapi.di.daggerComponents.DaggerCharacterFeedFragmentComponent
 import com.example.rickandmortyapi.domain.models.RecyclerModel
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerItemDelegate
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerListAdapter
@@ -25,7 +25,7 @@ import com.example.rickandmortyapi.presenter.feedRecycler.CharacterFeedItemDeleg
 import com.example.rickandmortyapi.presenter.viewmodels.FeedViewModel
 import com.example.rickandmortyapi.presenter.State
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.FragmentNavigator
-import com.example.rickandmortyapi.presenter.viewmodels.CharacterDetailsViewModel
+import com.example.rickandmortyapi.presenter.feedRecycler.CharacterFeedItemDecorator
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -41,16 +41,16 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
     @Inject
     lateinit var paginationData:PaginationData
 
-
     private val viewModel: FeedViewModel by viewModels {viewModelFactory}
 
-    private val characterDetailsViewModel: CharacterDetailsViewModel
-    by viewModels {viewModelFactory}
+    private val component: CharacterFeedFragmentComponent by lazy{
+        DaggerCharacterFeedFragmentComponent.factory().create(requireContext())
+    }
 
-
-    private var feedRecycler: RecyclerView? = null //todo remove
-
-    private var snackBar: Snackbar? = null
+    private val moveToCharacterDetailsFragmentFun:(characterId:Int)->Unit = {
+        (activity as MainActivity).moveToFragment(R.id.fragment_container
+            , CharacterDetailsFragment.newInstance(it))
+    }
 
     private val adapter : RecyclerView.Adapter<ViewHolder> by lazy {
         RecyclerListAdapter(listOf<RecyclerItemDelegate>(
@@ -59,7 +59,7 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        (activity?.application as MyApp).appComponent.inject(this)
+        component.inject(this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -74,13 +74,15 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
     }
 
     private fun initializeRecycler(){
-        feedRecycler = binding.feedRecycler
+
         val layoutManager = LinearLayoutManager(requireContext(),
             LinearLayoutManager.VERTICAL, false)
         setUpCharactersListStateObserver()
-        feedRecycler?.adapter = adapter
-        feedRecycler?.layoutManager = layoutManager
-        feedRecycler?.addOnScrollListener(setUpPaginationScrollListener(layoutManager))
+        binding.feedRecycler.adapter = adapter
+        binding.feedRecycler.layoutManager = layoutManager
+        binding.feedRecycler.addItemDecoration(CharacterFeedItemDecorator())
+        binding.feedRecycler
+            .addOnScrollListener(setUpPaginationScrollListener(layoutManager))
 
     }
     private fun setUpCharactersListStateObserver(){
@@ -109,7 +111,7 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
 
     private fun moveToAdapter(data : List<RecyclerModel>?){
             data?.toList()?.let {
-                if(viewModel.getCurPage() == 2)
+                if(viewModel.getCurPage() == 2 || viewModel.getCurPage() == 1)
                     (adapter as RecyclerListAdapter).differ.submitList(it)
                 else
                     (adapter as RecyclerListAdapter).appendItems(it)
@@ -128,7 +130,7 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
 
     private fun setOnReloadButtonListener(){
         binding.reloadButton.setOnClickListener {
-            viewModel.reloadCharactersList()
+            reloadCharactersList()
         }
     }
     private fun setUpFilterButtonListener(){
@@ -143,7 +145,7 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.nameState.collect {
-                    viewModel.reloadCharactersList()
+                    reloadCharactersList()
                 }
             }
         }
@@ -153,7 +155,7 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.characterStatusFilter.collect {
-                    viewModel.reloadCharactersList()
+                    reloadCharactersList()
                 }
             }
         }
@@ -163,16 +165,18 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.characterGenderFilter.collect {
-                    viewModel.reloadCharactersList()
+                    reloadCharactersList()
                 }
             }
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        Log.d("net","onPause() is called")
+
+    private fun reloadCharactersList(){
+        binding.feedRecycler.scrollToPosition(0)
+        viewModel.reloadCharactersList()
     }
+
     private fun showEmptyListMessage(){
         binding.emptyListTextView.visibility = View.VISIBLE
     }
@@ -189,16 +193,9 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
     }
 
     private fun showSnackBar(message: String){
-        snackBar = Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG)
-        snackBar?.show()
+        Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show()
     }
 
-    //todo remove
-    private val moveToCharacterDetailsFragmentFun:(characterId:Int)->Unit = {
-        characterDetailsViewModel.setCharacterId(it)
-        characterDetailsViewModel.getCharacterDetails()
-        (activity as MainActivity).moveToFragment(R.id.fragment_container
-            , CharacterDetailsFragment())
-    }
+
 
 }

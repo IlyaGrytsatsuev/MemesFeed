@@ -16,25 +16,22 @@ import com.example.rickandmortyapi.domain.repository.EpisodesApiRepository
 import com.example.rickandmortyapi.domain.repository.EpisodesDbRepository
 import com.example.rickandmortyapi.utils.CharacterGender
 import com.example.rickandmortyapi.utils.CharacterStatus
-import com.example.rickandmortyapi.utils.InternetConnectionChecker
+import com.example.rickandmortyapi.utils.InternetConnectionObserver
 import javax.inject.Inject
 
 
 class CharactersApiRepositoryImpl @Inject constructor
-    (
-    private val charactersApiService: CharactersApiService,
-    private val charactersDbRepository: CharactersDbRepository,
-    private val episodesApiRepository: EpisodesApiRepository,
-    private val episodesDbRepository: EpisodesDbRepository,
-    private val paginationDataRepository: PaginationDataRepository,
-    private val internetConnectionChecker: InternetConnectionChecker
-) : CharactersApiRepository {
+    (private val charactersApiService: CharactersApiService,
+     private val charactersDbRepository: CharactersDbRepository,
+     private val episodesApiRepository: EpisodesApiRepository,
+     private val paginationDataRepository: PaginationDataRepository)
+    : CharactersApiRepository {
 
     override suspend fun getCharactersList(name:String?, status: CharacterStatus?,
                                            gender: CharacterGender?): List<CharacterModel> {
-        val resultList:List<CharacterModel>
-        val hasInternet = internetConnectionChecker.hasInternetConnection()
-        if(hasInternet) {
+        var resultList:List<CharacterModel> = listOf()
+
+        try {
             resultList = getCharactersFromApi(
                 name = name,
                 status = status,
@@ -43,20 +40,25 @@ class CharactersApiRepositoryImpl @Inject constructor
             Log.d("netlist", "api call success")
             charactersDbRepository.upsertCharactersIntoDb(characterList = resultList.toList())
         }
-        else {
+        catch (e:Exception){
             resultList = charactersDbRepository.getCharactersFromDB(
                 id = null,
                 name = name,
                 status = status,
                 gender = gender
             )
+            return resultList
             Log.d("netlist", "db call")
         }
+        finally {
+            if(resultList.isNotEmpty()) {
+                paginationDataRepository.incrementPageCounter()
+                paginationDataRepository.increaseDisplayedItemsNum()
+            }
+            Log.d("netlist", "page = ${paginationDataRepository.getCurPage()} " +
+                    "items = ${paginationDataRepository.getDisplayedItemsNum()}")
 
-        paginationDataRepository.incrementPageCounter()
-        paginationDataRepository.increaseDisplayedItemsNum()
-        Log.d("netlist", "page = ${paginationDataRepository.getCurPage()} " +
-                "items = ${paginationDataRepository.getDisplayedItemsNum()}")
+        }
 
         return resultList
     }
@@ -108,11 +110,10 @@ class CharactersApiRepositoryImpl @Inject constructor
 
         return result
     }
-    override suspend fun getCharacterDetails(id:Int): CharacterDetailsModel{
-        val hasInternet = internetConnectionChecker.hasInternetConnection()
-        var characterDetails: CharacterDetailsModel
+    override suspend fun getCharacterDetails(id:Int): CharacterDetailsModel?{
+        var characterDetails: CharacterDetailsModel? = null
         val episodesList = mutableListOf<EpisodeModel>()
-        if(hasInternet) {
+        try{
             characterDetails = getCharacterFromApiById(id)
 
             characterDetails.episodeIds.forEach {
@@ -122,14 +123,15 @@ class CharactersApiRepositoryImpl @Inject constructor
             charactersDbRepository
                 .upsertCharacterWithEpisodesIntoDb(characterDetails)
         }
-        else{
+        catch (e:Exception){
             characterDetails = charactersDbRepository
                 .getCharacterWithEpisodesByIdFromDB(id)
+            return characterDetails
         }
-
-        Log.d("netlist","Loaded Character Details " +
-                "= ${characterDetails.episode}")
-
+        finally {
+            Log.d("netlist","Loaded Character Details " +
+                    "= ${characterDetails?.episode}")
+        }
 
         return characterDetails
     }

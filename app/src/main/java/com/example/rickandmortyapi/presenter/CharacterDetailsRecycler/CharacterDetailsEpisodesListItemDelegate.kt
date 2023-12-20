@@ -1,13 +1,11 @@
-package com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.episodesListRecycler
+package com.example.rickandmortyapi.presenter.CharacterDetailsRecycler
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rickandmortyapi.databinding.CharacterDetailsEpisodesListItemBinding
-import com.example.rickandmortyapi.databinding.CharacterDetailsParameterItemBinding
 import com.example.rickandmortyapi.domain.models.EpisodeModel
 import com.example.rickandmortyapi.domain.models.RecyclerModel
-import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.CharacterParameterItemViewHolder
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerItemDelegate
 
 class CharacterDetailsEpisodesListItemDelegate: RecyclerItemDelegate {

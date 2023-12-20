@@ -1,4 +1,4 @@
-package com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.episodesListRecycler
+package com.example.rickandmortyapi.presenter.CharacterDetailsRecycler
 
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rickandmortyapi.databinding.CharacterDetailsEpisodesListItemBinding
