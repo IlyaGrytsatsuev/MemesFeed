@@ -2,6 +2,8 @@ package com.example.rickandmortyapi.domain.repository
 
 interface PaginationDataRepository {
 
+    fun setIsFirstLoadedFromApi(value:Boolean)
+    fun isFirstLoadedFromApi():Boolean
     fun getDisplayedItemsNum():Int
 
     fun increaseDisplayedItemsNum()

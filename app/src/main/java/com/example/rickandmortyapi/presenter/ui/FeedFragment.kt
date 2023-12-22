@@ -2,8 +2,11 @@ package com.example.rickandmortyapi.presenter.ui
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.View
+import androidx.core.content.ContextCompat
+import androidx.core.view.accessibility.AccessibilityEventCompat.setAction
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -26,6 +29,7 @@ import com.example.rickandmortyapi.presenter.viewmodels.FeedViewModel
 import com.example.rickandmortyapi.presenter.State
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.FragmentNavigator
 import com.example.rickandmortyapi.presenter.feedRecycler.CharacterFeedItemDecorator
+import com.example.rickandmortyapi.presenter.viewmodels.InternetConnectionObserverViewModel
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -42,6 +46,10 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
     lateinit var paginationData:PaginationData
 
     private val viewModel: FeedViewModel by viewModels {viewModelFactory}
+
+    private val internetObserverViewModel: InternetConnectionObserverViewModel
+    by viewModels {viewModelFactory}
+
 
     private val component: CharacterFeedFragmentComponent by lazy{
         DaggerCharacterFeedFragmentComponent.factory().create(requireContext())
@@ -66,18 +74,42 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentFeedBinding.bind(view)
         initializeRecycler()
+        setUpCharactersListStateObserver()
         setUpFilterButtonListener()
         setUpNameFilterObserver()
         setUpStatusFilterObserver()
         setUpGenderFilterObserver()
         setOnReloadButtonListener()
+        setOnInternetRestoredObserver()
     }
 
+    private fun setOnInternetRestoredObserver(){
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.CREATED) {
+                internetObserverViewModel
+                    .connectionState.collect {
+                    if (!internetObserverViewModel
+                        .connectionState.replayCache.first() && it)
+                        showSnackBarWithAction(
+                            getString(R.string.internet_available_message),
+                            getString(R.string.reload_page_snackbar_button))
+                }
+            }
+        }
+    }
+
+    private fun showSnackBarWithAction(message:String, actionMessage:String){
+        Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).apply {
+            setAction(actionMessage){
+                reloadCharactersList()
+            }
+        }.show()
+
+    }
     private fun initializeRecycler(){
 
         val layoutManager = LinearLayoutManager(requireContext(),
             LinearLayoutManager.VERTICAL, false)
-        setUpCharactersListStateObserver()
         binding.feedRecycler.adapter = adapter
         binding.feedRecycler.layoutManager = layoutManager
         binding.feedRecycler.addItemDecoration(CharacterFeedItemDecorator())
@@ -86,23 +118,32 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
 
     }
     private fun setUpCharactersListStateObserver(){
+        val recyclerAdapter = binding.feedRecycler.adapter as RecyclerListAdapter
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED){
-                viewModel.charactersList.collect{
-                    when(it){
+                viewModel.charactersList.collect{ listState ->
+                    when(listState){
                         is State.Error ->{
-                            showSnackBar(getString(R.string.error_message))
-                            hideProgressBar()
+                            if(viewModel.charactersList.replayCache.first()
+                                        is State.Error ||
+                                viewModel.charactersList.replayCache[1]
+                                        is State.Error) {
+                                showSnackBar(getString(R.string.error_message))
+                                hideProgressBar()
+                            }
                         }
                         is State.Empty ->{
                             hideProgressBar()
-                            showEmptyListMessage()
+                            if(recyclerAdapter
+                                    .differ.currentList.size == 0)
+                                showEmptyListMessage()
                         }
                         is State.Loading -> showProgressBar()
                         is State.Success -> {
                             hideProgressBar()
-                            moveToAdapter(it.data)
+                            moveToAdapter(listState.data)
                         }
+
                     }
                 }
             }
@@ -111,7 +152,7 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
 
     private fun moveToAdapter(data : List<RecyclerModel>?){
             data?.toList()?.let {
-                if(viewModel.getCurPage() == 2 || viewModel.getCurPage() == 1)
+                if(viewModel.getCurPage() == 2)
                     (adapter as RecyclerListAdapter).differ.submitList(it)
                 else
                     (adapter as RecyclerListAdapter).appendItems(it)
@@ -121,7 +162,7 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
     private fun setUpPaginationScrollListener(layoutManager: LinearLayoutManager) =
         object : PaginationScrollListener(layoutManager){
             override fun isLoading(): Boolean =
-                viewModel.charactersList.value is State.Loading
+                viewModel.charactersList.replayCache.last() is State.Loading
 
             override fun getNextPage() = viewModel.getCharacters()
             override fun displayedItemsNum() = viewModel.getDisplayedItemsNum()
@@ -156,6 +197,8 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.characterStatusFilter.collect {
                     reloadCharactersList()
+                    Log.d("netlist", "filter observer")
+
                 }
             }
         }

@@ -15,6 +15,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.rickandmortyapi.R
 import com.example.rickandmortyapi.databinding.FragmentFiltersBinding
 import com.example.rickandmortyapi.di.MyApp
+import com.example.rickandmortyapi.di.daggerComponents.CharacterDetailsFragmentComponent
+import com.example.rickandmortyapi.di.daggerComponents.DaggerCharacterDetailsFragmentComponent
+import com.example.rickandmortyapi.di.daggerComponents.DaggerFiltersFragmentComponent
+import com.example.rickandmortyapi.di.daggerComponents.FiltersFragmentComponent
 import com.example.rickandmortyapi.presenter.viewmodels.FeedViewModel
 import com.example.rickandmortyapi.utils.CharacterGender
 import com.example.rickandmortyapi.utils.CharacterStatus
@@ -38,13 +42,16 @@ class FiltersFragment : Fragment(R.layout.fragment_filters) {
         CharacterGender.UNCHOSEN, CharacterGender.FEMALE,
         CharacterGender.MALE, CharacterGender.GENDERLESS, CharacterGender.UNKNOWN)
 
+    private val component: FiltersFragmentComponent by lazy {
+        DaggerFiltersFragmentComponent.factory().create(requireContext())
+    }
 
 
 
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        //(activity?.application as MyApp).appComponent.inject(this)
+        component.inject(this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

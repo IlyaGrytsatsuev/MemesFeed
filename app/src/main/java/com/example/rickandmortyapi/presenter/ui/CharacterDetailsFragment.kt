@@ -97,6 +97,10 @@ class CharacterDetailsFragment : Fragment(R.layout.fragment_character_details) {
                 viewModel.curCharacter.collect{
                     when(it){
                         is State.Error ->{
+                            if(it.data != null)
+                                moveToAdapter(it.data)
+                            else
+                                showEmptyListMessage()
                             showSnackBar(getString(R.string.error_message))
                             hideProgressBar()
                         }

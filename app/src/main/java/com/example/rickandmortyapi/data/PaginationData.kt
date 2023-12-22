@@ -3,17 +3,24 @@ package com.example.rickandmortyapi.data
 import com.example.rickandmortyapi.utils.Constants
 
 class PaginationData{
-     private var displayedItemsNum: Int = 0
-     private var curPage: Int = 1
-     private var totalPageNum: Int = 1
-     private var hasPagesInfo:Boolean = false
+    private var displayedItemsNum: Int = 0
+    private var curPage: Int = 1
+    private var totalPageNum: Int = 1
+    private var hasPagesInfo:Boolean = false
+    private var isFirstLoadedFromApi = true
 
 
-     fun getDisplayedItemsNum() = displayedItemsNum
+    fun setIsFirstLoadedFromApi(value: Boolean){
+        isFirstLoadedFromApi = value
+    }
 
-     fun increaseDisplayedItemsNum(){
-         displayedItemsNum+=Constants.ITEMS_PER_PAGE
-     }
+    fun isFirstLoadedFromApi() = isFirstLoadedFromApi
+
+    fun getDisplayedItemsNum() = displayedItemsNum
+
+    fun increaseDisplayedItemsNum(){
+        displayedItemsNum+=Constants.ITEMS_PER_PAGE
+    }
 
      fun getCurPage() = curPage
 
@@ -36,6 +43,7 @@ class PaginationData{
         displayedItemsNum = 0
         totalPageNum = 1
         hasPagesInfo = false
+        isFirstLoadedFromApi = true
     }
  }
 

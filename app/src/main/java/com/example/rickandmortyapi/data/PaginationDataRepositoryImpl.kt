@@ -5,6 +5,13 @@ import javax.inject.Inject
 
 class PaginationDataRepositoryImpl @Inject
 constructor(private val paginationData: PaginationData): PaginationDataRepository {
+    override fun setIsFirstLoadedFromApi(value: Boolean) {
+        paginationData.setIsFirstLoadedFromApi(value)
+    }
+
+    override fun isFirstLoadedFromApi(): Boolean =
+        paginationData.isFirstLoadedFromApi()
+
     override fun getDisplayedItemsNum() =
         paginationData.getDisplayedItemsNum()
 

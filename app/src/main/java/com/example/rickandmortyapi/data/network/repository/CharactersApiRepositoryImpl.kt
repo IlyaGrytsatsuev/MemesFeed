@@ -12,8 +12,10 @@ import com.example.rickandmortyapi.domain.repository.CharactersDbRepository
 import com.example.rickandmortyapi.domain.repository.PaginationDataRepository
 import com.example.rickandmortyapi.domain.models.CharacterDetailsModel
 import com.example.rickandmortyapi.domain.models.EpisodeModel
+import com.example.rickandmortyapi.domain.models.RecyclerModel
 import com.example.rickandmortyapi.domain.repository.EpisodesApiRepository
 import com.example.rickandmortyapi.domain.repository.EpisodesDbRepository
+import com.example.rickandmortyapi.presenter.State
 import com.example.rickandmortyapi.utils.CharacterGender
 import com.example.rickandmortyapi.utils.CharacterStatus
 import com.example.rickandmortyapi.utils.InternetConnectionObserver
@@ -30,25 +32,13 @@ class CharactersApiRepositoryImpl @Inject constructor
     override suspend fun getCharactersList(name:String?, status: CharacterStatus?,
                                            gender: CharacterGender?): List<CharacterModel> {
         var resultList:List<CharacterModel> = listOf()
-
         try {
-            resultList = getCharactersFromApi(
-                name = name,
-                status = status,
-                gender = gender
-            )
-            Log.d("netlist", "api call success")
-            charactersDbRepository.upsertCharactersIntoDb(characterList = resultList.toList())
+            resultList = getApiData(name = name, status = status,
+                gender = gender)
         }
         catch (e:Exception){
-            resultList = charactersDbRepository.getCharactersFromDB(
-                id = null,
-                name = name,
-                status = status,
-                gender = gender
-            )
-            return resultList
-            Log.d("netlist", "db call")
+            resultList = getDbData(name = name, status = status,
+                gender = gender)
         }
         finally {
             if(resultList.isNotEmpty()) {
@@ -63,6 +53,43 @@ class CharactersApiRepositoryImpl @Inject constructor
         return resultList
     }
 
+    private suspend fun getApiData(name:String?, status: CharacterStatus?,
+                                   gender: CharacterGender?) : List<CharacterModel>{
+        if(!paginationDataRepository.isFirstLoadedFromApi()
+            && paginationDataRepository.getCurPage() > 1)
+            throw Exception()
+        val resultList = getCharactersFromApi(
+            name = name,
+            status = status,
+            gender = gender
+        )
+        Log.d("netlist", "api call success")
+        paginationDataRepository
+            .setIsFirstLoadedFromApi(true)
+        charactersDbRepository.upsertCharactersIntoDb(characterList = resultList.toList())
+        return resultList
+    }
+    private suspend fun getDbData(name:String?, status: CharacterStatus?,
+                                  gender: CharacterGender?) : List<CharacterModel>{
+        if(paginationDataRepository.getCurPage() == 1) {
+            paginationDataRepository
+                .setIsFirstLoadedFromApi(false)
+            Log.d("netlist", "change first flag")
+        }
+
+        if(!paginationDataRepository.isFirstLoadedFromApi()) {
+            val resultList = charactersDbRepository.getCharactersFromDB(
+                id = null,
+                name = name,
+                status = status,
+                gender = gender
+            )
+            Log.d("netlist", "db call")
+
+            return resultList
+        }
+        throw Exception()
+    }
     private suspend fun getCharactersFromApi(name:String?, status: CharacterStatus?,
                                              gender: CharacterGender?): List<CharacterModel> =
         if (paginationDataRepository.hasPagesInfo())
@@ -110,7 +137,8 @@ class CharactersApiRepositoryImpl @Inject constructor
 
         return result
     }
-    override suspend fun getCharacterDetails(id:Int): CharacterDetailsModel?{
+    override suspend fun getCharacterDetails(id:Int): State<RecyclerModel?> {
+
         var characterDetails: CharacterDetailsModel? = null
         val episodesList = mutableListOf<EpisodeModel>()
         try{
@@ -126,14 +154,14 @@ class CharactersApiRepositoryImpl @Inject constructor
         catch (e:Exception){
             characterDetails = charactersDbRepository
                 .getCharacterWithEpisodesByIdFromDB(id)
-            return characterDetails
+            return State.Error(characterDetails)
         }
         finally {
             Log.d("netlist","Loaded Character Details " +
                     "= ${characterDetails?.episode}")
         }
 
-        return characterDetails
+        return State.Success(characterDetails)
     }
 
 

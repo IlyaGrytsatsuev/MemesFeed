@@ -16,7 +16,10 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -33,26 +36,34 @@ class FeedViewModel @Inject constructor(
 
     private var pageLoadJob: Job? = null
     private val privateRecyclerList:
-            MutableStateFlow<State<List<RecyclerModel>>>
-    = MutableStateFlow(State.Loading())
+            MutableSharedFlow<State<List<RecyclerModel>>>
+    = MutableSharedFlow(replay = 3,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
-    val charactersList:StateFlow<State<List<RecyclerModel>>> = privateRecyclerList
+    val charactersList: SharedFlow<State<List<RecyclerModel>>>
+    = privateRecyclerList
 
     private val privateCharacterGenderFilter:
-            MutableStateFlow<CharacterGender>
-            = MutableStateFlow(CharacterGender.UNCHOSEN)
+            MutableSharedFlow<CharacterGender>
+            = MutableSharedFlow(replay = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
-    val characterGenderFilter:StateFlow<CharacterGender> = privateCharacterGenderFilter
+    val characterGenderFilter:SharedFlow<CharacterGender>
+    = privateCharacterGenderFilter
 
     private val privateCharacterStatusFilter:
-            MutableStateFlow<CharacterStatus>
-            = MutableStateFlow(CharacterStatus.UNCHOSEN)
+            MutableSharedFlow<CharacterStatus> =
+            MutableSharedFlow(replay = 1,
+    onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
-    val characterStatusFilter:StateFlow<CharacterStatus> = privateCharacterStatusFilter
+    val characterStatusFilter:SharedFlow<CharacterStatus>
+    = privateCharacterStatusFilter
 
-    private val privateNameState: MutableStateFlow<String?> = MutableStateFlow(null)
+    private val privateNameState: MutableSharedFlow<String?>
+    = MutableSharedFlow(replay = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
-    val nameState:StateFlow<String?> = privateNameState
+    val nameState:SharedFlow<String?> = privateNameState
 
     init{
         getCharacters()
@@ -60,35 +71,42 @@ class FeedViewModel @Inject constructor(
     }
 
     fun setCharacterStatusFilter(value:CharacterStatus){
-        privateCharacterStatusFilter.value = value
+        viewModelScope.launch {
+            privateCharacterStatusFilter.emit(value)
+            Log.d("netlist",
+                privateCharacterStatusFilter
+                    .replayCache.first().text?:"Not chosen")
+        }
     }
 
     fun setCharacterGenderFilter(value: CharacterGender){
-        privateCharacterGenderFilter.value = value
+        viewModelScope.launch {
+            privateCharacterGenderFilter.emit(value)
+        }
     }
 
     fun getCharacters(){
-        privateRecyclerList.value = State.Loading()
         pageLoadJob = viewModelScope.launch(Dispatchers.IO) {
+            privateRecyclerList.emit(State.Loading())
             try {
                 val loadedList = getCharactersListUseCase.execute(
-                    name = privateNameState.value,
-                    status = privateCharacterStatusFilter.value,
-                    gender = privateCharacterGenderFilter.value
-                )
-                privateRecyclerList.value = if(loadedList.isEmpty())
+                    name = privateNameState.replayCache.lastOrNull(),
+                    status = privateCharacterStatusFilter.replayCache.lastOrNull(),
+                    gender = privateCharacterGenderFilter.replayCache.lastOrNull()
+                ) as List<RecyclerModel>
+                val loadedListState = if(loadedList.isEmpty())
                     State.Empty() else State
-                        .Success(loadedList)
+                    .Success(loadedList)
+                privateRecyclerList.emit(loadedListState)
             }
             catch (c:CancellationException){
                 Log.d("netList", "cancelled")
             }
             catch (e:Exception){
-                privateRecyclerList.value = State
-                    .Error()
+                privateRecyclerList.emit(State
+                    .Error(null))
             }
         }
-
     }
 
     private fun resetPaginationData(){

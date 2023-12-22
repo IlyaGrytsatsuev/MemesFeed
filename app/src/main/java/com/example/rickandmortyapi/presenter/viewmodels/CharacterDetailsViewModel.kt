@@ -40,16 +40,14 @@ class CharacterDetailsViewModel @Inject constructor
                 Log.d("netList",
                     "id in viewModel = $characterId")
                 privateCurCharacter.value = State.Loading()
-                val loadedList = getCharacterDetailsUseCase.execute(characterId)
-                privateCurCharacter.value = if(loadedList == null)
-                        State.Empty()
-                    else State.Success(loadedList)
-                Log.d("netList",
-                    "status = ${privateCurCharacter.value}" +
-                            " details = ${privateCurCharacter.value.data as CharacterDetailsModel}")
+                privateCurCharacter.value =
+                    getCharacterDetailsUseCase.execute(characterId)
+//                Log.d("netList",
+//                    "status = ${privateCurCharacter.value}" +
+//                            " details = ${privateCurCharacter.value.data as CharacterDetailsModel}")
             }
             catch (e:Exception){
-                privateCurCharacter.value = State.Error()
+                privateCurCharacter.value = State.Error(null)
             }
         }
 
