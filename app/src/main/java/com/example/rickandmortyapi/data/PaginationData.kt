@@ -24,7 +24,7 @@ class PaginationData{
 
      fun getCurPage() = curPage
 
-     fun incremetPageCounter(){
+     fun incrementPageCounter(){
          curPage++
      }
 

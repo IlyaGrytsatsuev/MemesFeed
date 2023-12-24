@@ -98,6 +98,8 @@ class FeedViewModel @Inject constructor(
                     State.Empty() else State
                     .Success(loadedList)
                 privateRecyclerList.emit(loadedListState)
+                Log.d("netlist", "emitted List " +
+                        "${privateRecyclerList.replayCache.first()}")
             }
             catch (c:CancellationException){
                 Log.d("netList", "cancelled")

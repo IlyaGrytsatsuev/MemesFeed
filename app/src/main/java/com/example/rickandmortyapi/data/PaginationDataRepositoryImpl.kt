@@ -25,7 +25,7 @@ constructor(private val paginationData: PaginationData): PaginationDataRepositor
 
 
     override fun incrementPageCounter() {
-        paginationData.incremetPageCounter()
+        paginationData.incrementPageCounter()
     }
 
     override fun getTotalPageNum() =

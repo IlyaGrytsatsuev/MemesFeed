@@ -4,5 +4,4 @@ data class EpisodeModel(
     override val id:Int,
     val name:String,
     val episode:String,
-    //val charactersIds:List<Int>
 ):RecyclerModel()

@@ -1,26 +1,25 @@
-package com.example.rickandmortyapi.presenter.CharacterDetailsRecycler
+package com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.rickandmortyapi.databinding.CharacterDetailsEpisodesListItemBinding
-import com.example.rickandmortyapi.domain.models.EpisodeModel
+import com.example.rickandmortyapi.databinding.CharacterDetailsEpisodesListTitleBinding
 import com.example.rickandmortyapi.domain.models.RecyclerModel
+import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.viewHolders.EpisodesListTitleViewHolder
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerItemDelegate
 
-class CharacterDetailsEpisodesListItemDelegate: RecyclerItemDelegate {
+class EpisodeListTitleItemDelegate : RecyclerItemDelegate {
     override fun isOfViewType(item: RecyclerModel): Boolean {
-        return item is EpisodeModel
+        return true
     }
 
     override fun getViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
-        return CharacterDetailsEpisodesListItemViewHolder(
-            CharacterDetailsEpisodesListItemBinding.inflate(
+        return EpisodesListTitleViewHolder(
+            CharacterDetailsEpisodesListTitleBinding.inflate(
                 LayoutInflater.from(parent.context)
                 , parent, false))
     }
 
     override fun bindViewHolder(viewHolder: RecyclerView.ViewHolder, item: RecyclerModel) {
-        (viewHolder as CharacterDetailsEpisodesListItemViewHolder).onBind(item)
     }
 }

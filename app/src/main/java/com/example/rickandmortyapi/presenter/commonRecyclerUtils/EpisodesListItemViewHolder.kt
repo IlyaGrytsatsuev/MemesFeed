@@ -1,11 +1,11 @@
-package com.example.rickandmortyapi.presenter.CharacterDetailsRecycler
+package com.example.rickandmortyapi.presenter.commonRecyclerUtils
 
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rickandmortyapi.databinding.CharacterDetailsEpisodesListItemBinding
 import com.example.rickandmortyapi.domain.models.EpisodeModel
 import com.example.rickandmortyapi.domain.models.RecyclerModel
 
-class CharacterDetailsEpisodesListItemViewHolder(
+class EpisodesListItemViewHolder(
     private val binding: CharacterDetailsEpisodesListItemBinding
 ): RecyclerView.ViewHolder(binding.root) {
 

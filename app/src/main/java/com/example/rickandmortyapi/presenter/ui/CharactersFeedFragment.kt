@@ -3,10 +3,7 @@ package com.example.rickandmortyapi.presenter.ui
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.View
-import androidx.core.content.ContextCompat
-import androidx.core.view.accessibility.AccessibilityEventCompat.setAction
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -16,7 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.rickandmortyapi.R
-import com.example.rickandmortyapi.data.PaginationData
 import com.example.rickandmortyapi.databinding.FragmentFeedBinding
 import com.example.rickandmortyapi.di.daggerComponents.CharacterFeedFragmentComponent
 import com.example.rickandmortyapi.di.daggerComponents.DaggerCharacterFeedFragmentComponent
@@ -27,27 +23,22 @@ import com.example.rickandmortyapi.presenter.feedRecycler.PaginationScrollListen
 import com.example.rickandmortyapi.presenter.feedRecycler.CharacterFeedItemDelegate
 import com.example.rickandmortyapi.presenter.viewmodels.FeedViewModel
 import com.example.rickandmortyapi.presenter.State
+import com.example.rickandmortyapi.presenter.commonRecyclerUtils.AbstractFeedFragment
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.FragmentNavigator
-import com.example.rickandmortyapi.presenter.feedRecycler.CharacterFeedItemDecorator
 import com.example.rickandmortyapi.presenter.viewmodels.InternetConnectionObserverViewModel
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
-class FeedFragment : Fragment(R.layout.fragment_feed) {
+class CharactersFeedFragment() : AbstractFeedFragment() {
 
-    private lateinit var binding: FragmentFeedBinding
-
-    @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
 
     @Inject
-    lateinit var paginationData:PaginationData
+    override lateinit var viewModelFactory: ViewModelProvider.Factory
 
     private val viewModel: FeedViewModel by viewModels {viewModelFactory}
 
-    private val internetObserverViewModel: InternetConnectionObserverViewModel
+    override val internetObserverViewModel: InternetConnectionObserverViewModel
     by viewModels {viewModelFactory}
 
 
@@ -55,14 +46,14 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
         DaggerCharacterFeedFragmentComponent.factory().create(requireContext())
     }
 
-    private val moveToCharacterDetailsFragmentFun:(characterId:Int)->Unit = {
-        (activity as MainActivity).moveToFragment(R.id.fragment_container
+    override val moveToDetailsFragmentFun: (id: Int) -> Unit= {
+        (activity as MainActivity).moveToDetailsFragment(R.id.fragment_container
             , CharacterDetailsFragment.newInstance(it))
     }
 
-    private val adapter : RecyclerView.Adapter<ViewHolder> by lazy {
+    override val adapter : RecyclerView.Adapter<ViewHolder> by lazy {
         RecyclerListAdapter(listOf<RecyclerItemDelegate>(
-            CharacterFeedItemDelegate(moveToCharacterDetailsFragmentFun)))
+            CharacterFeedItemDelegate(moveToDetailsFragmentFun)))
     }
 
     override fun onAttach(context: Context) {
@@ -74,7 +65,7 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentFeedBinding.bind(view)
         initializeRecycler()
-        setUpCharactersListStateObserver()
+        setUpListStateObserver()
         setUpFilterButtonListener()
         setUpNameFilterObserver()
         setUpStatusFilterObserver()
@@ -83,65 +74,21 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
         setOnInternetRestoredObserver()
     }
 
-    private fun setOnInternetRestoredObserver(){
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.CREATED) {
-                internetObserverViewModel
-                    .connectionState.collect {
-                    if (!internetObserverViewModel
-                        .connectionState.replayCache.first() && it)
-                        showSnackBarWithAction(
-                            getString(R.string.internet_available_message),
-                            getString(R.string.reload_page_snackbar_button))
-                }
-            }
-        }
-    }
-
-    private fun showSnackBarWithAction(message:String, actionMessage:String){
-        Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).apply {
-            setAction(actionMessage){
-                reloadCharactersList()
-            }
-        }.show()
-
-    }
-    private fun initializeRecycler(){
-
-        val layoutManager = LinearLayoutManager(requireContext(),
-            LinearLayoutManager.VERTICAL, false)
-        binding.feedRecycler.adapter = adapter
-        binding.feedRecycler.layoutManager = layoutManager
-        binding.feedRecycler.addItemDecoration(CharacterFeedItemDecorator())
-        binding.feedRecycler
-            .addOnScrollListener(setUpPaginationScrollListener(layoutManager))
-
-    }
-    private fun setUpCharactersListStateObserver(){
-        val recyclerAdapter = binding.feedRecycler.adapter as RecyclerListAdapter
+    override fun setUpListStateObserver() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED){
                 viewModel.charactersList.collect{ listState ->
                     when(listState){
                         is State.Error ->{
-                            if(viewModel.charactersList.replayCache.first()
-                                        is State.Error ||
-                                viewModel.charactersList.replayCache[1]
-                                        is State.Error) {
-                                showSnackBar(getString(R.string.error_message))
-                                hideProgressBar()
-                            }
+                            executeErrorListState()
                         }
                         is State.Empty ->{
-                            hideProgressBar()
-                            if(recyclerAdapter
-                                    .differ.currentList.size == 0)
-                                showEmptyListMessage()
+                            executeEmptyListState()
                         }
-                        is State.Loading -> showProgressBar()
+                        is State.Loading ->
+                            executeLoadingListState()
                         is State.Success -> {
-                            hideProgressBar()
-                            moveToAdapter(listState.data)
+                            executeSuccessListState(listState.data)
                         }
 
                     }
@@ -150,7 +97,13 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
         }
     }
 
-    private fun moveToAdapter(data : List<RecyclerModel>?){
+    override fun reloadList() {
+        binding.feedRecycler.scrollToPosition(0)
+        viewModel.reloadCharactersList()
+    }
+
+
+    override fun moveToAdapter(data : List<RecyclerModel>?){
             data?.toList()?.let {
                 if(viewModel.getCurPage() == 2)
                     (adapter as RecyclerListAdapter).differ.submitList(it)
@@ -159,7 +112,7 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
             }
     }
 
-    private fun setUpPaginationScrollListener(layoutManager: LinearLayoutManager) =
+    override fun setUpPaginationScrollListener(layoutManager: LinearLayoutManager) =
         object : PaginationScrollListener(layoutManager){
             override fun isLoading(): Boolean =
                 viewModel.charactersList.replayCache.last() is State.Loading
@@ -168,15 +121,38 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
             override fun displayedItemsNum() = viewModel.getDisplayedItemsNum()
         }
 
-
-    private fun setOnReloadButtonListener(){
-        binding.reloadButton.setOnClickListener {
-            reloadCharactersList()
+    override fun executeErrorListState() {
+        if(viewModel.charactersList.replayCache.first()
+                    is State.Error ||
+            viewModel.charactersList.replayCache[1]
+                    is State.Error) {
+            showSnackBar(getString(R.string.error_message))
+            hideProgressBar()
         }
     }
+
+    override fun executeEmptyListState() {
+        val recyclerAdapter = binding
+            .feedRecycler.adapter as RecyclerListAdapter
+        hideProgressBar()
+        if(recyclerAdapter
+                .differ.currentList.size == 0)
+            showEmptyListMessage()
+    }
+
+    override fun executeLoadingListState() {
+        showProgressBar()
+    }
+
+    override fun executeSuccessListState(data : List<RecyclerModel>?) {
+        hideProgressBar()
+        moveToAdapter(data)
+    }
+
+
     private fun setUpFilterButtonListener(){
         binding.filterButton.setOnClickListener {
-            (activity as? FragmentNavigator)?.moveToFragment(R.id.container
+            (activity as? FragmentNavigator)?.moveToDetailsFragment(R.id.container
                 , FiltersFragment())
 
         }
@@ -186,7 +162,7 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.nameState.collect {
-                    reloadCharactersList()
+                    reloadList()
                 }
             }
         }
@@ -196,7 +172,7 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.characterStatusFilter.collect {
-                    reloadCharactersList()
+                    reloadList()
                     Log.d("netlist", "filter observer")
 
                 }
@@ -208,36 +184,15 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.characterGenderFilter.collect {
-                    reloadCharactersList()
+                    reloadList()
                 }
             }
         }
     }
 
 
-    private fun reloadCharactersList(){
-        binding.feedRecycler.scrollToPosition(0)
-        viewModel.reloadCharactersList()
-    }
 
-    private fun showEmptyListMessage(){
-        binding.emptyListTextView.visibility = View.VISIBLE
-    }
-    private fun hideEmptyListMessage(){
-        binding.emptyListTextView.visibility = View.GONE
-    }
-    private fun showProgressBar(){
-        binding.progressBar.visibility = View.VISIBLE
-    }
 
-    private fun hideProgressBar(){
-        binding.progressBar.visibility = View.GONE
-        hideEmptyListMessage()
-    }
-
-    private fun showSnackBar(message: String){
-        Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show()
-    }
 
 
 

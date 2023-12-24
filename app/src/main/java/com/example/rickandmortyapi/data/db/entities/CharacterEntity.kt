@@ -36,37 +36,7 @@ data class CharacterEntity (
     val url: String = ""
 )
 
-@Entity
-data class EpisodeEntity(
-    @PrimaryKey(autoGenerate = false)
-    @ColumnInfo(name = "episodeId")
-    val id: Int = 0,
-    @ColumnInfo(name = "name")
-    val name:String = "",
-    @ColumnInfo(name = "episode")
-    val episode:String = ""
-)
 
-
-@Entity(primaryKeys = ["characterId", "episodeId"],
-    foreignKeys = [
-        ForeignKey(
-            entity = CharacterEntity::class,
-            parentColumns = ["characterId"],
-            childColumns = ["characterId"],
-            onDelete = ForeignKey.CASCADE
-        ),
-        ForeignKey(
-            entity = EpisodeEntity::class,
-            parentColumns = ["episodeId"],
-            childColumns = ["episodeId"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ]  )
-data class CharactersAndEpisodesIdsEntity(
-    val characterId: Int = 0,
-    val episodeId: Int = 0
-)
 
 data class CharacterWithEpisodes(
     @Embedded
@@ -78,18 +48,6 @@ data class CharacterWithEpisodes(
     )
     val episodes: List<EpisodeEntity> = emptyList()
 )
-
-data class EpisodeWithCharacters(
-    @Embedded
-    val episodeEntity: EpisodeEntity = EpisodeEntity(),
-    @Relation(
-        parentColumn = "episodeId",
-        entityColumn = "characterId",
-        associateBy = Junction(CharactersAndEpisodesIdsEntity::class)
-    )
-    val characters: List<CharacterEntity> = emptyList()
-)
-
 
 
 data class CharacterLocation(

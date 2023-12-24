@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/characters_navbar_button"
+        android:title="Characters"
+        android:icon="@drawable/characters_navbar_icon"/>
+    <item
+        android:id="@+id/episode_navbar_button"
+        android:title="Episodes"
+        android:icon="@drawable/episode_navbar_icon"/>
+</menu>

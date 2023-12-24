@@ -8,7 +8,7 @@ import dagger.Module
 import dagger.multibindings.IntoMap
 
 @Module
-interface FeedViewModelModule{
+interface CharactersFeedViewModelModule{
     @Binds
     @[IntoMap ViewModelKey(FeedViewModel::class)]
     fun provideFeedViewModel(feedViewModel: FeedViewModel): ViewModel

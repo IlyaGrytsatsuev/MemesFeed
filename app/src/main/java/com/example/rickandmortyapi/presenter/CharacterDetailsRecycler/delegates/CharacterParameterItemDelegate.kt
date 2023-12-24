@@ -1,10 +1,11 @@
-package com.example.rickandmortyapi.presenter.CharacterDetailsRecycler
+package com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rickandmortyapi.databinding.CharacterDetailsParameterItemBinding
 import com.example.rickandmortyapi.domain.models.RecyclerModel
+import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.viewHolders.CharacterParameterItemViewHolder
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerItemDelegate
 
 abstract class CharacterParameterItemDelegate(): RecyclerItemDelegate {

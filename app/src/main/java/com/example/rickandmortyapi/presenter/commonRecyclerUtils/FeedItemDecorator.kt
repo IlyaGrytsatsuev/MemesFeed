@@ -1,11 +1,11 @@
-package com.example.rickandmortyapi.presenter.feedRecycler
+package com.example.rickandmortyapi.presenter.commonRecyclerUtils
 
 import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rickandmortyapi.utils.Constants
 
-class CharacterFeedItemDecorator: RecyclerView.ItemDecoration() {
+class FeedItemDecorator: RecyclerView.ItemDecoration() {
     override fun getItemOffsets(
         outRect: Rect,
         view: View,

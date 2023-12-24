@@ -1,6 +1,7 @@
 package com.example.rickandmortyapi.presenter.ui
 
 import android.os.Bundle
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -16,8 +17,6 @@ import com.example.rickandmortyapi.di.daggerComponents.MainActivityComponent
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.FragmentNavigator
 import com.example.rickandmortyapi.presenter.viewmodels.InternetConnectionObserverViewModel
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.flow.buffer
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -35,18 +34,28 @@ class MainActivity : AppCompatActivity(), FragmentNavigator {
         DaggerMainActivityComponent.factory().create(this)
     }
 
+    private lateinit var currentVisibleFragment: Fragment
+
+    private val fragmentsList = listOf<Fragment>(CharactersFeedFragment(),
+        EpisodesFeedFragment())
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         activityComponent.inject(this)
         setUpInternetConnectionObserver()
+        createListFragments()
+        setOnNavigationBarItemListener()
+
+    }
+    private fun createListFragments(){
         supportFragmentManager.commit {
-            val fragment = FeedFragment()
-            add(R.id.fragment_container, fragment)
+            add(R.id.fragment_container, fragmentsList.first())
+            add(R.id.fragment_container, fragmentsList[1])
+            hide(fragmentsList[1])
+            currentVisibleFragment = fragmentsList.first()
             setReorderingAllowed(true)
         }
-
     }
 
     private fun setUpInternetConnectionObserver(){
@@ -69,16 +78,41 @@ class MainActivity : AppCompatActivity(), FragmentNavigator {
     private fun showSnackBar(message: String){
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
-    override fun moveToFragment(container: Int, fragment: Fragment) {
+    override fun moveToDetailsFragment(container: Int, fragment: Fragment) {
         supportFragmentManager.commit {
             add(container, fragment)
             addToBackStack(fragment::javaClass.name)
+            binding.bottomNavbar.visibility = View.GONE
             setReorderingAllowed(true)
         }
     }
 
+    private fun setOnNavigationBarItemListener(){
+        binding.bottomNavbar.setOnItemSelectedListener {
+            when(it.itemId){
+                R.id.characters_navbar_button
+                    ->showListFragment(fragmentsList.first())
+                R.id.episode_navbar_button
+                    ->showListFragment(fragmentsList[1])
+            }
+            true
+        }
+
+    }
+
     override fun removeUpperFragment() {
         supportFragmentManager.popBackStack()
+        binding.bottomNavbar.visibility = View.VISIBLE
+    }
+
+    override fun showListFragment(fragment: Fragment) {
+        if(fragment != currentVisibleFragment) {
+            supportFragmentManager.commit {
+                show(fragment)
+                hide(currentVisibleFragment)
+                currentVisibleFragment = fragment
+            }
+        }
     }
 
 

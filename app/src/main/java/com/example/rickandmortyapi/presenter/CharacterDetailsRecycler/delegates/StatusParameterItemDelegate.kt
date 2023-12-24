@@ -1,12 +1,9 @@
-package com.example.rickandmortyapi.presenter.CharacterDetailsRecycler
+package com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates
 
-import android.content.Context
-import android.content.res.Resources
 import androidx.recyclerview.widget.RecyclerView
-import com.example.rickandmortyapi.R
 import com.example.rickandmortyapi.domain.models.CharacterDetailsModel
 import com.example.rickandmortyapi.domain.models.RecyclerModel
-import javax.inject.Inject
+import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.viewHolders.CharacterParameterItemViewHolder
 
 class StatusParameterItemDelegate : CharacterParameterItemDelegate() {
 

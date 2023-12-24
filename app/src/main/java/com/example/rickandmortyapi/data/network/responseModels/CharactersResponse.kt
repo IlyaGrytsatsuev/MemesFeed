@@ -6,19 +6,9 @@ data class CharactersResponse(
     @SerializedName("info")
     val info: Info?,
     @SerializedName("results")
-    val results: List<Result>?
+    val results: List<CharactersResult>?
 )
 
-data class Info(
-    @SerializedName("count")
-    val count: Int?,
-    @SerializedName("next")
-    val next: String?,
-    @SerializedName("pages")
-    val pages: Int?,
-    @SerializedName("prev")
-    val prev: String?
-)
 
 data class Location(
     @SerializedName("name")
@@ -34,7 +24,7 @@ data class Origin(
     val url: String?
 )
 
-data class Result(
+data class CharactersResult(
     @SerializedName("created")
     val created: String?,
     @SerializedName("episode")

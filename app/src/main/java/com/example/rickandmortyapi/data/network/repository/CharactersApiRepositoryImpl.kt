@@ -1,24 +1,22 @@
 package com.example.rickandmortyapi.data.network.repository
 
 import android.util.Log
-import com.example.rickandmortyapi.data.converters.appendEpisodesDetails
-import com.example.rickandmortyapi.data.converters.getPagesNum
-import com.example.rickandmortyapi.data.converters.toCharacterDetailsDomainModel
+import com.example.rickandmortyapi.data.network.converters.appendEpisodesDetails
+import com.example.rickandmortyapi.data.network.converters.getPagesNum
+import com.example.rickandmortyapi.data.network.converters.toCharacterDetailsDomainModel
+import com.example.rickandmortyapi.data.network.converters.toDomainCharactersModelsList
 import com.example.rickandmortyapi.data.network.service.CharactersApiService
-import com.example.rickandmortyapi.domain.models.CharacterModel
-import com.example.rickandmortyapi.domain.repository.CharactersApiRepository
-import com.example.rickandmortyapi.data.converters.toDomainCharactersModelsList
-import com.example.rickandmortyapi.domain.repository.CharactersDbRepository
-import com.example.rickandmortyapi.domain.repository.PaginationDataRepository
 import com.example.rickandmortyapi.domain.models.CharacterDetailsModel
+import com.example.rickandmortyapi.domain.models.CharacterModel
 import com.example.rickandmortyapi.domain.models.EpisodeModel
 import com.example.rickandmortyapi.domain.models.RecyclerModel
+import com.example.rickandmortyapi.domain.repository.CharactersApiRepository
+import com.example.rickandmortyapi.domain.repository.CharactersDbRepository
 import com.example.rickandmortyapi.domain.repository.EpisodesApiRepository
-import com.example.rickandmortyapi.domain.repository.EpisodesDbRepository
+import com.example.rickandmortyapi.domain.repository.PaginationDataRepository
 import com.example.rickandmortyapi.presenter.State
 import com.example.rickandmortyapi.utils.CharacterGender
 import com.example.rickandmortyapi.utils.CharacterStatus
-import com.example.rickandmortyapi.utils.InternetConnectionObserver
 import javax.inject.Inject
 
 
@@ -33,11 +31,11 @@ class CharactersApiRepositoryImpl @Inject constructor
                                            gender: CharacterGender?): List<CharacterModel> {
         var resultList:List<CharacterModel> = listOf()
         try {
-            resultList = getApiData(name = name, status = status,
+            resultList = getCharactersApiData(name = name, status = status,
                 gender = gender)
         }
         catch (e:Exception){
-            resultList = getDbData(name = name, status = status,
+            resultList = getDbCharactersData(name = name, status = status,
                 gender = gender)
         }
         finally {
@@ -53,8 +51,8 @@ class CharactersApiRepositoryImpl @Inject constructor
         return resultList
     }
 
-    private suspend fun getApiData(name:String?, status: CharacterStatus?,
-                                   gender: CharacterGender?) : List<CharacterModel>{
+    private suspend fun getCharactersApiData(name:String?, status: CharacterStatus?,
+                                             gender: CharacterGender?) : List<CharacterModel>{
         if(!paginationDataRepository.isFirstLoadedFromApi()
             && paginationDataRepository.getCurPage() > 1)
             throw Exception()
@@ -69,8 +67,8 @@ class CharactersApiRepositoryImpl @Inject constructor
         charactersDbRepository.upsertCharactersIntoDb(characterList = resultList.toList())
         return resultList
     }
-    private suspend fun getDbData(name:String?, status: CharacterStatus?,
-                                  gender: CharacterGender?) : List<CharacterModel>{
+    private suspend fun getDbCharactersData(name:String?, status: CharacterStatus?,
+                                            gender: CharacterGender?) : List<CharacterModel>{
         if(paginationDataRepository.getCurPage() == 1) {
             paginationDataRepository
                 .setIsFirstLoadedFromApi(false)
@@ -117,7 +115,7 @@ class CharactersApiRepositoryImpl @Inject constructor
 
     }
 
-    private suspend fun downloadPage( name:String?, status: CharacterStatus?,
+    private suspend fun downloadPage(name:String?, status: CharacterStatus?,
                                      gender: CharacterGender?): List<CharacterModel> {
         val downloadedList: List<CharacterModel>
         val apiResult = charactersApiService

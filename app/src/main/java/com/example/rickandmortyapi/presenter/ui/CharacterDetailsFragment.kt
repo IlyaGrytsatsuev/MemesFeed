@@ -17,16 +17,16 @@ import com.example.rickandmortyapi.di.daggerComponents.CharacterDetailsFragmentC
 import com.example.rickandmortyapi.di.daggerComponents.DaggerCharacterDetailsFragmentComponent
 import com.example.rickandmortyapi.domain.models.CharacterDetailsModel
 import com.example.rickandmortyapi.domain.models.RecyclerModel
-import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.CharacterDetailsEpisodesListItemDelegate
+import com.example.rickandmortyapi.presenter.commonRecyclerUtils.EpisodesListItemDelegate
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.CharacterDetailsRecyclerItemDecorator
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.DetailsRecyclerAdapter
-import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.EpisodeListTitleItemDelegate
+import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates.EpisodeListTitleItemDelegate
 import javax.inject.Inject
-import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.GenderParameterItemDelegate
-import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.LocationParameterItemDelegate
-import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.OriginParameterItemDelegate
-import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.SpeciesParameterItemDelegate
-import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.StatusParameterItemDelegate
+import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates.GenderParameterItemDelegate
+import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates.LocationParameterItemDelegate
+import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates.OriginParameterItemDelegate
+import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates.SpeciesParameterItemDelegate
+import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates.StatusParameterItemDelegate
 import com.example.rickandmortyapi.presenter.State
 import com.example.rickandmortyapi.presenter.viewmodels.CharacterDetailsViewModel
 import com.google.android.material.snackbar.Snackbar
@@ -72,7 +72,7 @@ class CharacterDetailsFragment : Fragment(R.layout.fragment_character_details) {
             OriginParameterItemDelegate(),
             LocationParameterItemDelegate(),
             EpisodeListTitleItemDelegate(),
-            CharacterDetailsEpisodesListItemDelegate()
+            EpisodesListItemDelegate()
         )
         binding.detailsRecycler.adapter = DetailsRecyclerAdapter(delegates)
         binding.detailsRecycler.layoutManager = LinearLayoutManager(requireContext(),

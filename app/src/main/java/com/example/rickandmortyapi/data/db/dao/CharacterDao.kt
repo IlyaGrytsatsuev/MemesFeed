@@ -14,16 +14,6 @@ import com.example.rickandmortyapi.data.db.entities.EpisodeEntity
 @Dao
 interface CharacterDao {
 
-//    @Transaction
-//    @Query("select * from CharacterEntity where " +
-//            "(:name = null or name LIKE :name)" +
-//            "and(:status = null or status LIKE :status)" +
-//            "and (:gender = null or gender LIKE :gender) " +
-//            "LIMIT :limit OFFSET :offset")
-//    suspend fun getCharactersWithEpisodes(limit:Int, offset:Int,
-//                                          name:String?, status:String?,
-//                                          gender:String?): List<CharacterWithEpisodes>
-
     @Transaction
     @Query("select * from CharacterEntity where characterId = :id")
     suspend fun getCharactersWithEpisodesById(id:Int): CharacterWithEpisodes?
