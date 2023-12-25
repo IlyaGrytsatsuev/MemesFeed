@@ -2,11 +2,10 @@ package com.example.rickandmortyapi.presenter.ui
 
 import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -14,12 +13,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.rickandmortyapi.R
 import com.example.rickandmortyapi.databinding.FragmentFiltersBinding
-import com.example.rickandmortyapi.di.MyApp
-import com.example.rickandmortyapi.di.daggerComponents.CharacterDetailsFragmentComponent
-import com.example.rickandmortyapi.di.daggerComponents.DaggerCharacterDetailsFragmentComponent
-import com.example.rickandmortyapi.di.daggerComponents.DaggerFiltersFragmentComponent
-import com.example.rickandmortyapi.di.daggerComponents.FiltersFragmentComponent
-import com.example.rickandmortyapi.presenter.viewmodels.FeedViewModel
+import com.example.rickandmortyapi.di.daggerComponents.MainActivityComponent
+import com.example.rickandmortyapi.presenter.viewmodels.CharactersFeedViewModel
 import com.example.rickandmortyapi.utils.CharacterGender
 import com.example.rickandmortyapi.utils.CharacterStatus
 import kotlinx.coroutines.launch
@@ -31,7 +26,7 @@ class FiltersFragment : Fragment(R.layout.fragment_filters) {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
-    private val viewModel: FeedViewModel by viewModels {viewModelFactory}
+    private val viewModel: CharactersFeedViewModel by viewModels {viewModelFactory}
 
     private lateinit var binding: FragmentFiltersBinding
 
@@ -42,10 +37,9 @@ class FiltersFragment : Fragment(R.layout.fragment_filters) {
         CharacterGender.UNCHOSEN, CharacterGender.FEMALE,
         CharacterGender.MALE, CharacterGender.GENDERLESS, CharacterGender.UNKNOWN)
 
-    private val component: FiltersFragmentComponent by lazy {
-        DaggerFiltersFragmentComponent.factory().create(requireContext())
+    private val component: MainActivityComponent by lazy {
+        (activity as MainActivity).activityComponent
     }
-
 
 
 

@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.rickandmortyapi.data.network.converters.appendEpisodesDetails
 import com.example.rickandmortyapi.data.network.converters.getPagesNum
 import com.example.rickandmortyapi.data.network.converters.toCharacterDetailsDomainModel
+import com.example.rickandmortyapi.data.network.converters.toCharacterModel
 import com.example.rickandmortyapi.data.network.converters.toDomainCharactersModelsList
 import com.example.rickandmortyapi.data.network.service.CharactersApiService
 import com.example.rickandmortyapi.domain.models.CharacterDetailsModel
@@ -129,21 +130,22 @@ class CharactersApiRepositoryImpl @Inject constructor
         return downloadedList
     }
 
-    private suspend fun getCharacterFromApiById(id:Int): CharacterDetailsModel {
+    private suspend fun getCharacterDetailsModelById(id:Int): CharacterDetailsModel {
         val response = charactersApiService.getCharacterById(id)
         val result = response.toCharacterDetailsDomainModel()
 
         return result
     }
-    override suspend fun getCharacterDetails(id:Int): State<RecyclerModel?> {
 
+
+    override suspend fun getCharacterDetails(id:Int): State<RecyclerModel?> {
         var characterDetails: CharacterDetailsModel? = null
         val episodesList = mutableListOf<EpisodeModel>()
         try{
-            characterDetails = getCharacterFromApiById(id)
+            characterDetails = getCharacterDetailsModelById(id)
 
             characterDetails.episodeIds.forEach {
-                episodesList.add(episodesApiRepository.getEpisodeById(it))
+                episodesList.add(episodesApiRepository.getEpisodeModelById(it))
             }
             characterDetails.appendEpisodesDetails(episodesList)
             charactersDbRepository
@@ -151,7 +153,7 @@ class CharactersApiRepositoryImpl @Inject constructor
         }
         catch (e:Exception){
             characterDetails = charactersDbRepository
-                .getCharacterWithEpisodesByIdFromDB(id)
+                .getCharacterWithEpisodesFromDB(id)
             return State.Error(characterDetails)
         }
         finally {
@@ -162,7 +164,11 @@ class CharactersApiRepositoryImpl @Inject constructor
         return State.Success(characterDetails)
     }
 
+    override suspend fun getCharacterModelById(id: Int): CharacterModel {
+        val response = charactersApiService.getCharacterById(id)
+        return response.toCharacterModel()
 
+    }
 
 
 }

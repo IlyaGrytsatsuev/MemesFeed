@@ -1,5 +1,6 @@
-package com.example.rickandmortyapi.presenter.commonRecyclerUtils
+package com.example.rickandmortyapi.presenter.ui
 
+import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.rickandmortyapi.R
 import com.example.rickandmortyapi.databinding.FragmentFeedBinding
 import com.example.rickandmortyapi.domain.models.RecyclerModel
+import com.example.rickandmortyapi.presenter.commonRecyclerUtils.FeedItemDecorator
 import com.example.rickandmortyapi.presenter.viewmodels.InternetConnectionObserverViewModel
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
@@ -101,6 +103,7 @@ abstract class AbstractFeedFragment : Fragment(R.layout.fragment_feed) {
     protected fun showSnackBar(message: String){
         Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show()
     }
+
 
 
 }

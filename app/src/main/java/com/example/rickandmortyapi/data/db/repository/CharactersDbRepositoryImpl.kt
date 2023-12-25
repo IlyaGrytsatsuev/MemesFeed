@@ -56,13 +56,13 @@ class CharactersDbRepositoryImpl @Inject constructor
 
     }
 
-    override suspend fun getCharacterWithEpisodesByIdFromDB(id: Int): CharacterDetailsModel? {
-        return characterDao.getCharactersWithEpisodesById(id)?.toCharacterDetailsModel()
+    override suspend fun getCharacterWithEpisodesFromDB(id: Int): CharacterDetailsModel? {
+        return characterDao.getCharacterWithEpisodes(id)?.toCharacterDetailsModel()
     }
 
     override suspend fun upsertCharacterWithEpisodesIntoDb
                 (characterDetailsModel: CharacterDetailsModel) {
-        characterDao.upsertListOfCharacterWithEpisodes(
+        characterDao.upsertCharacterWithEpisodes(
             characterDetailsModel.toCharacterWithEpisodesDbModel())
     }
 }

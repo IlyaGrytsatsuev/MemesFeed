@@ -59,6 +59,25 @@ fun SingleCharacterResponse.toCharacterDetailsDomainModel(): CharacterDetailsMod
     )
 }
 
+fun SingleCharacterResponse.toCharacterModel(): CharacterModel {
+
+    return CharacterModel(
+        created = this.created?:"",
+        gender = this.gender?:"",
+        id = this.id?:0,
+        image = this.image?:"",
+        location = this.location?.toCharacterLocation()
+            ?: CharacterModelLocation("",""),
+        name = this.name?:"",
+        origin = this.origin?.toCharacterOrigin()
+            ?: CharacterModelOrigin("",""),
+        species = this.species?:"",
+        status = this.status?:"",
+        type = this.type?:"",
+        url = this.url?:""
+    )
+}
+
 fun CharacterDetailsModel.appendEpisodesDetails(episodes:List<EpisodeModel>){
     episodes.forEach {
         this.episode.add(it)

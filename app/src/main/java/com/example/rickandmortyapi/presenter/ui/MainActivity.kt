@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity(), FragmentNavigator {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
-    private val activityComponent: MainActivityComponent by lazy {
+    val activityComponent: MainActivityComponent by lazy {
         DaggerMainActivityComponent.factory().create(this)
     }
 

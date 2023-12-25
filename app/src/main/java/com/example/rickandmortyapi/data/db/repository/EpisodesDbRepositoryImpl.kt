@@ -1,9 +1,11 @@
 package com.example.rickandmortyapi.data.db.repository
 
 import com.example.rickandmortyapi.data.db.converters.toDbEntity
+import com.example.rickandmortyapi.data.db.converters.toEpisodeDetailsModel
 import com.example.rickandmortyapi.data.db.converters.toEpisodeDomainModel
 import com.example.rickandmortyapi.data.db.dao.EpisodeDao
-import com.example.rickandmortyapi.data.db.entities.EpisodeEntity
+import com.example.rickandmortyapi.data.db.entities.EpisodeWithCharacters
+import com.example.rickandmortyapi.domain.models.EpisodeDetailsModel
 import com.example.rickandmortyapi.domain.models.EpisodeModel
 import com.example.rickandmortyapi.domain.repository.EpisodesDbRepository
 import com.example.rickandmortyapi.domain.repository.PaginationDataRepository
@@ -31,5 +33,15 @@ constructor(private val episodeDao: EpisodeDao,
             episodesDbList.map { it.toEpisodeDomainModel() }
             else emptyList()
         return episodesList
+    }
+
+    override suspend fun upsertEpisodeWithCharactersIntoDb
+                (episodeWithCharacters: EpisodeWithCharacters) {
+        episodeDao.upsertEpisodeWithCharacters(episodeWithCharacters)
+    }
+
+    override suspend fun getEpisodeWithCharactersFromDB(id: Int): EpisodeDetailsModel? {
+        val result = episodeDao.getEpisodeWithCharacters(id)?.toEpisodeDetailsModel()
+        return result
     }
 }

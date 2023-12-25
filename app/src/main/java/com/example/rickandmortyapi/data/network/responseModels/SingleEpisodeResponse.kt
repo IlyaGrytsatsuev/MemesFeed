@@ -2,7 +2,7 @@ package com.example.rickandmortyapi.data.network.responseModels
 
 import com.google.gson.annotations.SerializedName
 
-data class EpisodeResponse (
+data class SingleEpisodeResponse (
     @SerializedName("id")
     val id:Int?,
     @SerializedName("name")

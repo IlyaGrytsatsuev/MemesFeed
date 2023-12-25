@@ -8,7 +8,7 @@ import dagger.Module
 import dagger.multibindings.IntoMap
 
 @Module
-interface DetailsViewModelsModule{
+interface CharacterDetailsViewModelsModule{
     @Binds
     @[IntoMap ViewModelKey(CharacterDetailsViewModel::class)]
     fun provideCharacterDetailsViewModel(characterDetailsViewModel:

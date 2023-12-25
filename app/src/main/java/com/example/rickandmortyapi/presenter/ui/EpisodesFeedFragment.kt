@@ -3,7 +3,6 @@ package com.example.rickandmortyapi.presenter.ui
 import android.content.Context
 import android.os.Bundle
 import android.view.View
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -17,14 +16,12 @@ import com.example.rickandmortyapi.di.daggerComponents.DaggerEpisodesFeedFragmen
 import com.example.rickandmortyapi.di.daggerComponents.EpisodesFeedFragmentComponent
 import com.example.rickandmortyapi.domain.models.RecyclerModel
 import com.example.rickandmortyapi.presenter.State
-import com.example.rickandmortyapi.presenter.commonRecyclerUtils.AbstractFeedFragment
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.EpisodesListItemDelegate
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerItemDelegate
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerListAdapter
 import com.example.rickandmortyapi.presenter.feedRecycler.PaginationScrollListener
 import com.example.rickandmortyapi.presenter.viewmodels.EpisodesFeedViewModel
 import com.example.rickandmortyapi.presenter.viewmodels.InternetConnectionObserverViewModel
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

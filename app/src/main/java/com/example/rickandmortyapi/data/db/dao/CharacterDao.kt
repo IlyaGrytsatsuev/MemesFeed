@@ -16,7 +16,7 @@ interface CharacterDao {
 
     @Transaction
     @Query("select * from CharacterEntity where characterId = :id")
-    suspend fun getCharactersWithEpisodesById(id:Int): CharacterWithEpisodes?
+    suspend fun getCharacterWithEpisodes(id:Int): CharacterWithEpisodes?
 
     @Query("select * from CharacterEntity where " +
             "(:name is null or name LIKE :name)" +
@@ -40,7 +40,7 @@ interface CharacterDao {
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsertListOfCharacterWithEpisodes(characterWithEpisodes: CharacterWithEpisodes){
+    suspend fun upsertCharacterWithEpisodes(characterWithEpisodes: CharacterWithEpisodes){
             val characterId = characterWithEpisodes.characterEntity.id
             upsertCharacterEntity(listOf(characterWithEpisodes.characterEntity))
             characterWithEpisodes.episodes.forEach {

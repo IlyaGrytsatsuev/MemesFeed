@@ -5,7 +5,7 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rickandmortyapi.utils.Constants
 
-class CharacterDetailsRecyclerItemDecorator() : RecyclerView.ItemDecoration() {
+class DetailsRecyclerItemDecorator() : RecyclerView.ItemDecoration() {
     override fun getItemOffsets(
         outRect: Rect,
         view: View,

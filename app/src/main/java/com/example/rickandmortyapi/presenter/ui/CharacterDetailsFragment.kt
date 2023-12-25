@@ -3,69 +3,56 @@ package com.example.rickandmortyapi.presenter.ui
 import android.content.Context
 import android.os.Bundle
 import android.view.View
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.rickandmortyapi.R
-import com.example.rickandmortyapi.databinding.FragmentCharacterDetailsBinding
+import com.example.rickandmortyapi.databinding.FragmentDetailsBinding
 import com.example.rickandmortyapi.di.daggerComponents.CharacterDetailsFragmentComponent
 import com.example.rickandmortyapi.di.daggerComponents.DaggerCharacterDetailsFragmentComponent
 import com.example.rickandmortyapi.domain.models.CharacterDetailsModel
 import com.example.rickandmortyapi.domain.models.RecyclerModel
-import com.example.rickandmortyapi.presenter.commonRecyclerUtils.EpisodesListItemDelegate
-import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.CharacterDetailsRecyclerItemDecorator
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.DetailsRecyclerAdapter
+import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.DetailsRecyclerItemDecorator
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates.EpisodeListTitleItemDelegate
-import javax.inject.Inject
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates.GenderParameterItemDelegate
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates.LocationParameterItemDelegate
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates.OriginParameterItemDelegate
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates.SpeciesParameterItemDelegate
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates.StatusParameterItemDelegate
 import com.example.rickandmortyapi.presenter.State
+import com.example.rickandmortyapi.presenter.commonRecyclerUtils.EpisodesListItemDelegate
+import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerItemDelegate
 import com.example.rickandmortyapi.presenter.viewmodels.CharacterDetailsViewModel
-import com.google.android.material.snackbar.Snackbar
+import com.example.rickandmortyapi.presenter.viewmodels.InternetConnectionObserverViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
-class CharacterDetailsFragment : Fragment(R.layout.fragment_character_details) {
+class CharacterDetailsFragment() : AbstractDetailsFragment() {
 
-    private lateinit var binding: FragmentCharacterDetailsBinding
     @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
+    override lateinit var viewModelFactory: ViewModelProvider.Factory
 
     private val viewModel : CharacterDetailsViewModel
     by viewModels { viewModelFactory }
 
-    private var snackBar: Snackbar? = null
+    override val internetObserverViewModel: InternetConnectionObserverViewModel
+    by viewModels { viewModelFactory }
 
-    private var recyclerIsInitialized = false
 
     private val component: CharacterDetailsFragmentComponent by lazy {
         DaggerCharacterDetailsFragmentComponent.factory().create(requireContext(),
             arguments?.getInt(CHARACTER_ID_PARAM, 0) ?: 0 )
     }
 
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        component.inject(this)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        binding = FragmentCharacterDetailsBinding.bind(view)
-        initializeCharacterDetailsRecycler()
-        setUpCurCharacterObserver()
-    }
-
-    private fun initializeCharacterDetailsRecycler(){
-        val delegates = mutableListOf(
+    override val delegates: List<RecyclerItemDelegate> by lazy {
+        listOf(
             StatusParameterItemDelegate(),
             GenderParameterItemDelegate(),
             SpeciesParameterItemDelegate(),
@@ -74,11 +61,85 @@ class CharacterDetailsFragment : Fragment(R.layout.fragment_character_details) {
             EpisodeListTitleItemDelegate(),
             EpisodesListItemDelegate()
         )
+    }
+
+    override val adapter: RecyclerView.Adapter<RecyclerView.ViewHolder> by lazy {
+        DetailsRecyclerAdapter(delegates)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding = FragmentDetailsBinding.bind(view)
+        initializeCharacterDetailsRecycler()
+        setUpDetailsStateObserver()
+    }
+
+    override fun setUpDetailsStateObserver() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.CREATED){
+                viewModel.curCharacter.collect{
+                    when(it){
+                        is State.Error ->
+                            executeErrorState(it.data)
+
+                        is State.Empty ->
+                            executeEmptyState()
+
+                        is State.Loading ->
+                            executeLoadingState()
+                        is State.Success ->
+                            executeSuccessState(it.data)
+
+                    }
+                }
+            }
+        }
+    }
+
+    override fun reloadDetails() {
+        //binding.detailsRecycler.scrollToPosition(0)
+        viewModel.getCharacterDetails()
+    }
+
+
+    override fun executeErrorState(data: RecyclerModel?) {
+        if(data != null)
+            moveToAdapter(data)
+        else
+            showEmptyListMessage()
+        showSnackBar(getString(R.string.error_message))
+        hideProgressBar()
+    }
+
+    override fun executeEmptyState() {
+        hideProgressBar()
+        showEmptyListMessage()
+    }
+
+    override fun executeLoadingState() {
+        showProgressBar()
+    }
+
+    override fun executeSuccessState(data: RecyclerModel?) {
+        moveToAdapter(data)
+        hideProgressBar()
+        setUpCharacterImageAndName()
+    }
+
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        component.inject(this)
+    }
+
+
+
+    private fun initializeCharacterDetailsRecycler(){
         binding.detailsRecycler.adapter = DetailsRecyclerAdapter(delegates)
         binding.detailsRecycler.layoutManager = LinearLayoutManager(requireContext(),
             LinearLayoutManager.VERTICAL, false)
         binding.detailsRecycler
-            .addItemDecoration(CharacterDetailsRecyclerItemDecorator())
+            .addItemDecoration(DetailsRecyclerItemDecorator())
     }
 
     private fun setUpCharacterImageAndName(){
@@ -91,62 +152,7 @@ class CharacterDetailsFragment : Fragment(R.layout.fragment_character_details) {
         binding.characterName.text = (viewModel.curCharacter.value.data
                 as CharacterDetailsModel).name
     }
-    private fun setUpCurCharacterObserver(){
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.CREATED){
-                viewModel.curCharacter.collect{
-                    when(it){
-                        is State.Error ->{
-                            if(it.data != null)
-                                moveToAdapter(it.data)
-                            else
-                                showEmptyListMessage()
-                            showSnackBar(getString(R.string.error_message))
-                            hideProgressBar()
-                        }
-                        is State.Empty ->{
-                            hideProgressBar()
-                            showEmptyListMessage()
-                        }
-                        is State.Loading -> showProgressBar()
-                        is State.Success -> {
-                            moveToAdapter(it.data)
-                            hideProgressBar()
-                            setUpCharacterImageAndName()
-                        }
-                    }
-                }
-            }
-        }
-    }
 
-    private fun moveToAdapter(data : RecyclerModel?){
-        data?.let {
-            (binding.detailsRecycler.adapter as DetailsRecyclerAdapter)
-                .setCharacterDetailsModel(it)
-        }
-    }
-
-    private fun showProgressBar(){
-        binding.detailsProgressBar.visibility = View.VISIBLE
-    }
-
-    private fun hideProgressBar(){
-        binding.detailsProgressBar.visibility = View.GONE
-        hideEmptyListMessage()
-    }
-
-    private fun showSnackBar(message: String){
-        snackBar = Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG)
-        snackBar?.show()
-    }
-
-    private fun showEmptyListMessage(){
-        binding.emptyStateTextView.visibility = View.VISIBLE
-    }
-    private fun hideEmptyListMessage(){
-        binding.emptyStateTextView.visibility = View.GONE
-    }
 
     companion object {
         private const val CHARACTER_ID_PARAM = "CHARACTER_ID_PARAM"

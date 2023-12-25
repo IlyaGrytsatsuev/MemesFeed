@@ -14,16 +14,14 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.rickandmortyapi.R
 import com.example.rickandmortyapi.databinding.FragmentFeedBinding
-import com.example.rickandmortyapi.di.daggerComponents.CharacterFeedFragmentComponent
-import com.example.rickandmortyapi.di.daggerComponents.DaggerCharacterFeedFragmentComponent
+import com.example.rickandmortyapi.di.daggerComponents.MainActivityComponent
 import com.example.rickandmortyapi.domain.models.RecyclerModel
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerItemDelegate
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerListAdapter
 import com.example.rickandmortyapi.presenter.feedRecycler.PaginationScrollListener
 import com.example.rickandmortyapi.presenter.feedRecycler.CharacterFeedItemDelegate
-import com.example.rickandmortyapi.presenter.viewmodels.FeedViewModel
+import com.example.rickandmortyapi.presenter.viewmodels.CharactersFeedViewModel
 import com.example.rickandmortyapi.presenter.State
-import com.example.rickandmortyapi.presenter.commonRecyclerUtils.AbstractFeedFragment
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.FragmentNavigator
 import com.example.rickandmortyapi.presenter.viewmodels.InternetConnectionObserverViewModel
 import kotlinx.coroutines.launch
@@ -36,14 +34,14 @@ class CharactersFeedFragment() : AbstractFeedFragment() {
     @Inject
     override lateinit var viewModelFactory: ViewModelProvider.Factory
 
-    private val viewModel: FeedViewModel by viewModels {viewModelFactory}
+    private val viewModel: CharactersFeedViewModel by viewModels {viewModelFactory}
 
     override val internetObserverViewModel: InternetConnectionObserverViewModel
     by viewModels {viewModelFactory}
 
 
-    private val component: CharacterFeedFragmentComponent by lazy{
-        DaggerCharacterFeedFragmentComponent.factory().create(requireContext())
+    private val component: MainActivityComponent by lazy{
+        (activity as MainActivity).activityComponent
     }
 
     override val moveToDetailsFragmentFun: (id: Int) -> Unit= {
@@ -72,7 +70,10 @@ class CharactersFeedFragment() : AbstractFeedFragment() {
         setUpGenderFilterObserver()
         setOnReloadButtonListener()
         setOnInternetRestoredObserver()
+
     }
+
+
 
     override fun setUpListStateObserver() {
         viewLifecycleOwner.lifecycleScope.launch {
@@ -122,13 +123,10 @@ class CharactersFeedFragment() : AbstractFeedFragment() {
         }
 
     override fun executeErrorListState() {
-        if(viewModel.charactersList.replayCache.first()
-                    is State.Error ||
-            viewModel.charactersList.replayCache[1]
-                    is State.Error) {
+        if(viewModel.charactersList.replayCache[0] !is State.Error) {
             showSnackBar(getString(R.string.error_message))
-            hideProgressBar()
         }
+        hideProgressBar()
     }
 
     override fun executeEmptyListState() {

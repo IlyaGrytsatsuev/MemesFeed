@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rickandmortyapi.domain.models.RecyclerModel
-import com.example.rickandmortyapi.domain.usecases.GetCharacterDetailsUseCase
 import com.example.rickandmortyapi.domain.usecases.GetCharactersListUseCase
 import com.example.rickandmortyapi.domain.usecases.GetCurPageUseCase
 import com.example.rickandmortyapi.domain.usecases.GetDisplayedItemsNumUseCase
@@ -15,7 +14,6 @@ import com.example.rickandmortyapi.utils.CharacterStatus
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +25,7 @@ import javax.inject.Singleton
 import kotlin.Exception
 
 @Singleton
-class FeedViewModel @Inject constructor(
+class CharactersFeedViewModel @Inject constructor(
     private val getCharactersListUseCase: GetCharactersListUseCase,
     private val resetPaginationDataUseCase: ResetPaginationDataUseCase,
     private val getDisplayedItemsNumUseCase: GetDisplayedItemsNumUseCase,
@@ -89,6 +87,7 @@ class FeedViewModel @Inject constructor(
         pageLoadJob = viewModelScope.launch(Dispatchers.IO) {
             privateRecyclerList.emit(State.Loading())
             try {
+                Log.d("netlist","statusFilter before request = ${privateCharacterGenderFilter.replayCache.lastOrNull()}")
                 val loadedList = getCharactersListUseCase.execute(
                     name = privateNameState.replayCache.lastOrNull(),
                     status = privateCharacterStatusFilter.replayCache.lastOrNull(),
@@ -126,11 +125,5 @@ class FeedViewModel @Inject constructor(
             getCharacters()
         }
     }
-
-//    private fun checkInternetConnection() =
-//        viewModelScope.launch {
-//            privateCharactersList.value = internetConnectionChecker.checkInternetConnection()
-//        }
-
 
 }

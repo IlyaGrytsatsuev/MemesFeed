@@ -34,7 +34,7 @@ class CharacterDetailsViewModel @Inject constructor
         Log.d("netlist", "init is called")
     }
 
-     private fun getCharacterDetails(){
+    fun getCharacterDetails(){
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 Log.d("netList",
@@ -42,9 +42,7 @@ class CharacterDetailsViewModel @Inject constructor
                 privateCurCharacter.value = State.Loading()
                 privateCurCharacter.value =
                     getCharacterDetailsUseCase.execute(characterId)
-//                Log.d("netList",
-//                    "status = ${privateCurCharacter.value}" +
-//                            " details = ${privateCurCharacter.value.data as CharacterDetailsModel}")
+
             }
             catch (e:Exception){
                 privateCurCharacter.value = State.Error(null)
@@ -52,4 +50,5 @@ class CharacterDetailsViewModel @Inject constructor
         }
 
     }
+
 }

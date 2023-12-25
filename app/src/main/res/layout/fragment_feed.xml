@@ -25,6 +25,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
+
                 <Button
                     android:id="@+id/search_button"
                     android:layout_width="50dp"
@@ -36,6 +37,7 @@
                     android:drawableBottom="@drawable/search_button_icon"
                     android:theme="@style/Widget.Material3.Button.Icon"
                     android:background="@android:color/transparent"
+                    android:visibility="gone"
                     >
                 </Button>
                 <Button
