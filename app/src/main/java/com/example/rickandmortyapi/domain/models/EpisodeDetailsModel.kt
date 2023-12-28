@@ -6,4 +6,5 @@ package com.example.rickandmortyapi.domain.models
      val episode: String,
      val charactersIds: List<Int>,
      var characters:List<CharacterModel>,
-     ): RecyclerModel()
+     override var listSize:Int = characters.size
+ ): RecyclerModel()

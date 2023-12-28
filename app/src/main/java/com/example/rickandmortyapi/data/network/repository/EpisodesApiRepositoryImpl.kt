@@ -23,18 +23,12 @@ import javax.inject.Inject
 class EpisodesApiRepositoryImpl @Inject
 constructor(private val episodesApiService: EpisodesApiService,
             private val paginationDataRepository: PaginationDataRepository,
-            private val episodesDbRepository: EpisodesDbRepository,
-            //private val charactersApiRepository: CharactersApiRepository
+            private val episodesDbRepository: EpisodesDbRepository
 )
     : EpisodesApiRepository{
     override suspend fun getEpisodeModelById(id: Int): EpisodeModel {
         val response = episodesApiService.getEpisodeById(id)
         return response.toEpisodeDomainModel()
-    }
-
-    override suspend fun getEpisodeDetailsModelById(id: Int): EpisodeDetailsModel {
-        val response = episodesApiService.getEpisodeById(id)
-        return response.toEpisodeDetailsModel()
     }
 
     override suspend fun getEpisodesList(): List<EpisodeModel> {
@@ -106,33 +100,5 @@ constructor(private val episodesApiService: EpisodesApiService,
         return downloadedPage
     }
 
-    override suspend fun getEpisodeDetails(id: Int): State<EpisodeDetailsModel?>{
-//        var episodeDetails : EpisodeDetailsModel? = null
-//        val charactersList : List<CharacterModel>
-//        try{
-//            episodeDetails = getEpisodeDetailsModelById(id)
-//
-//            charactersList = episodeDetails.charactersIds.map {
-//                charactersApiRepository.getCharacterModelById(it)
-//            }
-//
-//            episodeDetails.appendCharactersList(charactersList)
-//
-//            episodesDbRepository
-//                .upsertEpisodeWithCharactersIntoDb(episodeDetails
-//                    .toCharacterWithEpisodesDbModel())
-//        }
-//        catch (e:Exception){
-//            episodeDetails = episodesDbRepository
-//                .getEpisodeWithCharactersFromDB(id)
-//            return State.Error(episodeDetails)
-//        }
-//        finally {
-//            Log.d("netlist","Loaded Character Details " +
-//                    "= ${episodeDetails?.characters}")
-//        }
-//
-//        return State.Success(episodeDetails)
-        return State.Error(null)
-    }
+
 }

@@ -2,6 +2,7 @@ package com.example.rickandmortyapi.domain.models
 
 abstract class RecyclerModel {
     abstract val id:Int
+    open var listSize:Int = 0
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

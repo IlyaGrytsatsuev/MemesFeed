@@ -52,6 +52,7 @@ class MainActivity : AppCompatActivity(), FragmentNavigator {
         supportFragmentManager.commit {
             add(R.id.fragment_container, fragmentsList.first())
             add(R.id.fragment_container, fragmentsList[1])
+            //TODO check if not null
             hide(fragmentsList[1])
             currentVisibleFragment = fragmentsList.first()
             setReorderingAllowed(true)
@@ -81,6 +82,7 @@ class MainActivity : AppCompatActivity(), FragmentNavigator {
     override fun moveToDetailsFragment(container: Int, fragment: Fragment) {
         supportFragmentManager.commit {
             add(container, fragment)
+            //TODO replace
             addToBackStack(fragment::javaClass.name)
             binding.bottomNavbar.visibility = View.GONE
             setReorderingAllowed(true)
@@ -101,8 +103,8 @@ class MainActivity : AppCompatActivity(), FragmentNavigator {
     }
 
     override fun removeUpperFragment() {
-        supportFragmentManager.popBackStack()
         binding.bottomNavbar.visibility = View.VISIBLE
+        supportFragmentManager.popBackStack()
     }
 
     override fun showListFragment(fragment: Fragment) {
@@ -115,5 +117,7 @@ class MainActivity : AppCompatActivity(), FragmentNavigator {
         }
     }
 
-
+    override fun onBackPressed() {
+        super.onBackPressed()
+    }
 }

@@ -9,5 +9,6 @@ interface RecyclerItemDelegate{
 
     fun isOfViewType(item: RecyclerModel):Boolean
     fun getViewHolder(parent: ViewGroup): RecyclerView.ViewHolder
-    fun bindViewHolder(viewHolder: ViewHolder, item: RecyclerModel)
+    fun bindViewHolder(viewHolder: ViewHolder, item: RecyclerModel,
+                       position: Int? = null)
 }

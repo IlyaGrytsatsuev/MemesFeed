@@ -82,6 +82,7 @@ fun CharacterDetailsModel.appendEpisodesDetails(episodes:List<EpisodeModel>){
     episodes.forEach {
         this.episode.add(it)
     }
+    this.listSize = episodes.size
 
 }
 

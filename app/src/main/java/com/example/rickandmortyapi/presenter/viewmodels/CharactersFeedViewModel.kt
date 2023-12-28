@@ -40,6 +40,7 @@ class CharactersFeedViewModel @Inject constructor(
 
     val charactersList: SharedFlow<State<List<RecyclerModel>>>
     = privateRecyclerList
+    //TODO val FLOW INstead of sharedFlow
 
     private val privateCharacterGenderFilter:
             MutableSharedFlow<CharacterGender>

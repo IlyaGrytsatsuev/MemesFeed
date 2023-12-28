@@ -12,6 +12,8 @@ class CharacterDetailsModel(val created: String,
                             val species: String,
                             val status: String,
                             val type: String,
-                            val url: String) : RecyclerModel()
+                            val url: String,
+                            override var listSize:Int
+                            = episode.size) : RecyclerModel()
 
 

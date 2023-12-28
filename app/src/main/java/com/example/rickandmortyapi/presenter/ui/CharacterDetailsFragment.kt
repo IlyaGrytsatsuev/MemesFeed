@@ -8,7 +8,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.rickandmortyapi.R
@@ -16,9 +15,7 @@ import com.example.rickandmortyapi.databinding.FragmentDetailsBinding
 import com.example.rickandmortyapi.di.daggerComponents.CharacterDetailsFragmentComponent
 import com.example.rickandmortyapi.di.daggerComponents.DaggerCharacterDetailsFragmentComponent
 import com.example.rickandmortyapi.domain.models.CharacterDetailsModel
-import com.example.rickandmortyapi.domain.models.RecyclerModel
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.DetailsRecyclerAdapter
-import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.DetailsRecyclerItemDecorator
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates.EpisodeListTitleItemDelegate
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates.GenderParameterItemDelegate
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates.LocationParameterItemDelegate
@@ -26,7 +23,7 @@ import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates.
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates.SpeciesParameterItemDelegate
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates.StatusParameterItemDelegate
 import com.example.rickandmortyapi.presenter.State
-import com.example.rickandmortyapi.presenter.commonRecyclerUtils.EpisodesListItemDelegate
+import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates.EpisodesListItemDelegate
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerItemDelegate
 import com.example.rickandmortyapi.presenter.viewmodels.CharacterDetailsViewModel
 import com.example.rickandmortyapi.presenter.viewmodels.InternetConnectionObserverViewModel
@@ -67,10 +64,15 @@ class CharacterDetailsFragment() : AbstractDetailsFragment() {
         DetailsRecyclerAdapter(delegates)
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        component.inject(this)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentDetailsBinding.bind(view)
-        initializeCharacterDetailsRecycler()
+        initializeDetailsRecycler()
         setUpDetailsStateObserver()
     }
 
@@ -102,47 +104,7 @@ class CharacterDetailsFragment() : AbstractDetailsFragment() {
     }
 
 
-    override fun executeErrorState(data: RecyclerModel?) {
-        if(data != null)
-            moveToAdapter(data)
-        else
-            showEmptyListMessage()
-        showSnackBar(getString(R.string.error_message))
-        hideProgressBar()
-    }
-
-    override fun executeEmptyState() {
-        hideProgressBar()
-        showEmptyListMessage()
-    }
-
-    override fun executeLoadingState() {
-        showProgressBar()
-    }
-
-    override fun executeSuccessState(data: RecyclerModel?) {
-        moveToAdapter(data)
-        hideProgressBar()
-        setUpCharacterImageAndName()
-    }
-
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        component.inject(this)
-    }
-
-
-
-    private fun initializeCharacterDetailsRecycler(){
-        binding.detailsRecycler.adapter = DetailsRecyclerAdapter(delegates)
-        binding.detailsRecycler.layoutManager = LinearLayoutManager(requireContext(),
-            LinearLayoutManager.VERTICAL, false)
-        binding.detailsRecycler
-            .addItemDecoration(DetailsRecyclerItemDecorator())
-    }
-
-    private fun setUpCharacterImageAndName(){
+    override fun setUpToolBarInformation(){
         Glide.with(requireContext())
             .load((viewModel.curCharacter.value.data
                     as CharacterDetailsModel).image)

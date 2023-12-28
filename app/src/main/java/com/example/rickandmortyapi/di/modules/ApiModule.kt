@@ -1,10 +1,12 @@
 package com.example.rickandmortyapi.di.modules
 
 import com.example.rickandmortyapi.data.network.repository.CharactersApiRepositoryImpl
+import com.example.rickandmortyapi.data.network.repository.EpisodeDetailsApiRepositoryImpl
 import com.example.rickandmortyapi.data.network.repository.EpisodesApiRepositoryImpl
 import com.example.rickandmortyapi.data.network.service.CharactersApiService
 import com.example.rickandmortyapi.data.network.service.EpisodesApiService
 import com.example.rickandmortyapi.domain.repository.CharactersApiRepository
+import com.example.rickandmortyapi.domain.repository.EpisodeDetailsApiRepository
 import com.example.rickandmortyapi.domain.repository.EpisodesApiRepository
 import com.example.rickandmortyapi.utils.Constants
 import com.google.gson.GsonBuilder
@@ -58,6 +60,11 @@ interface ApiModule{
     @Binds
     fun provideEpisodesApiRepository(episodesApiRepositoryImpl: EpisodesApiRepositoryImpl)
             : EpisodesApiRepository
+
+    @Binds
+    fun provideEpisodeDetailsApiRepository(episodeDetailsApiRepositoryImpl: EpisodeDetailsApiRepositoryImpl)
+            : EpisodeDetailsApiRepository
+
 
 
 

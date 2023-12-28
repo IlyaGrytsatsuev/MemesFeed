@@ -44,5 +44,6 @@ class EpisodeDetailsViewModel @Inject constructor(
             }
         }
 
+        //TODO nullable
     }
 }

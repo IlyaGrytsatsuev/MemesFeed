@@ -1,19 +1,18 @@
 package com.example.rickandmortyapi.presenter.CharacterDetailsRecycler
 
+import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.rickandmortyapi.domain.models.CharacterDetailsModel
 import com.example.rickandmortyapi.domain.models.RecyclerModel
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerItemDelegate
 
-class DetailsRecyclerAdapter (private val delegates: List<RecyclerItemDelegate>,
-    )
+class DetailsRecyclerAdapter (private val delegates: List<RecyclerItemDelegate>, )
     : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private var characterDetailsModel:RecyclerModel? = null
+    private var detailsModel:RecyclerModel? = null
 
     fun setCharacterDetailsModel(value:RecyclerModel){
-        characterDetailsModel = value
+        detailsModel = value
         notifyDataSetChanged()
     }
 
@@ -22,12 +21,14 @@ class DetailsRecyclerAdapter (private val delegates: List<RecyclerItemDelegate>,
         delegates[viewType].getViewHolder(parent)
 
 
+    override fun getItemCount(): Int {
+        val count  = detailsModel?.let {
+            delegates.size +
+                    it.listSize - 1 } ?: 0
 
-
-    override fun getItemCount(): Int = characterDetailsModel?.let {
-        delegates.size +
-                (characterDetailsModel as CharacterDetailsModel).episode.size - 1
-    }?:0
+        Log.d("netlist", "items count = $count ")
+        return count
+    }
 
     override fun getItemViewType(position: Int) : Int {
         if (position < delegates.size - 1)
@@ -37,15 +38,14 @@ class DetailsRecyclerAdapter (private val delegates: List<RecyclerItemDelegate>,
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val curEpisodePosition = position - delegates.size + 1
-        characterDetailsModel?.let {
+        val curListPosition = position - delegates.size + 1
+        detailsModel?.let {
             if (position < delegates.size - 1)
                 delegates[getItemViewType(position)]
                     .bindViewHolder(holder, it)
             else
                 delegates[delegates.size - 1]
-                    .bindViewHolder(holder, (it as CharacterDetailsModel)
-                        .episode[curEpisodePosition])
+                    .bindViewHolder(holder, it, curListPosition)
 
         }
     }

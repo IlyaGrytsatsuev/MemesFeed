@@ -11,7 +11,9 @@ class CharacterModel(val created: String,
                      val species: String,
                      val status: String,
                      val type: String,
-                     val url: String) : RecyclerModel()
+                     val url: String,
+
+) : RecyclerModel()
 
 data class CharacterModelLocation(
     val name: String,

@@ -5,12 +5,21 @@ import com.example.rickandmortyapi.databinding.CharacterDetailsEpisodesListItemB
 import com.example.rickandmortyapi.domain.models.EpisodeModel
 import com.example.rickandmortyapi.domain.models.RecyclerModel
 
-class EpisodesListItemViewHolder(
+class EpisodeListItemViewHolder(
     private val binding: CharacterDetailsEpisodesListItemBinding
 ): RecyclerView.ViewHolder(binding.root) {
 
-    fun onBind(item: RecyclerModel){
+    fun onBind(item: RecyclerModel,
+               itemChoiceFun:((episodeId:Int)->Unit)?){
         binding.episodeName.text = (item as EpisodeModel).name
         binding.episodeSerial.text = (item as EpisodeModel).episode
+
+        itemView.setOnClickListener {
+            if (itemChoiceFun != null) {
+                itemChoiceFun(item.id)
+            }
+        }
     }
+
+
 }

@@ -73,14 +73,33 @@ abstract class AbstractDetailsFragment: Fragment(R.layout.fragment_details){
     }
 
 
-    protected abstract fun executeErrorState(data: RecyclerModel?)
+    protected  fun executeErrorState(data: RecyclerModel?){
+        if(data != null) {
+            setUpToolBarInformation()
+            moveToAdapter(data)
+        }
+        else
+            showEmptyListMessage()
+        showSnackBar(getString(R.string.error_message))
+        hideProgressBar()
+    }
 
-    protected abstract fun executeEmptyState()
+    protected  fun executeEmptyState(){
+        hideProgressBar()
+        showEmptyListMessage()
+    }
 
-    protected abstract fun executeLoadingState()
+    protected  fun executeLoadingState(){
+        showProgressBar()
+    }
 
-    protected abstract fun executeSuccessState
-                (data: RecyclerModel?)
+    protected fun executeSuccessState
+                (data: RecyclerModel?){
+        moveToAdapter(data)
+        hideProgressBar()
+        setUpToolBarInformation() }
+
+    protected abstract fun setUpToolBarInformation()
 
     protected fun showEmptyListMessage(){
         binding.emptyStateTextView.visibility = View.VISIBLE

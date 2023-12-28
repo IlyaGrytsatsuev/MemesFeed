@@ -16,7 +16,7 @@ import com.example.rickandmortyapi.di.daggerComponents.DaggerEpisodesFeedFragmen
 import com.example.rickandmortyapi.di.daggerComponents.EpisodesFeedFragmentComponent
 import com.example.rickandmortyapi.domain.models.RecyclerModel
 import com.example.rickandmortyapi.presenter.State
-import com.example.rickandmortyapi.presenter.commonRecyclerUtils.EpisodesListItemDelegate
+import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates.EpisodesListItemDelegate
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerItemDelegate
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerListAdapter
 import com.example.rickandmortyapi.presenter.feedRecycler.PaginationScrollListener
@@ -44,13 +44,14 @@ class EpisodesFeedFragment() : AbstractFeedFragment() {
     override val adapter: RecyclerView.Adapter<RecyclerView.ViewHolder> by lazy {
         RecyclerListAdapter(
             listOf<RecyclerItemDelegate>(
-                EpisodesListItemDelegate()
+                EpisodesListItemDelegate(moveToDetailsFragmentFun)
             )
         )
     }
 
     override val moveToDetailsFragmentFun: (id: Int) -> Unit = {
-        //TODO
+        (activity as MainActivity).moveToDetailsFragment(R.id.fragment_container
+            , EpisodeDetailsFragment.newInstance(it))
     }
 
     override fun onAttach(context: Context) {
@@ -102,6 +103,7 @@ class EpisodesFeedFragment() : AbstractFeedFragment() {
                 (adapter as RecyclerListAdapter).differ.submitList(it)
             else
                 (adapter as RecyclerListAdapter).appendItems(it)
+            //TODO observer
         }
     }
 

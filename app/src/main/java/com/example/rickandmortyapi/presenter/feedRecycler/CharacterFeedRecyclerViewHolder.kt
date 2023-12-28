@@ -6,12 +6,12 @@ import com.example.rickandmortyapi.R
 import com.example.rickandmortyapi.databinding.FeedRecyclerCharacterItemBinding
 import com.example.rickandmortyapi.domain.models.CharacterModel
 
-class FeedRecyclerViewHolder(private val binding: FeedRecyclerCharacterItemBinding)
+class CharacterFeedRecyclerViewHolder(private val binding: FeedRecyclerCharacterItemBinding)
     : RecyclerView.ViewHolder(binding.root) {
 
 
     fun onBind(characterModel :CharacterModel,
-               onItemChoiceFun:(characterId:Int)->Unit){
+               onItemChoiceFun:((characterId:Int)->Unit)?){
         binding.name.text = characterModel.name
         binding.status.text = characterModel.status
         binding.species.text = characterModel.species
@@ -25,7 +25,9 @@ class FeedRecyclerViewHolder(private val binding: FeedRecyclerCharacterItemBindi
             .into(binding.recyclerItemImage)
 
         itemView.setOnClickListener {
-            onItemChoiceFun(characterModel.id)
+            if (onItemChoiceFun != null) {
+                onItemChoiceFun(characterModel.id)
+            }
         }
     }
 }

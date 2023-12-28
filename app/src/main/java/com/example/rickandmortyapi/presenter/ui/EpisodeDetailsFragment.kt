@@ -1,17 +1,23 @@
 package com.example.rickandmortyapi.presenter.ui
 
+import android.content.Context
 import android.os.Bundle
+import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
-import com.example.rickandmortyapi.di.daggerComponents.CharacterDetailsFragmentComponent
+import com.example.rickandmortyapi.databinding.FragmentDetailsBinding
+import com.example.rickandmortyapi.di.daggerComponents.DaggerEpisodeDetailsFragmentComponent
 import com.example.rickandmortyapi.di.daggerComponents.EpisodeDetailsFragmentComponent
-import com.example.rickandmortyapi.domain.models.RecyclerModel
+import com.example.rickandmortyapi.domain.models.EpisodeDetailsModel
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.DetailsRecyclerAdapter
+import com.example.rickandmortyapi.presenter.EpisodeDetailsRecycler.delegates.EpisodeParameterItemDelegate
 import com.example.rickandmortyapi.presenter.State
+import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates.EpisodesListItemDelegate
+import com.example.rickandmortyapi.presenter.EpisodeDetailsRecycler.delegates.EpisodeDetailsListItemDelegate
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerItemDelegate
 import com.example.rickandmortyapi.presenter.viewmodels.EpisodeDetailsViewModel
 import com.example.rickandmortyapi.presenter.viewmodels.InternetConnectionObserverViewModel
@@ -28,8 +34,9 @@ class EpisodeDetailsFragment() : AbstractDetailsFragment() {
     private val viewModel: EpisodeDetailsViewModel
     by viewModels {viewModelFactory}
     override val delegates: List<RecyclerItemDelegate> by lazy {
-        listOf()
-        //TODO delegates
+        listOf(EpisodeParameterItemDelegate(),
+           EpisodeDetailsListItemDelegate()
+        )
     }
 
     override val adapter: RecyclerView.Adapter<RecyclerView.ViewHolder> by lazy {
@@ -37,10 +44,23 @@ class EpisodeDetailsFragment() : AbstractDetailsFragment() {
     }
 
 
-//private val component: EpisodeDetailsFragmentComponent by lazy {
-//    DaggerEpisodeDetailsFragmentComponent.factory().create(requireContext(),
-//        arguments?.getInt(EpisodeDetailsFragment.EPISODE_ID_PARAM, 0) ?: 0 )
-//} TODO
+private val component: EpisodeDetailsFragmentComponent by lazy {
+    DaggerEpisodeDetailsFragmentComponent.factory().create(requireContext(),
+        arguments?.getInt(EPISODE_ID_PARAM, 0) ?: 0 )
+}
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        component.inject(this)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding = FragmentDetailsBinding.bind(view)
+        initializeDetailsRecycler()
+        setUpDetailsStateObserver()
+    }
 
     override fun setUpDetailsStateObserver() {
         viewLifecycleOwner.lifecycleScope.launch {
@@ -69,22 +89,12 @@ class EpisodeDetailsFragment() : AbstractDetailsFragment() {
         viewModel.getEpisodeDetails()
     }
 
-
-    override fun executeErrorState(data: RecyclerModel?) {
-        TODO("Not yet implemented")
+    override fun setUpToolBarInformation() {
+        binding.characterName.text =
+            (viewModel.curEpisode.value.data as EpisodeDetailsModel)
+                .name
     }
 
-    override fun executeEmptyState() {
-        TODO("Not yet implemented")
-    }
-
-    override fun executeLoadingState() {
-        TODO("Not yet implemented")
-    }
-
-    override fun executeSuccessState(data: RecyclerModel?) {
-        TODO("Not yet implemented")
-    }
 
     companion object {
         private const val EPISODE_ID_PARAM = "EPISODE_ID_PARAM"

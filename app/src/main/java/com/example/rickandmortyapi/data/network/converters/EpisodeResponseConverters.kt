@@ -31,6 +31,7 @@ fun SingleEpisodeResponse.toEpisodeDetailsModel(): EpisodeDetailsModel{
 fun EpisodeDetailsModel.appendCharactersList(characterList: List<CharacterModel>)
 : EpisodeDetailsModel{
     this.characters = characterList
+    this.listSize = characterList.size
     return this
 }
 

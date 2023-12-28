@@ -20,6 +20,7 @@ class EpisodeListTitleItemDelegate : RecyclerItemDelegate {
                 , parent, false))
     }
 
-    override fun bindViewHolder(viewHolder: RecyclerView.ViewHolder, item: RecyclerModel) {
+    override fun bindViewHolder(viewHolder: RecyclerView.ViewHolder, item: RecyclerModel,
+                                position:Int?) {
     }
 }
