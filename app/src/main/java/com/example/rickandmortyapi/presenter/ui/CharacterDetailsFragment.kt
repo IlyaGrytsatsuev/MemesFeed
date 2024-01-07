@@ -15,7 +15,7 @@ import com.example.rickandmortyapi.databinding.FragmentDetailsBinding
 import com.example.rickandmortyapi.di.daggerComponents.CharacterDetailsFragmentComponent
 import com.example.rickandmortyapi.di.daggerComponents.DaggerCharacterDetailsFragmentComponent
 import com.example.rickandmortyapi.domain.models.CharacterDetailsModel
-import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.DetailsRecyclerAdapter
+import com.example.rickandmortyapi.presenter.commonRecyclerUtils.DetailsRecyclerAdapter
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates.EpisodeListTitleItemDelegate
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates.GenderParameterItemDelegate
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates.LocationParameterItemDelegate
@@ -74,6 +74,7 @@ class CharacterDetailsFragment() : AbstractDetailsFragment() {
         binding = FragmentDetailsBinding.bind(view)
         initializeDetailsRecycler()
         setUpDetailsStateObserver()
+        setOnInternetRestoredObserver()
     }
 
     override fun setUpDetailsStateObserver() {
@@ -82,8 +83,7 @@ class CharacterDetailsFragment() : AbstractDetailsFragment() {
                 viewModel.curCharacter.collect{
                     when(it){
                         is State.Error ->
-                            executeErrorState(it.data)
-
+                            executeErrorState()
                         is State.Empty ->
                             executeEmptyState()
 
@@ -114,6 +114,7 @@ class CharacterDetailsFragment() : AbstractDetailsFragment() {
         binding.characterName.text = (viewModel.curCharacter.value.data
                 as CharacterDetailsModel).name
     }
+
 
 
     companion object {

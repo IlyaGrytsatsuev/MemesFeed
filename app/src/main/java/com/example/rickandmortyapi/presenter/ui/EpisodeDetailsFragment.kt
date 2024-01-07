@@ -13,10 +13,9 @@ import com.example.rickandmortyapi.databinding.FragmentDetailsBinding
 import com.example.rickandmortyapi.di.daggerComponents.DaggerEpisodeDetailsFragmentComponent
 import com.example.rickandmortyapi.di.daggerComponents.EpisodeDetailsFragmentComponent
 import com.example.rickandmortyapi.domain.models.EpisodeDetailsModel
-import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.DetailsRecyclerAdapter
+import com.example.rickandmortyapi.presenter.commonRecyclerUtils.DetailsRecyclerAdapter
 import com.example.rickandmortyapi.presenter.EpisodeDetailsRecycler.delegates.EpisodeParameterItemDelegate
 import com.example.rickandmortyapi.presenter.State
-import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates.EpisodesListItemDelegate
 import com.example.rickandmortyapi.presenter.EpisodeDetailsRecycler.delegates.EpisodeDetailsListItemDelegate
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerItemDelegate
 import com.example.rickandmortyapi.presenter.viewmodels.EpisodeDetailsViewModel
@@ -60,6 +59,7 @@ private val component: EpisodeDetailsFragmentComponent by lazy {
         binding = FragmentDetailsBinding.bind(view)
         initializeDetailsRecycler()
         setUpDetailsStateObserver()
+        setOnInternetRestoredObserver()
     }
 
     override fun setUpDetailsStateObserver() {
@@ -68,7 +68,7 @@ private val component: EpisodeDetailsFragmentComponent by lazy {
                 viewModel.curEpisode.collect{
                     when(it){
                         is State.Error ->
-                            executeErrorState(it.data)
+                            executeErrorState()
 
                         is State.Empty ->
                             executeEmptyState()

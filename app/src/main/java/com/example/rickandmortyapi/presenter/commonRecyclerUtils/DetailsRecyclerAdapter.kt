@@ -1,10 +1,9 @@
-package com.example.rickandmortyapi.presenter.CharacterDetailsRecycler
+package com.example.rickandmortyapi.presenter.commonRecyclerUtils
 
 import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rickandmortyapi.domain.models.RecyclerModel
-import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerItemDelegate
 
 class DetailsRecyclerAdapter (private val delegates: List<RecyclerItemDelegate>, )
     : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -23,8 +22,11 @@ class DetailsRecyclerAdapter (private val delegates: List<RecyclerItemDelegate>,
 
     override fun getItemCount(): Int {
         val count  = detailsModel?.let {
-            delegates.size +
-                    it.listSize - 1 } ?: 0
+            if(it.listSize != 0)
+                delegates.size +
+                    it.listSize - 1
+            else
+                delegates.size} ?: 0
 
         Log.d("netlist", "items count = $count ")
         return count

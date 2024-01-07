@@ -1,7 +1,6 @@
 package com.example.rickandmortyapi.domain.models
 
 class CharacterModel(val created: String,
-                     //val episode: List<Int>,
                      val gender: String,
                      override val id: Int,
                      val image: String,
@@ -16,11 +15,11 @@ class CharacterModel(val created: String,
 ) : RecyclerModel()
 
 data class CharacterModelLocation(
-    val name: String,
-    val url: String
+    val name: String = "",
+    val url: String = ""
 )
 data class CharacterModelOrigin(
-    val name: String,
-    val url: String
+    val name: String = "",
+    val url: String = ""
 )
 

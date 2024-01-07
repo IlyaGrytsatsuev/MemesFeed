@@ -19,17 +19,18 @@ fun EpisodeDetailsModel.toCharacterWithEpisodesDbModel() : EpisodeWithCharacters
     )
 }
 
-fun EpisodeWithCharacters.toEpisodeDetailsModel(): EpisodeDetailsModel {
-    val characters = this.characters.map {
+fun EpisodeWithCharacters?.toEpisodeDetailsModel(): EpisodeDetailsModel {
+    val characters = this?.characters?.map {
         it.toCharacterModel()
     }
-    val episode = this.episodeEntity
+    val episode = this?.episodeEntity
 
     return EpisodeDetailsModel(
-        id = episode.id,
-        name = episode.name,
-        episode = episode.episode,
+        id = episode?.id ?: 0,
+        isNullReceived = this == null,
+        name = episode?.name ?: "",
+        episode = episode?.episode ?: "",
         charactersIds = emptyList(),
-        characters = characters
+        characters = characters ?: emptyList()
     )
 }

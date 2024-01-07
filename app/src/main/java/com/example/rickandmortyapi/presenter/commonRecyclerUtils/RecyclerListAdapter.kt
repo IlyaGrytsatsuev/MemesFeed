@@ -36,7 +36,13 @@ class RecyclerListAdapter(private val delegates: List<RecyclerItemDelegate>)
         }
     }
 
-    val differ = AsyncListDiffer(this, diffUtilCallback)
+    private val differ = AsyncListDiffer(this, diffUtilCallback)
+
+    fun submitList(list: List<RecyclerModel>){
+        differ.submitList(list)
+    }
+
+    fun isListEmpty():Boolean = differ.currentList.size == 0
 
     fun appendItems(list: List<RecyclerModel>){
         val res = differ.currentList.toMutableList()

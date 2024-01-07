@@ -13,7 +13,7 @@ import com.example.rickandmortyapi.domain.repository.EpisodesDbRepository
 import com.example.rickandmortyapi.presenter.State
 import javax.inject.Inject
 
-class EpisodeDetailsApiRepositoryImpl@Inject
+class EpisodeDetailsApiRepositoryImpl @Inject
 constructor(private val episodesApiService: EpisodesApiService,
             private val episodesDbRepository: EpisodesDbRepository,
             private val charactersApiRepository: CharactersApiRepository
@@ -24,8 +24,8 @@ constructor(private val episodesApiService: EpisodesApiService,
         return response.toEpisodeDetailsModel()
     }
 
-    override suspend fun getEpisodeDetails(id: Int): State<EpisodeDetailsModel?> {
-        var episodeDetails : EpisodeDetailsModel? = null
+    override suspend fun getEpisodeDetails(id: Int): EpisodeDetailsModel {
+        var episodeDetails : EpisodeDetailsModel
         val charactersList : List<CharacterModel>
         try{
             episodeDetails = getEpisodeDetailsModelById(id)
@@ -34,23 +34,17 @@ constructor(private val episodesApiService: EpisodesApiService,
                 charactersApiRepository.getCharacterModelById(it)
             }
 
-            episodeDetails?.appendCharactersList(charactersList)
+            episodeDetails.appendCharactersList(charactersList)
 
             episodesDbRepository
                 .upsertEpisodeWithCharactersIntoDb(episodeDetails
                     .toCharacterWithEpisodesDbModel())
         }
         catch (e:Exception){
-            episodeDetails = episodesDbRepository
+             episodeDetails = episodesDbRepository
                 .getEpisodeWithCharactersFromDB(id)
-            return State.Error(episodeDetails)
-        }
-        finally {
-            Log.d("netlist","Loaded Character Details " +
-                    "= ${episodeDetails?.characters}")
         }
 
-        return State.Success(episodeDetails)
-        return State.Error(null)
+        return episodeDetails
     }
 }

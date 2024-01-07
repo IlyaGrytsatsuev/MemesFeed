@@ -40,8 +40,8 @@ constructor(private val episodeDao: EpisodeDao,
         episodeDao.upsertEpisodeWithCharacters(episodeWithCharacters)
     }
 
-    override suspend fun getEpisodeWithCharactersFromDB(id: Int): EpisodeDetailsModel? {
-        val result = episodeDao.getEpisodeWithCharacters(id)?.toEpisodeDetailsModel()
+    override suspend fun getEpisodeWithCharactersFromDB(id: Int): EpisodeDetailsModel {
+        val result = episodeDao.getEpisodeWithCharacters(id).toEpisodeDetailsModel()
         return result
     }
 }

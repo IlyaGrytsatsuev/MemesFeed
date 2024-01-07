@@ -3,7 +3,6 @@ package com.example.rickandmortyapi.data.db.entities
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.Junction
 import androidx.room.PrimaryKey
 import androidx.room.Relation
@@ -21,11 +20,11 @@ data class CharacterEntity (
     @ColumnInfo(name = "image")
     val image: String = "",
     @Embedded
-    val location: CharacterLocation = CharacterLocation(),
+    val location: CharacterDBLocation = CharacterDBLocation(),
     @ColumnInfo(name = "name")
     val name: String = "",
     @Embedded
-    val origin: CharacterOrigin = CharacterOrigin(),
+    val origin: CharacterDBOrigin = CharacterDBOrigin(),
     @ColumnInfo(name = "species")
     val species: String = "",
     @ColumnInfo(name = "status")
@@ -50,14 +49,14 @@ data class CharacterWithEpisodes(
 )
 
 
-data class CharacterLocation(
+data class CharacterDBLocation(
     @ColumnInfo(name = "location_name")
     val name: String = "",
     @ColumnInfo(name = "location_url")
     val url: String = ""
 )
 
-data class CharacterOrigin(
+data class CharacterDBOrigin(
     @ColumnInfo(name = "origin_name")
     val name: String = "",
     @ColumnInfo(name = "origin_url")

@@ -1,5 +1,6 @@
 package com.example.rickandmortyapi.domain.repository
 
+import com.example.rickandmortyapi.domain.models.CharacterDetailsModel
 import com.example.rickandmortyapi.domain.models.CharacterModel
 import com.example.rickandmortyapi.domain.models.EpisodeModel
 import com.example.rickandmortyapi.domain.models.RecyclerModel
@@ -13,7 +14,7 @@ interface CharactersApiRepository {
                                   gender: CharacterGender?)
     : List<CharacterModel>
 
-    suspend fun getCharacterDetails(id:Int): State<RecyclerModel?>
+    suspend fun getCharacterDetails(id:Int): CharacterDetailsModel
 
     suspend fun getCharacterModelById(id:Int): CharacterModel
 

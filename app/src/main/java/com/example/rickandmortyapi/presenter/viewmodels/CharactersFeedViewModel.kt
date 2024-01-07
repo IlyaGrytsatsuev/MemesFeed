@@ -15,10 +15,8 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -33,21 +31,20 @@ class CharactersFeedViewModel @Inject constructor(
 ): ViewModel() {
 
     private var pageLoadJob: Job? = null
-    private val privateRecyclerList:
+    private val privateCharactersList:
             MutableSharedFlow<State<List<RecyclerModel>>>
     = MutableSharedFlow(replay = 3,
         onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
-    val charactersList: SharedFlow<State<List<RecyclerModel>>>
-    = privateRecyclerList
-    //TODO val FLOW INstead of sharedFlow
+    val charactersList: Flow<State<List<RecyclerModel>>>
+    = privateCharactersList
 
     private val privateCharacterGenderFilter:
             MutableSharedFlow<CharacterGender>
             = MutableSharedFlow(replay = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
-    val characterGenderFilter:SharedFlow<CharacterGender>
+    val characterGenderFilter: Flow<CharacterGender>
     = privateCharacterGenderFilter
 
     private val privateCharacterStatusFilter:
@@ -55,14 +52,14 @@ class CharactersFeedViewModel @Inject constructor(
             MutableSharedFlow(replay = 1,
     onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
-    val characterStatusFilter:SharedFlow<CharacterStatus>
+    val characterStatusFilter: Flow<CharacterStatus>
     = privateCharacterStatusFilter
 
     private val privateNameState: MutableSharedFlow<String?>
     = MutableSharedFlow(replay = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
-    val nameState:SharedFlow<String?> = privateNameState
+    val nameState: Flow<String?> = privateNameState
 
     init{
         getCharacters()
@@ -84,29 +81,39 @@ class CharactersFeedViewModel @Inject constructor(
         }
     }
 
+    fun isRepeatedErrorState(): Boolean =
+        privateCharactersList
+            .replayCache.firstOrNull() is State.Error
+
+    fun isLoadingState():Boolean = privateCharactersList
+        .replayCache.lastOrNull() is State.Loading
+
     fun getCharacters(){
         pageLoadJob = viewModelScope.launch(Dispatchers.IO) {
-            privateRecyclerList.emit(State.Loading())
+            privateCharactersList.emit(State.Loading())
             try {
-                Log.d("netlist","statusFilter before request = ${privateCharacterGenderFilter.replayCache.lastOrNull()}")
+                Log.d("netlist","statusFilter before request " +
+                        "= ${privateCharacterGenderFilter.replayCache.lastOrNull()}")
+
                 val loadedList = getCharactersListUseCase.execute(
                     name = privateNameState.replayCache.lastOrNull(),
                     status = privateCharacterStatusFilter.replayCache.lastOrNull(),
                     gender = privateCharacterGenderFilter.replayCache.lastOrNull()
                 ) as List<RecyclerModel>
+
                 val loadedListState = if(loadedList.isEmpty())
                     State.Empty() else State
                     .Success(loadedList)
-                privateRecyclerList.emit(loadedListState)
+                privateCharactersList.emit(loadedListState)
                 Log.d("netlist", "emitted List " +
-                        "${privateRecyclerList.replayCache.first()}")
+                        "${privateCharactersList.replayCache.first()}")
             }
             catch (c:CancellationException){
                 Log.d("netList", "cancelled")
             }
             catch (e:Exception){
-                privateRecyclerList.emit(State
-                    .Error(null))
+                privateCharactersList.emit(State
+                    .Error())
             }
         }
     }

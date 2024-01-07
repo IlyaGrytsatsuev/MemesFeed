@@ -19,7 +19,6 @@ class CharacterFeedRecyclerViewHolder(private val binding: FeedRecyclerCharacter
         binding.gender.text = characterModel.gender
         Glide.with(itemView.context)
             .load(characterModel.image)
-            //.error(R.drawable.glide_placeholder)
             .placeholder(R.drawable.glide_placeholder)
             .centerCrop()
             .into(binding.recyclerItemImage)

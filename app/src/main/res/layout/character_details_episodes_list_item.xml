@@ -10,15 +10,16 @@
 
     <TextView
         android:id="@+id/episode_name"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         android:fontFamily="sans-serif-medium"
         android:layout_margin="15dp"
         android:textFontWeight="500"
         android:textSize="20sp"
-        tools:text="Ricks Citadel"
+        tools:text="Ricks Citadeldfklksdfjlksdflkfse;foelfke;rfl"
         >
 
     </TextView>
@@ -29,11 +30,29 @@
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/episode_name"
+        app:layout_constraintBottom_toBottomOf="parent"
         android:layout_margin="15dp"
         android:fontFamily="sans-serif-medium"
         android:textFontWeight="500"
         android:textSize="20sp"
         tools:text="S01E01"
+        >
+
+    </TextView>
+
+    <TextView
+        android:id="@+id/empty_message_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:fontFamily="sans-serif-medium"
+        android:textFontWeight="500"
+        android:textSize="20sp"
+        android:text="@string/empty_list_message"
+        android:visibility="gone"
         >
 
     </TextView>

@@ -10,6 +10,7 @@ import com.example.rickandmortyapi.presenter.State
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -37,15 +38,14 @@ class CharacterDetailsViewModel @Inject constructor
     fun getCharacterDetails(){
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                Log.d("netList",
-                    "id in viewModel = $characterId")
                 privateCurCharacter.value = State.Loading()
-                privateCurCharacter.value =
-                    getCharacterDetailsUseCase.execute(characterId)
-
+                val loadedCharacter = getCharacterDetailsUseCase.execute(characterId)
+                privateCurCharacter.value = if(loadedCharacter.isNullReceived
+                    || loadedCharacter == CharacterDetailsModel()) State.Empty() else
+                        State.Success(loadedCharacter)
             }
             catch (e:Exception){
-                privateCurCharacter.value = State.Error(null)
+                privateCurCharacter.value = State.Error()
             }
         }
 

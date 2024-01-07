@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -45,7 +46,7 @@ class CharactersFeedFragment() : AbstractFeedFragment() {
     }
 
     override val moveToDetailsFragmentFun: (id: Int) -> Unit= {
-        (activity as MainActivity).moveToDetailsFragment(R.id.fragment_container
+        (activity as MainActivity).moveToChildFragment(R.id.child_container
             , CharacterDetailsFragment.newInstance(it))
     }
 
@@ -54,6 +55,9 @@ class CharactersFeedFragment() : AbstractFeedFragment() {
             CharacterFeedItemDelegate(moveToDetailsFragmentFun)))
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+    }
     override fun onAttach(context: Context) {
         super.onAttach(context)
         component.inject(this)
@@ -100,6 +104,7 @@ class CharactersFeedFragment() : AbstractFeedFragment() {
 
     override fun reloadList() {
         binding.feedRecycler.scrollToPosition(0)
+        binding.appBarLayout.setExpanded(true)
         viewModel.reloadCharactersList()
     }
 
@@ -107,7 +112,7 @@ class CharactersFeedFragment() : AbstractFeedFragment() {
     override fun moveToAdapter(data : List<RecyclerModel>?){
             data?.toList()?.let {
                 if(viewModel.getCurPage() == 2)
-                    (adapter as RecyclerListAdapter).differ.submitList(it)
+                    (adapter as RecyclerListAdapter).submitList(it)
                 else
                     (adapter as RecyclerListAdapter).appendItems(it)
             }
@@ -116,16 +121,15 @@ class CharactersFeedFragment() : AbstractFeedFragment() {
     override fun setUpPaginationScrollListener(layoutManager: LinearLayoutManager) =
         object : PaginationScrollListener(layoutManager){
             override fun isLoading(): Boolean =
-                viewModel.charactersList.replayCache.last() is State.Loading
+                viewModel.isLoadingState()
 
             override fun getNextPage() = viewModel.getCharacters()
             override fun displayedItemsNum() = viewModel.getDisplayedItemsNum()
         }
 
     override fun executeErrorListState() {
-        if(viewModel.charactersList.replayCache[0] !is State.Error) {
+        if(!viewModel.isRepeatedErrorState())
             showSnackBar(getString(R.string.error_message))
-        }
         hideProgressBar()
     }
 
@@ -133,8 +137,7 @@ class CharactersFeedFragment() : AbstractFeedFragment() {
         val recyclerAdapter = binding
             .feedRecycler.adapter as RecyclerListAdapter
         hideProgressBar()
-        if(recyclerAdapter
-                .differ.currentList.size == 0)
+        if(recyclerAdapter.isListEmpty())
             showEmptyListMessage()
     }
 
@@ -150,7 +153,7 @@ class CharactersFeedFragment() : AbstractFeedFragment() {
 
     private fun setUpFilterButtonListener(){
         binding.filterButton.setOnClickListener {
-            (activity as? FragmentNavigator)?.moveToDetailsFragment(R.id.container
+            (activity as? FragmentNavigator)?.moveToChildFragment(R.id.container
                 , FiltersFragment())
 
         }

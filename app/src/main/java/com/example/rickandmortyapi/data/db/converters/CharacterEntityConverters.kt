@@ -22,25 +22,25 @@ fun CharacterEntity.toCharacterModel() : CharacterModel {
     )
 }
 
-fun com.example.rickandmortyapi.data.db.entities.CharacterLocation
+fun com.example.rickandmortyapi.data.db.entities.CharacterDBLocation?
         .toDomainModel():
         CharacterModelLocation =
-    CharacterModelLocation(this.name, this.url)
+    CharacterModelLocation(this?.name?:"", this?.url?:"")
 
 fun CharacterModelLocation
         .toDBModel():
-        com.example.rickandmortyapi.data.db.entities.CharacterLocation =
-    com.example.rickandmortyapi.data.db.entities.CharacterLocation(this.name, this.url)
+        com.example.rickandmortyapi.data.db.entities.CharacterDBLocation =
+    com.example.rickandmortyapi.data.db.entities.CharacterDBLocation(this.name, this.url)
 
 
-fun com.example.rickandmortyapi.data.db.entities.CharacterOrigin
+fun com.example.rickandmortyapi.data.db.entities.CharacterDBOrigin?
         .toDomainModel() : CharacterModelOrigin =
-    CharacterModelOrigin(this.name, this.url)
+    CharacterModelOrigin(this?.name?:"", this?.url?:"")
 
 fun CharacterModelOrigin
         .toDBModel() :
-        com.example.rickandmortyapi.data.db.entities.CharacterOrigin =
-    com.example.rickandmortyapi.data.db.entities.CharacterOrigin(this.name, this.url)
+        com.example.rickandmortyapi.data.db.entities.CharacterDBOrigin =
+    com.example.rickandmortyapi.data.db.entities.CharacterDBOrigin(this.name, this.url)
 
 
 fun CharacterModel.toDbEntity() : CharacterEntity{

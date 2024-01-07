@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.rickandmortyapi.R
 import com.example.rickandmortyapi.databinding.FragmentDetailsBinding
 import com.example.rickandmortyapi.domain.models.RecyclerModel
-import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.DetailsRecyclerAdapter
+import com.example.rickandmortyapi.presenter.commonRecyclerUtils.DetailsRecyclerAdapter
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.DetailsRecyclerItemDecorator
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerItemDelegate
 import com.example.rickandmortyapi.presenter.viewmodels.InternetConnectionObserverViewModel
@@ -44,8 +44,8 @@ abstract class AbstractDetailsFragment: Fragment(R.layout.fragment_details){
             repeatOnLifecycle(Lifecycle.State.CREATED) {
                 internetObserverViewModel
                     .connectionState.collect {
-                        if (!internetObserverViewModel
-                                .connectionState.replayCache.first() && it)
+                        if (internetObserverViewModel
+                                .isInternetConnectionRestored())
                             showSnackBarWithAction(
                                 getString(R.string.internet_available_message),
                                 getString(R.string.reload_page_snackbar_button))
@@ -65,7 +65,7 @@ abstract class AbstractDetailsFragment: Fragment(R.layout.fragment_details){
     }
     abstract fun reloadDetails()
 
-    protected  fun moveToAdapter(data : RecyclerModel?){
+    private fun moveToAdapter(data : RecyclerModel?){
         data?.let {
             (binding.detailsRecycler.adapter as DetailsRecyclerAdapter)
                 .setCharacterDetailsModel(it)
@@ -73,13 +73,8 @@ abstract class AbstractDetailsFragment: Fragment(R.layout.fragment_details){
     }
 
 
-    protected  fun executeErrorState(data: RecyclerModel?){
-        if(data != null) {
-            setUpToolBarInformation()
-            moveToAdapter(data)
-        }
-        else
-            showEmptyListMessage()
+    protected  fun executeErrorState(){
+        showEmptyListMessage()
         showSnackBar(getString(R.string.error_message))
         hideProgressBar()
     }

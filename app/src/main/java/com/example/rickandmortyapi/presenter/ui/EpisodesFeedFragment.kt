@@ -3,6 +3,7 @@ package com.example.rickandmortyapi.presenter.ui
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -50,7 +51,7 @@ class EpisodesFeedFragment() : AbstractFeedFragment() {
     }
 
     override val moveToDetailsFragmentFun: (id: Int) -> Unit = {
-        (activity as MainActivity).moveToDetailsFragment(R.id.fragment_container
+        (activity as MainActivity).moveToChildFragment(R.id.child_container
             , EpisodeDetailsFragment.newInstance(it))
     }
 
@@ -99,40 +100,32 @@ class EpisodesFeedFragment() : AbstractFeedFragment() {
 
     override fun moveToAdapter(data: List<RecyclerModel>?) {
         data?.toList()?.let {
-            if (viewModel.getCurPage() == 2)
-                (adapter as RecyclerListAdapter).differ.submitList(it)
+            if (viewModel.isFirstPageLoaded())
+                (adapter as RecyclerListAdapter).submitList(it)
             else
                 (adapter as RecyclerListAdapter).appendItems(it)
-            //TODO observer
         }
     }
 
-    override fun setUpPaginationScrollListener(layoutManager: LinearLayoutManager): RecyclerView.OnScrollListener =
+    override fun setUpPaginationScrollListener(layoutManager: LinearLayoutManager)
+    : RecyclerView.OnScrollListener =
         object : PaginationScrollListener(layoutManager) {
-            override fun isLoading(): Boolean =
-                viewModel.episodesList.replayCache.last() is State.Loading
-
+            override fun isLoading(): Boolean = viewModel.isLoadingState()
             override fun getNextPage() = viewModel.getEpisodes()
             override fun displayedItemsNum() = viewModel.getDisplayedItemsNum()
         }
 
     override fun executeErrorListState() {
-        if (viewModel.episodesList.replayCache.first()
-                    is State.Error ||
-            viewModel.episodesList.replayCache[1]
-                    is State.Error
-        ) {
+        if (!viewModel.isRepeatedErrorState()) {
             showSnackBar(getString(R.string.error_message))
-            hideProgressBar()
         }
+        hideProgressBar()
     }
     override fun executeEmptyListState() {
         val recyclerAdapter = binding
             .feedRecycler.adapter as RecyclerListAdapter
         hideProgressBar()
-        if (recyclerAdapter
-                .differ.currentList.size == 0
-        )
+        if (recyclerAdapter.isListEmpty())
             showEmptyListMessage()
     }
     override fun executeLoadingListState() {

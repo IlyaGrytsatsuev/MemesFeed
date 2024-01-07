@@ -3,6 +3,7 @@ package com.example.rickandmortyapi.presenter.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.rickandmortyapi.domain.models.EpisodeDetailsModel
 import com.example.rickandmortyapi.domain.models.RecyclerModel
 import com.example.rickandmortyapi.domain.usecases.GetEpisodeDetailsUseCase
 import com.example.rickandmortyapi.presenter.State
@@ -17,10 +18,10 @@ class EpisodeDetailsViewModel @Inject constructor(
     private val getEpisodeDetailsUseCase: GetEpisodeDetailsUseCase
 ):ViewModel() {
 
-    private var privateCurEpisode: MutableStateFlow<State<RecyclerModel?>>
+    private var privateCurEpisode: MutableStateFlow<State<RecyclerModel>>
             = MutableStateFlow(State.Loading())
 
-    val curEpisode: StateFlow<State<RecyclerModel?>> = privateCurEpisode
+    val curEpisode: StateFlow<State<RecyclerModel>> = privateCurEpisode
 
 
     init{
@@ -34,13 +35,14 @@ class EpisodeDetailsViewModel @Inject constructor(
                 Log.d("netList",
                     "id in viewModel = $episodeId")
                 privateCurEpisode.value = State.Loading()
-                privateCurEpisode.value =
-                    getEpisodeDetailsUseCase.execute(episodeId)
-                as State<RecyclerModel?>
+                val loadedEpisode = getEpisodeDetailsUseCase.execute(episodeId)
+                privateCurEpisode.value = if(loadedEpisode.isNullReceived ||
+                    loadedEpisode == EpisodeDetailsModel()) State.Empty()
+                else State.Success(loadedEpisode)
 
             }
             catch (e:Exception){
-                privateCurEpisode.value = State.Error(null)
+                privateCurEpisode.value = State.Error()
             }
         }
 

@@ -10,7 +10,7 @@ class GetEpisodeDetailsUseCase @Inject constructor(
     private val episodeDetailsApiRepository: EpisodeDetailsApiRepository
 ) {
 
-    suspend fun execute(id:Int): State<EpisodeDetailsModel?> {
+    suspend fun execute(id:Int): EpisodeDetailsModel {
         val result = episodeDetailsApiRepository.getEpisodeDetails(id)
         return result
     }

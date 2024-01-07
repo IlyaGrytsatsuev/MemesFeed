@@ -15,5 +15,5 @@ interface EpisodesDbRepository {
     suspend fun upsertEpisodeWithCharactersIntoDb
                 (episodeWithCharacters: EpisodeWithCharacters)
 
-    suspend fun getEpisodeWithCharactersFromDB(id:Int):EpisodeDetailsModel?
+    suspend fun getEpisodeWithCharactersFromDB(id:Int):EpisodeDetailsModel
 }

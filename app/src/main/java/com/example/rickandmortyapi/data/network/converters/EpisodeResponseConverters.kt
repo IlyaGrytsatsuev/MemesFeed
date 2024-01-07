@@ -18,9 +18,11 @@ fun SingleEpisodeResponse.toEpisodeDomainModel() : EpisodeModel {
 
 fun SingleEpisodeResponse.toEpisodeDetailsModel(): EpisodeDetailsModel{
     val idsList:List<Int> = this.characters?.map {
-        it.substringAfterLast("/").toInt() } ?: emptyList()
+        it.substringAfterLast("/").toInt()
+    } ?: emptyList()
     return EpisodeDetailsModel(
         id = this.id ?: 0 ,
+        isNullReceived = false,
         name = this.name ?: "",
         episode = this.episode ?:"",
         charactersIds = idsList,

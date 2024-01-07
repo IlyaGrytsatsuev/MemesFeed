@@ -27,10 +27,14 @@ class EpisodesListItemDelegate(
 
     override fun bindViewHolder(viewHolder: RecyclerView.ViewHolder, item: RecyclerModel
                                 ,position:Int?) {
-        if(item is CharacterDetailsModel)
-            (viewHolder as EpisodeListItemViewHolder)
-                .onBind((item as CharacterDetailsModel)
-                    .episode[position?:0], itemChoiceFun)
+        if(item is CharacterDetailsModel) {
+            if(item.episode.isEmpty())
+                (viewHolder as EpisodeListItemViewHolder)
+                    .onBind(EpisodeModel(), itemChoiceFun)
+            else
+                (viewHolder as EpisodeListItemViewHolder)
+                    .onBind(item.episode[position ?: 0], itemChoiceFun)
+        }
 
 
         else

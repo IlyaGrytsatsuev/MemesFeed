@@ -15,7 +15,8 @@ class DetailsRecyclerItemDecorator() : RecyclerView.ItemDecoration() {
         outRect.top = if (parent.getChildLayoutPosition(view) == 0)
               Constants.CHARACTER_DETAILS_ITEMS_OFFSET else 0
 
-
+        outRect.left = Constants.CHARACTER_FEED_ITEM_START_AND_END_OFFSET
+        outRect.right = Constants.CHARACTER_FEED_ITEM_START_AND_END_OFFSET
         outRect.bottom = Constants.CHARACTER_DETAILS_ITEMS_OFFSET
 
     }

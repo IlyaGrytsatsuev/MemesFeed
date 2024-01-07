@@ -14,11 +14,11 @@ data class SingleCharacterResponse(
     @SerializedName("image")
     val image: String?,
     @SerializedName("location")
-    val location: Location?,
+    val responseLocation: ResponseLocation?,
     @SerializedName("name")
     val name: String?,
     @SerializedName("origin")
-    val origin: Origin?,
+    val responseOrigin: ResponseOrigin?,
     @SerializedName("species")
     val species: String?,
     @SerializedName("status")

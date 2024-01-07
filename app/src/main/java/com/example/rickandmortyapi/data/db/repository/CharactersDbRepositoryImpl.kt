@@ -24,8 +24,7 @@ class CharactersDbRepositoryImpl @Inject constructor
     override suspend fun getCharactersFromDB(
         id:Int?,
         name:String?, status:CharacterStatus?,
-        gender: CharacterGender?)
-    : List<CharacterModel> {
+        gender: CharacterGender?): List<CharacterModel> {
         val limit = Constants.ITEMS_PER_PAGE
         val offset = limit*(paginationDataRepository.getCurPage()-1)
         val charactersDbList = characterDao
@@ -36,33 +35,34 @@ class CharactersDbRepositoryImpl @Inject constructor
                 status =  status?.text,
                 gender = gender?.text
             )
-        val characterModelsList = mutableListOf<CharacterModel>()
+        var characterModelsList:List<CharacterModel> = listOf()
         if(charactersDbList.isNotEmpty())
-            charactersDbList.forEach {
-                characterModelsList.add(it.toCharacterModel())
+            characterModelsList =
+                charactersDbList.map {
+                    it.toCharacterModel()
             }
         Log.d("netList", "db list = $charactersDbList")
         return characterModelsList
     }
 
     override suspend fun upsertCharactersIntoDb(
-        characterList: List<CharacterModel>?
+        characterList: List<CharacterModel>
     ) {
-        val list: MutableList<CharacterEntity> = mutableListOf()
-        characterList?.forEach {
-            list.add(it.toDbEntity())
-        }
+        val list: List<CharacterEntity> =
+            characterList.map {
+                it.toDbEntity()
+            }
         characterDao.upsertCharacterEntity(list)
 
     }
-
-    override suspend fun getCharacterWithEpisodesFromDB(id: Int): CharacterDetailsModel? {
-        return characterDao.getCharacterWithEpisodes(id)?.toCharacterDetailsModel()
+    override suspend fun getCharacterWithEpisodesFromDB(id: Int): CharacterDetailsModel {
+        return characterDao.getCharacterWithEpisodes(id).toCharacterDetailsModel()
     }
 
     override suspend fun upsertCharacterWithEpisodesIntoDb
                 (characterDetailsModel: CharacterDetailsModel) {
-        characterDao.upsertCharacterWithEpisodes(
-            characterDetailsModel.toCharacterWithEpisodesDbModel())
+        characterDao
+            .upsertCharacterWithEpisodes(
+                characterDetailsModel.toCharacterWithEpisodesDbModel())
     }
 }

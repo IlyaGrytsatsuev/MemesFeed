@@ -13,6 +13,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
@@ -29,7 +30,7 @@ class EpisodesFeedViewModel @Inject constructor(
     = MutableSharedFlow(replay = 3,
         onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
-    val episodesList: SharedFlow<State<List<RecyclerModel>>> = privateEpisodesList
+    val episodesList: Flow<State<List<RecyclerModel>>> = privateEpisodesList
 
     private var pageLoadJob: Job? = null
 
@@ -52,11 +53,17 @@ class EpisodesFeedViewModel @Inject constructor(
             }
             catch (e:Exception){
                 privateEpisodesList.emit(State
-                    .Error(null))
+                    .Error())
             }
         }
     }
 
+    fun isRepeatedErrorState(): Boolean =
+        privateEpisodesList
+            .replayCache.firstOrNull() is State.Error
+
+    fun isLoadingState():Boolean = privateEpisodesList
+        .replayCache.lastOrNull() is State.Loading
     private fun resetPaginationData(){
         resetPaginationDataUseCase.execute()
     }
@@ -64,7 +71,7 @@ class EpisodesFeedViewModel @Inject constructor(
     fun getDisplayedItemsNum() =
         getDisplayedItemsNumUseCase.execute()
 
-    fun getCurPage() = getCurPageUseCase.execute()
+    fun isFirstPageLoaded() = getCurPageUseCase.execute() == 2
     fun reloadEpisodesList(){
         viewModelScope.launch {
             pageLoadJob?.cancel()

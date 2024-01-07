@@ -138,15 +138,16 @@ class CharactersApiRepositoryImpl @Inject constructor
     }
 
 
-    override suspend fun getCharacterDetails(id:Int): State<RecyclerModel?> {
-        var characterDetails: CharacterDetailsModel? = null
-        val episodesList = mutableListOf<EpisodeModel>()
+    override suspend fun getCharacterDetails(id:Int): CharacterDetailsModel {
+        var characterDetails: CharacterDetailsModel
+        val episodesList : List<EpisodeModel>
         try{
             characterDetails = getCharacterDetailsModelById(id)
 
-            characterDetails.episodeIds.forEach {
-                episodesList.add(episodesApiRepository.getEpisodeModelById(it))
+            episodesList = characterDetails.episodeIds.map {
+                episodesApiRepository.getEpisodeModelById(it)
             }
+
             characterDetails.appendEpisodesDetails(episodesList)
             charactersDbRepository
                 .upsertCharacterWithEpisodesIntoDb(characterDetails)
@@ -154,14 +155,14 @@ class CharactersApiRepositoryImpl @Inject constructor
         catch (e:Exception){
             characterDetails = charactersDbRepository
                 .getCharacterWithEpisodesFromDB(id)
-            return State.Error(characterDetails)
-        }
-        finally {
             Log.d("netlist","Loaded Character Details " +
-                    "= ${characterDetails?.episode}")
+                    "= ${characterDetails.episode}")
         }
-
-        return State.Success(characterDetails)
+//        finally {
+//            Log.d("netlist","Loaded Character Details " +
+//                    "= ${characterDetails?.episode}")
+//        }
+        return characterDetails
     }
 
     override suspend fun getCharacterModelById(id: Int): CharacterModel {

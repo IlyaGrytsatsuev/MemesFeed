@@ -1,8 +1,8 @@
 package com.example.rickandmortyapi.data.network.converters
 
 import com.example.rickandmortyapi.data.network.responseModels.CharactersResponse
-import com.example.rickandmortyapi.data.network.responseModels.Location
-import com.example.rickandmortyapi.data.network.responseModels.Origin
+import com.example.rickandmortyapi.data.network.responseModels.ResponseLocation
+import com.example.rickandmortyapi.data.network.responseModels.ResponseOrigin
 import com.example.rickandmortyapi.data.network.responseModels.SingleCharacterResponse
 import com.example.rickandmortyapi.domain.models.CharacterDetailsModel
 import com.example.rickandmortyapi.domain.models.CharacterModel
@@ -11,35 +11,32 @@ import com.example.rickandmortyapi.domain.models.CharacterModelOrigin
 import com.example.rickandmortyapi.domain.models.EpisodeModel
 
 fun CharactersResponse.toDomainCharactersModelsList(): List<CharacterModel> {
-    val result: MutableList<CharacterModel> = mutableListOf()
-    this.results?.forEach { result1 ->
-        val characterModel = CharacterModel(
+    val result = this.results?.map { result1 ->
+        CharacterModel(
             created = result1.created?:"",
             gender = result1.gender?:"",
             id = result1.id?:0,
             image = result1.image?:"",
-            location = result1.location?.toCharacterLocation()
+            location = result1.responseLocation?.toCharacterLocation()
                 ?: CharacterModelLocation("",""),
             name = result1.name?:"",
-            origin = result1.origin?.toCharacterOrigin()
+            origin = result1.responseOrigin?.toCharacterOrigin()
                 ?: CharacterModelOrigin("",""),
             species = result1.species?:"",
             status = result1.status?:"",
             type = result1.type?:"",
             url = result1.url?:""
         )
-        result.add(characterModel)
-    }
+    }?: emptyList()
     return result
 }
 
 fun SingleCharacterResponse.toCharacterDetailsDomainModel(): CharacterDetailsModel {
 
-    val episodeIds = mutableListOf<Int>()
-    this.episode?.forEach {
-        val idStr = it.substringAfterLast("/")
-        episodeIds.add(idStr.toInt())
-    }
+    val episodeIds = this.episode?.map {
+        it.substringAfterLast("/")
+            .toInt()
+    }?: emptyList()
     return  CharacterDetailsModel(
         created = this.created?:"",
         episodeIds = episodeIds,
@@ -47,10 +44,10 @@ fun SingleCharacterResponse.toCharacterDetailsDomainModel(): CharacterDetailsMod
         gender = this.gender?:"",
         id = this.id?:0,
         image = this.image?:"",
-        location = this.location?.toCharacterLocation()
+        location = this.responseLocation?.toCharacterLocation()
             ?: CharacterModelLocation("",""),
         name = this.name?:"",
-        origin = this.origin?.toCharacterOrigin()
+        origin = this.responseOrigin?.toCharacterOrigin()
             ?: CharacterModelOrigin("",""),
         species = this.species?:"",
         status = this.status?:"",
@@ -59,41 +56,38 @@ fun SingleCharacterResponse.toCharacterDetailsDomainModel(): CharacterDetailsMod
     )
 }
 
-fun SingleCharacterResponse.toCharacterModel(): CharacterModel {
+fun SingleCharacterResponse?.toCharacterModel(): CharacterModel {
 
     return CharacterModel(
-        created = this.created?:"",
-        gender = this.gender?:"",
-        id = this.id?:0,
-        image = this.image?:"",
-        location = this.location?.toCharacterLocation()
+        created = this?.created?:"",
+        gender = this?.gender?:"",
+        id = this?.id?:0,
+        image = this?.image?:"",
+        location = this?.responseLocation?.toCharacterLocation()
             ?: CharacterModelLocation("",""),
-        name = this.name?:"",
-        origin = this.origin?.toCharacterOrigin()
+        name = this?.name?:"",
+        origin = this?.responseOrigin?.toCharacterOrigin()
             ?: CharacterModelOrigin("",""),
-        species = this.species?:"",
-        status = this.status?:"",
-        type = this.type?:"",
-        url = this.url?:""
+        species = this?.species?:"",
+        status = this?.status?:"",
+        type = this?.type?:"",
+        url = this?.url?:""
     )
 }
 
 fun CharacterDetailsModel.appendEpisodesDetails(episodes:List<EpisodeModel>){
-    episodes.forEach {
-        this.episode.add(it)
-    }
+    this.episode = episodes.toList()
     this.listSize = episodes.size
-
 }
 
-fun Location.toCharacterLocation(): CharacterModelLocation {
+fun ResponseLocation.toCharacterLocation(): CharacterModelLocation {
     return CharacterModelLocation(
         name = this.name ?: "",
         url = this.url ?: ""
     )
 }
 
-fun Origin.toCharacterOrigin(): CharacterModelOrigin =
+fun ResponseOrigin.toCharacterOrigin(): CharacterModelOrigin =
     CharacterModelOrigin(
         name = this.name?:"",
         url = this.url?:""

@@ -107,7 +107,8 @@ class FiltersFragment : Fragment(R.layout.fragment_filters) {
 
     private fun setUpOnCloseListener(){
         binding.closeButton.setOnClickListener {
-            (activity as MainActivity).removeUpperFragment()
+            (activity as MainActivity)
+                .handleOnBackPressedNavigation()
         }
     }
     private fun onGenderSelectedListener() =

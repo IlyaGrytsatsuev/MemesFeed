@@ -10,14 +10,14 @@ data class CharactersResponse(
 )
 
 
-data class Location(
+data class ResponseLocation(
     @SerializedName("name")
     val name: String?,
     @SerializedName("url")
     val url: String?
 )
 
-data class Origin(
+data class ResponseOrigin(
     @SerializedName("name")
     val name: String?,
     @SerializedName("url")
@@ -36,11 +36,11 @@ data class CharactersResult(
     @SerializedName("image")
     val image: String?,
     @SerializedName("location")
-    val location: Location?,
+    val responseLocation: ResponseLocation?,
     @SerializedName("name")
     val name: String?,
     @SerializedName("origin")
-    val origin: Origin?,
+    val responseOrigin: ResponseOrigin?,
     @SerializedName("species")
     val species: String?,
     @SerializedName("status")

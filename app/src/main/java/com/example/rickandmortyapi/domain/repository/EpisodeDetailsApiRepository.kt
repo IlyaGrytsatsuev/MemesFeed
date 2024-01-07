@@ -6,7 +6,7 @@ import com.example.rickandmortyapi.presenter.State
 interface EpisodeDetailsApiRepository {
     suspend fun getEpisodeDetailsModelById(id:Int): EpisodeDetailsModel
 
-    suspend fun getEpisodeDetails(id: Int): State<EpisodeDetailsModel?>
+    suspend fun getEpisodeDetails(id: Int): EpisodeDetailsModel
 
 
 }

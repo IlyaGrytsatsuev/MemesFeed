@@ -9,7 +9,7 @@ import javax.inject.Inject
 class GetCharacterDetailsUseCase @Inject
 constructor(private val apiRepository: CharactersApiRepository){
 
-    suspend fun execute(id:Int): State<RecyclerModel?> {
+    suspend fun execute(id:Int): CharacterDetailsModel {
         return apiRepository.getCharacterDetails(id)
     }
 

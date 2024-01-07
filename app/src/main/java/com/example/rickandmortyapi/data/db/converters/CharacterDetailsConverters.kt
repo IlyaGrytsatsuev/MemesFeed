@@ -1,6 +1,7 @@
 package com.example.rickandmortyapi.data.db.converters
 
 
+import android.util.Log
 import com.example.rickandmortyapi.data.db.entities.CharacterEntity
 import com.example.rickandmortyapi.data.db.entities.CharacterWithEpisodes
 import com.example.rickandmortyapi.data.db.entities.EpisodeEntity
@@ -32,25 +33,25 @@ fun CharacterDetailsModel.toCharacterWithEpisodesDbModel() : CharacterWithEpisod
     )
 }
 
-fun CharacterWithEpisodes.toCharacterDetailsModel(): CharacterDetailsModel {
-    val episodes = mutableListOf<EpisodeModel>()
-    val character = this.characterEntity
-    this.episodes.forEach {
-        episodes.add(it.toEpisodeDomainModel())
-    }
+fun CharacterWithEpisodes?.toCharacterDetailsModel(): CharacterDetailsModel {
+    val character = this?.characterEntity
+    var episodes = this?.episodes?.map {
+        it.toEpisodeDomainModel()
+    }?: emptyList()
     return CharacterDetailsModel(
-        created = character.created,
+        created = character?.created?:"",
+        isNullReceived = this == null,
         episodeIds = emptyList(),
         episode = episodes,
-        gender = character.gender,
-        id = character.id,
-        image = character.image,
-        location = character.location.toDomainModel(),
-        name = character.name,
-        origin = character.origin.toDomainModel(),
-        species = character.species,
-        status = character.status,
-        type = character.type,
-        url = character.url
+        gender = character?.gender?:"",
+        id = character?.id?:0,
+        image = character?.image?:"",
+        location = character?.location.toDomainModel(),
+        name = character?.name?:"",
+        origin = character?.origin.toDomainModel(),
+        species = character?.species?:"",
+        status = character?.status?:"",
+        type = character?.type?:"",
+        url = character?.url?:""
     )
 }

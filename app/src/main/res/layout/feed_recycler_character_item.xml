@@ -33,9 +33,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/name_title"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toTopOf="@id/name"
             app:layout_constraintStart_toEndOf="@id/guideline"
-            app:layout_constraintBottom_toTopOf="@id/status_title"
             android:layout_marginStart="10dp"
             >
         </TextView>
@@ -45,9 +44,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/status_title"
-            app:layout_constraintTop_toBottomOf="@id/name_title"
+            app:layout_constraintTop_toTopOf="@id/status"
             app:layout_constraintStart_toEndOf="@id/guideline"
-            app:layout_constraintBottom_toTopOf="@id/species_title"
             android:layout_marginStart="10dp"
 
             >
@@ -59,8 +57,7 @@
             android:layout_height="wrap_content"
             android:text="@string/species_title"
             app:layout_constraintStart_toEndOf="@id/guideline"
-            app:layout_constraintTop_toBottomOf="@id/status_title"
-            app:layout_constraintBottom_toTopOf="@id/type_title"
+            app:layout_constraintTop_toTopOf="@id/species"
             android:layout_marginStart="10dp"
             >
         </TextView>
@@ -72,8 +69,7 @@
             android:layout_gravity="start"
             android:text="@string/type_title"
             app:layout_constraintStart_toEndOf="@id/guideline"
-            app:layout_constraintTop_toBottomOf="@id/species_title"
-            app:layout_constraintBottom_toTopOf="@id/gender_title"
+            app:layout_constraintTop_toTopOf="@id/type"
             android:layout_marginStart="10dp"
 
 
@@ -87,8 +83,7 @@
             android:layout_gravity="start"
             android:text="@string/gender_title"
             app:layout_constraintStart_toEndOf="@id/guideline"
-            app:layout_constraintTop_toBottomOf="@id/type_title"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="@id/gender"
             android:layout_marginStart="10dp"
 
 
@@ -112,47 +107,57 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/status"
             app:layout_constraintEnd_toEndOf="parent"
-            tools:text="sdsd"
+            android:layout_marginEnd="10dp"
+            tools:text="sdsdeorijreiojeroijr433ioj4io43joi34jio43j"
             >
         </TextView>
 
         <TextView
             android:id="@+id/status"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toEndOf="@id/guideline2"
             app:layout_constraintTop_toBottomOf="@id/name"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toTopOf="@id/species"
+            android:layout_marginEnd="10dp"
+            tools:text="erlkerjekrl"
             >
         </TextView>
 
         <TextView
             android:id="@+id/species"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toEndOf="@id/guideline2"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/status"
             app:layout_constraintBottom_toTopOf="@id/type"
+            android:layout_marginEnd="10dp"
             >
         </TextView>
 
         <TextView
             android:id="@+id/type"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toEndOf="@id/guideline2"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/species"
             app:layout_constraintBottom_toTopOf="@id/gender"
+            android:layout_marginEnd="10dp"
             >
         </TextView>
 
         <TextView
             android:id="@+id/gender"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toEndOf="@id/guideline2"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/type"
             app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginEnd="10dp"
             >
         </TextView>
 

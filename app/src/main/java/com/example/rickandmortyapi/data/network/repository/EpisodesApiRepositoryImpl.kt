@@ -66,7 +66,6 @@ constructor(private val episodesApiService: EpisodesApiService,
         if(paginationDataRepository.getCurPage() == 1) {
             paginationDataRepository
                 .setIsFirstLoadedFromApi(false)
-            Log.d("netlist", "change first flag")
         }
         if(!paginationDataRepository.isFirstLoadedFromApi()) {
             val resultList = episodesDbRepository.getEpisodesList()
