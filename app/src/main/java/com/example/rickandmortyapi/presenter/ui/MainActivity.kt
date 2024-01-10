@@ -20,6 +20,7 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+//TODO search Fragment
 class MainActivity : AppCompatActivity(), FragmentNavigator {
 
     private lateinit var binding: ActivityMainBinding
@@ -40,6 +41,7 @@ class MainActivity : AppCompatActivity(), FragmentNavigator {
     private val recyclerFragmentsDetailsStates: Map<Fragment, Int>
     = mapOf(Pair(fragmentsList.first(), R.id.characters_navbar_button),
         Pair(fragmentsList[1], R.id.episode_navbar_button))
+
     private  var currentVisibleFragment: Fragment = fragmentsList.first()
     private  var previousVisibleFragment: Fragment = currentVisibleFragment
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,9 +87,21 @@ class MainActivity : AppCompatActivity(), FragmentNavigator {
     override fun moveToChildFragment(container: Int, fragment: Fragment) {
             currentVisibleFragment.childFragmentManager.commit {
                 replace(container, fragment)
+//                if(currentVisibleFragment.childFragmentManager.backStackEntryCount > 0)
+//                    currentVisibleFragment.childFragmentManager.popBackStack()
                 addToBackStack(fragment::javaClass.name)
+                setReorderingAllowed(true)
             }
     }
+
+    override fun showFiltrationFragment(container: Int, fragment: Fragment) {
+        supportFragmentManager.commit {
+            add(container, fragment)
+            addToBackStack(fragment::javaClass.name)
+        }
+    }
+
+
 
     private fun setOnNavigationBarItemListener(){
         binding.bottomNavbar.setOnItemSelectedListener {
@@ -106,7 +120,7 @@ class MainActivity : AppCompatActivity(), FragmentNavigator {
         if(fragment != currentVisibleFragment) {
             supportFragmentManager.commit {
                 if(!fragment.isAdded) {
-                    add(R.id.fragment_container, fragment)
+                    replace(R.id.fragment_container, fragment)
                     addToBackStack(fragment::javaClass.name)
                     setReorderingAllowed(true)
                     Log.d("netlist", "fragment creation")
@@ -127,6 +141,11 @@ class MainActivity : AppCompatActivity(), FragmentNavigator {
 
     override fun onBackPressed() {
         handleOnBackPressedNavigation()
+    }
+
+
+    fun popUpFilterFragment(){
+        currentVisibleFragment.childFragmentManager.popBackStack()
     }
 
     override fun handleOnBackPressedNavigation(){

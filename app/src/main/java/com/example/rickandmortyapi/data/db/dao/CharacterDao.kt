@@ -18,8 +18,10 @@ interface CharacterDao {
     @Query("select * from CharacterEntity where characterId = :id")
     suspend fun getCharacterWithEpisodes(id:Int): CharacterWithEpisodes?
 
+
+    
     @Query("select * from CharacterEntity where " +
-            "(:name is null or name LIKE :name)" +
+            "(:name is null or name LIKE '%' || :name || '%')" +
             "and(:status is null or status LIKE :status)" +
             "and (:gender is null or gender LIKE :gender) " +
             "LIMIT :limit OFFSET :offset")

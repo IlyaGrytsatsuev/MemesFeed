@@ -1,14 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="50dp"
-    tools:context=".AbstractSearchFragment">
 
-    <SearchView
+<com.google.android.material.textfield.TextInputLayout
+    android:layout_height="60dp"
+    android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/recycler_item_shape"
+    android:backgroundTint="@color/white"
+
+    >
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/search_text_field"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/close_button"
+            >
 
-    </SearchView>
+        </com.google.android.material.textfield.TextInputEditText>
+        <Button
+            android:id="@+id/close_button"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:theme="@style/Widget.Material3.Button.Icon"
+            android:background="@android:color/transparent"
+            android:drawableTop="@drawable/close_button_icon"
+            app:layout_constraintStart_toEndOf="@id/search_text_field"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            >
 
-</FrameLayout>
+        </Button>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</com.google.android.material.textfield.TextInputLayout>
+

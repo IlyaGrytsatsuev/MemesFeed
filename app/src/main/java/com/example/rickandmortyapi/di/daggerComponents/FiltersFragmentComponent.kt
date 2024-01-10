@@ -6,7 +6,7 @@ import com.example.rickandmortyapi.di.modules.DBModule
 import com.example.rickandmortyapi.di.modules.CharactersFeedViewModelModule
 import com.example.rickandmortyapi.di.modules.PaginationModule
 import com.example.rickandmortyapi.di.modules.ViewModelFactoryModule
-import com.example.rickandmortyapi.presenter.ui.FiltersFragment
+import com.example.rickandmortyapi.presenter.ui.CharacterFiltersFragment
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
@@ -20,5 +20,5 @@ interface FiltersFragmentComponent {
     interface ComponentBuilder{
         fun create(@BindsInstance context: Context): FiltersFragmentComponent
     }
-    fun inject(fragment: FiltersFragment)
+    fun inject(fragment: CharacterFiltersFragment)
 }

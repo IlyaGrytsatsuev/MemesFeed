@@ -7,8 +7,10 @@ import com.example.rickandmortyapi.di.modules.DBModule
 import com.example.rickandmortyapi.di.modules.InternetConnectionViewModelModule
 import com.example.rickandmortyapi.di.modules.PaginationModule
 import com.example.rickandmortyapi.di.modules.ViewModelFactoryModule
+import com.example.rickandmortyapi.presenter.ui.AbstractSearchFragment
 import com.example.rickandmortyapi.presenter.ui.CharactersFeedFragment
-import com.example.rickandmortyapi.presenter.ui.FiltersFragment
+import com.example.rickandmortyapi.presenter.ui.CharacterFiltersFragment
+import com.example.rickandmortyapi.presenter.ui.CharacterSearchFragment
 import com.example.rickandmortyapi.presenter.ui.MainActivity
 import dagger.BindsInstance
 import dagger.Component
@@ -28,5 +30,6 @@ interface MainActivityComponent {
 
     fun inject(activity: MainActivity)
     fun inject(fragment: CharactersFeedFragment)
-    fun inject(fragment: FiltersFragment)
+    fun inject(fragment: CharacterFiltersFragment)
+    fun inject(fragment: CharacterSearchFragment)
 }

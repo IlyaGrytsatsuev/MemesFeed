@@ -1,7 +1,6 @@
 package com.example.rickandmortyapi.di.daggerComponents
 
 import android.content.Context
-import androidx.fragment.app.Fragment
 import com.example.rickandmortyapi.di.modules.ApiModule
 import com.example.rickandmortyapi.di.modules.DBModule
 import com.example.rickandmortyapi.di.modules.CharactersFeedViewModelModule
@@ -9,7 +8,7 @@ import com.example.rickandmortyapi.di.modules.InternetConnectionViewModelModule
 import com.example.rickandmortyapi.di.modules.PaginationModule
 import com.example.rickandmortyapi.di.modules.ViewModelFactoryModule
 import com.example.rickandmortyapi.presenter.ui.CharactersFeedFragment
-import com.example.rickandmortyapi.presenter.ui.FiltersFragment
+import com.example.rickandmortyapi.presenter.ui.CharacterFiltersFragment
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
@@ -25,7 +24,7 @@ interface CharacterFeedFragmentComponent{
         fun create(@BindsInstance context: Context): CharacterFeedFragmentComponent
     }
     fun inject(fragment: CharactersFeedFragment)
-    fun inject(fragment: FiltersFragment)
+    fun inject(fragment: CharacterFiltersFragment)
 }
 
 

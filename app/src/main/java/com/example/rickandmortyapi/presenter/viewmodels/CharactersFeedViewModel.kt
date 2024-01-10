@@ -69,15 +69,19 @@ class CharactersFeedViewModel @Inject constructor(
     fun setCharacterStatusFilter(value:CharacterStatus){
         viewModelScope.launch {
             privateCharacterStatusFilter.emit(value)
-            Log.d("netlist",
-                privateCharacterStatusFilter
-                    .replayCache.first().text?:"Not chosen")
+            Log.d("netlist", "status changed")
         }
     }
 
     fun setCharacterGenderFilter(value: CharacterGender){
         viewModelScope.launch {
             privateCharacterGenderFilter.emit(value)
+        }
+    }
+
+    fun setCharacterNameFilter(value: String){
+        viewModelScope.launch {
+            privateNameState.emit(value)
         }
     }
 
@@ -93,7 +97,7 @@ class CharactersFeedViewModel @Inject constructor(
             privateCharactersList.emit(State.Loading())
             try {
                 Log.d("netlist","statusFilter before request " +
-                        "= ${privateCharacterGenderFilter.replayCache.lastOrNull()}")
+                        "= ${privateNameState.replayCache.lastOrNull()}")
 
                 val loadedList = getCharactersListUseCase.execute(
                     name = privateNameState.replayCache.lastOrNull(),

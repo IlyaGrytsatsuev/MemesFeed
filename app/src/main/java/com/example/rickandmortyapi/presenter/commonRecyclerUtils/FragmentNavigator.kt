@@ -9,5 +9,8 @@ interface FragmentNavigator {
 
     fun showListFragment(fragment: Fragment)
 
+    fun showFiltrationFragment(container: Int, fragment:Fragment)
+
+
 
 }

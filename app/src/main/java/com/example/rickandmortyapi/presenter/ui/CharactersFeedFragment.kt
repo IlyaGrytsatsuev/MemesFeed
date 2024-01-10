@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -74,7 +73,7 @@ class CharactersFeedFragment() : AbstractFeedFragment() {
         setUpGenderFilterObserver()
         setOnReloadButtonListener()
         setOnInternetRestoredObserver()
-
+        setUpSearchButtonListener()
     }
 
 
@@ -154,8 +153,17 @@ class CharactersFeedFragment() : AbstractFeedFragment() {
     private fun setUpFilterButtonListener(){
         binding.filterButton.setOnClickListener {
             (activity as? FragmentNavigator)?.moveToChildFragment(R.id.container
-                , FiltersFragment())
+                , CharacterFiltersFragment())
 
+        }
+    }
+
+    private fun setUpSearchButtonListener(){
+        binding.searchButton.visibility = View.VISIBLE
+        binding.searchButton.setOnClickListener {
+            (activity as? FragmentNavigator)
+                ?.moveToChildFragment(R.id.container,
+                    CharacterSearchFragment())
         }
     }
 
