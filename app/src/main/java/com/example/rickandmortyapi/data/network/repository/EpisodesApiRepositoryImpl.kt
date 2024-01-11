@@ -1,23 +1,14 @@
 package com.example.rickandmortyapi.data.network.repository
 
 import android.util.Log
-import com.example.rickandmortyapi.data.db.converters.toCharacterWithEpisodesDbModel
-import com.example.rickandmortyapi.data.network.converters.appendCharactersList
-import com.example.rickandmortyapi.data.network.converters.appendEpisodesDetails
 import com.example.rickandmortyapi.data.network.converters.getPagesNum
-import com.example.rickandmortyapi.data.network.converters.toEpisodeDetailsModel
 import com.example.rickandmortyapi.data.network.converters.toEpisodeDomainModel
 import com.example.rickandmortyapi.data.network.converters.toEpisodeModelList
 import com.example.rickandmortyapi.data.network.service.EpisodesApiService
-import com.example.rickandmortyapi.domain.models.CharacterModel
-import com.example.rickandmortyapi.domain.models.EpisodeDetailsModel
 import com.example.rickandmortyapi.domain.models.EpisodeModel
-import com.example.rickandmortyapi.domain.models.RecyclerModel
-import com.example.rickandmortyapi.domain.repository.CharactersApiRepository
 import com.example.rickandmortyapi.domain.repository.EpisodesApiRepository
 import com.example.rickandmortyapi.domain.repository.EpisodesDbRepository
 import com.example.rickandmortyapi.domain.repository.PaginationDataRepository
-import com.example.rickandmortyapi.presenter.State
 import javax.inject.Inject
 
 class EpisodesApiRepositoryImpl @Inject
@@ -44,9 +35,6 @@ constructor(private val episodesApiService: EpisodesApiService,
                 paginationDataRepository.incrementPageCounter()
                 paginationDataRepository.increaseDisplayedItemsNum()
             }
-            Log.d("netlist", "page = ${paginationDataRepository.getCurPage()} " +
-                    "items = ${paginationDataRepository.getDisplayedItemsNum()}")
-
         }
         return resultList
 
@@ -69,7 +57,6 @@ constructor(private val episodesApiService: EpisodesApiService,
         }
         if(!paginationDataRepository.isFirstLoadedFromApi()) {
             val resultList = episodesDbRepository.getEpisodesList()
-            Log.d("netlist", "db call")
             return resultList
         }
         throw Exception()

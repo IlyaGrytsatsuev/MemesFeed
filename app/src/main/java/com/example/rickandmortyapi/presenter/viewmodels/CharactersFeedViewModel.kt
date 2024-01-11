@@ -17,6 +17,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -50,7 +51,7 @@ class CharactersFeedViewModel @Inject constructor(
     private val privateCharacterStatusFilter:
             MutableSharedFlow<CharacterStatus> =
             MutableSharedFlow(replay = 1,
-    onBufferOverflow = BufferOverflow.DROP_OLDEST)
+            onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
     val characterStatusFilter: Flow<CharacterStatus>
     = privateCharacterStatusFilter
@@ -69,7 +70,6 @@ class CharactersFeedViewModel @Inject constructor(
     fun setCharacterStatusFilter(value:CharacterStatus){
         viewModelScope.launch {
             privateCharacterStatusFilter.emit(value)
-            Log.d("netlist", "status changed")
         }
     }
 

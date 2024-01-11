@@ -1,5 +1,7 @@
 package com.example.rickandmortyapi.data.db.converters
 
+import com.example.rickandmortyapi.data.db.entities.CharacterDBLocation
+import com.example.rickandmortyapi.data.db.entities.CharacterDBOrigin
 import com.example.rickandmortyapi.data.db.entities.CharacterEntity
 import com.example.rickandmortyapi.domain.models.CharacterModel
 import com.example.rickandmortyapi.domain.models.CharacterModelLocation
@@ -22,25 +24,18 @@ fun CharacterEntity.toCharacterModel() : CharacterModel {
     )
 }
 
-fun com.example.rickandmortyapi.data.db.entities.CharacterDBLocation?
-        .toDomainModel():
-        CharacterModelLocation =
-    CharacterModelLocation(this?.name?:"", this?.url?:"")
+fun CharacterDBLocation.toDomainModel(): CharacterModelLocation =
+    CharacterModelLocation(this.name, this.url)
 
-fun CharacterModelLocation
-        .toDBModel():
-        com.example.rickandmortyapi.data.db.entities.CharacterDBLocation =
-    com.example.rickandmortyapi.data.db.entities.CharacterDBLocation(this.name, this.url)
+fun CharacterModelLocation.toDBModel(): CharacterDBLocation =
+    CharacterDBLocation(this.name, this.url)
 
 
-fun com.example.rickandmortyapi.data.db.entities.CharacterDBOrigin?
-        .toDomainModel() : CharacterModelOrigin =
-    CharacterModelOrigin(this?.name?:"", this?.url?:"")
+fun CharacterDBOrigin.toDomainModel() : CharacterModelOrigin =
+    CharacterModelOrigin(this.name, this.url)
 
-fun CharacterModelOrigin
-        .toDBModel() :
-        com.example.rickandmortyapi.data.db.entities.CharacterDBOrigin =
-    com.example.rickandmortyapi.data.db.entities.CharacterDBOrigin(this.name, this.url)
+fun CharacterModelOrigin.toDBModel() : CharacterDBOrigin =
+    CharacterDBOrigin(this.name, this.url)
 
 
 fun CharacterModel.toDbEntity() : CharacterEntity{

@@ -56,6 +56,7 @@
                     android:drawableBottom="@drawable/filter_button_icon"
                     android:theme="@style/Widget.Material3.Button.Icon"
                     android:background="@android:color/transparent"
+                    android:visibility="gone"
                     >
 
                 </Button>

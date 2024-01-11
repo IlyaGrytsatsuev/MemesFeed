@@ -8,6 +8,7 @@ import com.example.rickandmortyapi.di.modules.InternetConnectionViewModelModule
 import com.example.rickandmortyapi.di.modules.PaginationModule
 import com.example.rickandmortyapi.di.modules.ViewModelFactoryModule
 import com.example.rickandmortyapi.presenter.ui.EpisodesFeedFragment
+import com.example.rickandmortyapi.presenter.ui.MainActivity
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
@@ -24,4 +25,6 @@ interface EpisodesFeedFragmentComponent {
         fun create(@BindsInstance context: Context): EpisodesFeedFragmentComponent
     }
     fun inject(fragment: EpisodesFeedFragment)
+
+
 }

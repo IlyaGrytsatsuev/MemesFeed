@@ -9,7 +9,6 @@ import com.example.rickandmortyapi.domain.models.EpisodeModel
 
 fun SingleEpisodeResponse.toEpisodeDomainModel() : EpisodeModel {
 
-    Log.d("listnet", "episodeModel = $this")
     return EpisodeModel(id = this.id?:0,
         name = this.name?:"",
         episode = this.episode?:"",
@@ -40,9 +39,9 @@ fun EpisodeDetailsModel.appendCharactersList(characterList: List<CharacterModel>
 fun EpisodesResponse.toEpisodeModelList():List<EpisodeModel>{
     val episodesResponseList = this.results
     val resultList = episodesResponseList?.map {
-        EpisodeModel(id = it.id,
-            name = it.name,
-            episode = it.episode)
+        EpisodeModel(id = it.id?:0,
+            name = it.name?:"",
+            episode = it.episode?:"")
     }?: listOf()
     return resultList
 }

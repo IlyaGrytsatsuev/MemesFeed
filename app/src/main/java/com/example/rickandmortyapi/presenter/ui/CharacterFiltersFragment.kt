@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -18,6 +19,7 @@ import com.example.rickandmortyapi.di.daggerComponents.MainActivityComponent
 import com.example.rickandmortyapi.presenter.viewmodels.CharactersFeedViewModel
 import com.example.rickandmortyapi.utils.CharacterGender
 import com.example.rickandmortyapi.utils.CharacterStatus
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,7 +29,7 @@ class CharacterFiltersFragment : Fragment(R.layout.fragment_filters) {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
-    private val viewModel: CharactersFeedViewModel by viewModels {viewModelFactory}
+    private val viewModel: CharactersFeedViewModel by activityViewModels {viewModelFactory}
 
     private lateinit var binding: FragmentFiltersBinding
 
@@ -68,7 +70,7 @@ class CharacterFiltersFragment : Fragment(R.layout.fragment_filters) {
     }
 
     private fun setUpStatusFilterObserver(){
-        viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch(SupervisorJob()) {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.characterStatusFilter.collect {
                     binding.statusSpinner
@@ -97,7 +99,7 @@ class CharacterFiltersFragment : Fragment(R.layout.fragment_filters) {
 
     private fun setUpGenderFilterObserver(){
         viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.CREATED) {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.characterGenderFilter.collect {
                     binding.genderSpinner
                         .setSelection(genderObjectsList.indexOf(it))

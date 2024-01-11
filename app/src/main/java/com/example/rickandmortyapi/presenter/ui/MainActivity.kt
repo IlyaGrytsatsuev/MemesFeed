@@ -12,21 +12,25 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.rickandmortyapi.R
 import com.example.rickandmortyapi.databinding.ActivityMainBinding
+import com.example.rickandmortyapi.di.daggerComponents.DaggerEpisodesFeedFragmentComponent
 import com.example.rickandmortyapi.di.daggerComponents.DaggerMainActivityComponent
+import com.example.rickandmortyapi.di.daggerComponents.EpisodesFeedFragmentComponent
 import com.example.rickandmortyapi.di.daggerComponents.MainActivityComponent
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.FragmentNavigator
+import com.example.rickandmortyapi.presenter.viewmodels.CharactersFeedViewModel
 import com.example.rickandmortyapi.presenter.viewmodels.InternetConnectionObserverViewModel
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-//TODO search Fragment
 class MainActivity : AppCompatActivity(), FragmentNavigator {
 
     private lateinit var binding: ActivityMainBinding
 
 
     private val viewModel: InternetConnectionObserverViewModel by viewModels{viewModelFactory}
+
+    private val feedViewModel: CharactersFeedViewModel by viewModels{viewModelFactory}
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -35,10 +39,11 @@ class MainActivity : AppCompatActivity(), FragmentNavigator {
         DaggerMainActivityComponent.factory().create(this)
     }
 
+
     private val fragmentsList = listOf<Fragment>(CharactersFeedFragment(),
         EpisodesFeedFragment())
 
-    private val recyclerFragmentsDetailsStates: Map<Fragment, Int>
+    private val recyclerFragmentsIconsIds: Map<Fragment, Int>
     = mapOf(Pair(fragmentsList.first(), R.id.characters_navbar_button),
         Pair(fragmentsList[1], R.id.episode_navbar_button))
 
@@ -58,7 +63,6 @@ class MainActivity : AppCompatActivity(), FragmentNavigator {
         supportFragmentManager.commit {
             add(R.id.fragment_container, fragmentsList.first())
             //TODO check if not null
-            //addToBackStack(fragmentsList.first()::javaClass.name)
             currentVisibleFragment = fragmentsList.first()
             setReorderingAllowed(true)
         }
@@ -77,30 +81,23 @@ class MainActivity : AppCompatActivity(), FragmentNavigator {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-    }
 
     private fun showSnackBar(message: String){
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
     override fun moveToChildFragment(container: Int, fragment: Fragment) {
+            if(currentVisibleFragment.childFragmentManager.backStackEntryCount > 0)
+                currentVisibleFragment.childFragmentManager.popBackStack()
+
             currentVisibleFragment.childFragmentManager.commit {
                 replace(container, fragment)
-//                if(currentVisibleFragment.childFragmentManager.backStackEntryCount > 0)
-//                    currentVisibleFragment.childFragmentManager.popBackStack()
                 addToBackStack(fragment::javaClass.name)
                 setReorderingAllowed(true)
             }
-    }
+        //TODO filters and search fragments bug with emitting values
+    // resolved by using activityViewModel and injecting it in activity
 
-    override fun showFiltrationFragment(container: Int, fragment: Fragment) {
-        supportFragmentManager.commit {
-            add(container, fragment)
-            addToBackStack(fragment::javaClass.name)
-        }
     }
-
 
 
     private fun setOnNavigationBarItemListener(){
@@ -144,9 +141,6 @@ class MainActivity : AppCompatActivity(), FragmentNavigator {
     }
 
 
-    fun popUpFilterFragment(){
-        currentVisibleFragment.childFragmentManager.popBackStack()
-    }
 
     override fun handleOnBackPressedNavigation(){
         when{
@@ -154,13 +148,13 @@ class MainActivity : AppCompatActivity(), FragmentNavigator {
                 currentVisibleFragment.childFragmentManager.popBackStack()
 
             currentVisibleFragment == fragmentsList.firstOrNull() ->{
-                supportFragmentManager.popBackStack()
+                finish()
                 super.onBackPressed()
             }
             else->{
                 supportFragmentManager.popBackStack()
                 binding.bottomNavbar.selectedItemId =
-                    recyclerFragmentsDetailsStates[previousVisibleFragment]
+                    recyclerFragmentsIconsIds[previousVisibleFragment]
                         ?:R.id.characters_navbar_button
                 //TODO map nullable Int question
             }

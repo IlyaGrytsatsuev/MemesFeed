@@ -18,6 +18,7 @@ import com.example.rickandmortyapi.di.daggerComponents.EpisodesFeedFragmentCompo
 import com.example.rickandmortyapi.domain.models.RecyclerModel
 import com.example.rickandmortyapi.presenter.State
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.delegates.EpisodesListItemDelegate
+import com.example.rickandmortyapi.presenter.commonRecyclerUtils.FragmentNavigator
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerItemDelegate
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerListAdapter
 import com.example.rickandmortyapi.presenter.feedRecycler.PaginationScrollListener
@@ -106,6 +107,7 @@ class EpisodesFeedFragment() : AbstractFeedFragment() {
                 (adapter as RecyclerListAdapter).appendItems(it)
         }
     }
+
 
     override fun setUpPaginationScrollListener(layoutManager: LinearLayoutManager)
     : RecyclerView.OnScrollListener =

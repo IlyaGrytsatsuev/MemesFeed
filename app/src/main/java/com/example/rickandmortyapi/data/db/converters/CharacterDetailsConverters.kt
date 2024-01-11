@@ -6,9 +6,11 @@ import com.example.rickandmortyapi.data.db.entities.CharacterEntity
 import com.example.rickandmortyapi.data.db.entities.CharacterWithEpisodes
 import com.example.rickandmortyapi.data.db.entities.EpisodeEntity
 import com.example.rickandmortyapi.domain.models.CharacterDetailsModel
+import com.example.rickandmortyapi.domain.models.CharacterModelLocation
+import com.example.rickandmortyapi.domain.models.CharacterModelOrigin
 import com.example.rickandmortyapi.domain.models.EpisodeModel
 
-fun CharacterDetailsModel.toCharacterWithEpisodesDbModel() : CharacterWithEpisodes {
+fun CharacterDetailsModel.toEpisodeWithCharactersDbModel() : CharacterWithEpisodes {
     val episodes = mutableListOf<EpisodeEntity>()
     this.episode.forEach {
         episodes.add(it.toDbEntity())
@@ -46,9 +48,11 @@ fun CharacterWithEpisodes?.toCharacterDetailsModel(): CharacterDetailsModel {
         gender = character?.gender?:"",
         id = character?.id?:0,
         image = character?.image?:"",
-        location = character?.location.toDomainModel(),
+        location = character?.location?.toDomainModel()
+            ?: CharacterModelLocation(),
         name = character?.name?:"",
-        origin = character?.origin.toDomainModel(),
+        origin = character?.origin?.toDomainModel()
+            ?: CharacterModelOrigin(),
         species = character?.species?:"",
         status = character?.status?:"",
         type = character?.type?:"",

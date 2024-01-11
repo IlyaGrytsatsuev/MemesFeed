@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.rickandmortyapi.R
+import com.example.rickandmortyapi.data.db.converters.toDbEntity
 import com.example.rickandmortyapi.databinding.FragmentFeedBinding
 import com.example.rickandmortyapi.di.daggerComponents.MainActivityComponent
 import com.example.rickandmortyapi.domain.models.RecyclerModel
@@ -24,6 +26,7 @@ import com.example.rickandmortyapi.presenter.viewmodels.CharactersFeedViewModel
 import com.example.rickandmortyapi.presenter.State
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.FragmentNavigator
 import com.example.rickandmortyapi.presenter.viewmodels.InternetConnectionObserverViewModel
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -34,7 +37,7 @@ class CharactersFeedFragment() : AbstractFeedFragment() {
     @Inject
     override lateinit var viewModelFactory: ViewModelProvider.Factory
 
-    private val viewModel: CharactersFeedViewModel by viewModels {viewModelFactory}
+    private val viewModel: CharactersFeedViewModel by activityViewModels  {viewModelFactory}
 
     override val internetObserverViewModel: InternetConnectionObserverViewModel
     by viewModels {viewModelFactory}
@@ -75,7 +78,6 @@ class CharactersFeedFragment() : AbstractFeedFragment() {
         setOnInternetRestoredObserver()
         setUpSearchButtonListener()
     }
-
 
 
     override fun setUpListStateObserver() {
@@ -151,6 +153,7 @@ class CharactersFeedFragment() : AbstractFeedFragment() {
 
 
     private fun setUpFilterButtonListener(){
+        binding.filterButton.visibility = View.VISIBLE
         binding.filterButton.setOnClickListener {
             (activity as? FragmentNavigator)?.moveToChildFragment(R.id.container
                 , CharacterFiltersFragment())
@@ -178,7 +181,7 @@ class CharactersFeedFragment() : AbstractFeedFragment() {
     }
 
     private fun setUpStatusFilterObserver(){
-        viewLifecycleOwner.lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.characterStatusFilter.collect {
                     reloadList()

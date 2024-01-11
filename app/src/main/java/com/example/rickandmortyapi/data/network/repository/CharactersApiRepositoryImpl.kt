@@ -44,8 +44,6 @@ class CharactersApiRepositoryImpl @Inject constructor
                 paginationDataRepository.incrementPageCounter()
                 paginationDataRepository.increaseDisplayedItemsNum()
             }
-            Log.d("netlist", "page = ${paginationDataRepository.getCurPage()} " +
-                    "items = ${paginationDataRepository.getDisplayedItemsNum()}")
 
         }
 
@@ -62,7 +60,6 @@ class CharactersApiRepositoryImpl @Inject constructor
             status = status,
             gender = gender
         )
-        Log.d("netlist", "api call success")
         paginationDataRepository
             .setIsFirstLoadedFromApi(true)
         charactersDbRepository.upsertCharactersIntoDb(characterList = resultList.toList())
@@ -73,7 +70,6 @@ class CharactersApiRepositoryImpl @Inject constructor
         if(paginationDataRepository.getCurPage() == 1) {
             paginationDataRepository
                 .setIsFirstLoadedFromApi(false)
-            Log.d("netlist", "change first flag")
         }
 
         if(!paginationDataRepository.isFirstLoadedFromApi()) {
@@ -83,7 +79,6 @@ class CharactersApiRepositoryImpl @Inject constructor
                 status = status,
                 gender = gender
             )
-            Log.d("netlist", "db call")
 
             return resultList
         }
@@ -155,13 +150,9 @@ class CharactersApiRepositoryImpl @Inject constructor
         catch (e:Exception){
             characterDetails = charactersDbRepository
                 .getCharacterWithEpisodesFromDB(id)
-            Log.d("netlist","Loaded Character Details " +
-                    "= ${characterDetails.episode}")
+
         }
-//        finally {
-//            Log.d("netlist","Loaded Character Details " +
-//                    "= ${characterDetails?.episode}")
-//        }
+
         return characterDetails
     }
 

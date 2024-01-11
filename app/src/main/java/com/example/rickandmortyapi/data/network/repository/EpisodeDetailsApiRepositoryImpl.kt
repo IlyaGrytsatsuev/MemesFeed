@@ -1,7 +1,6 @@
 package com.example.rickandmortyapi.data.network.repository
 
-import android.util.Log
-import com.example.rickandmortyapi.data.db.converters.toCharacterWithEpisodesDbModel
+import com.example.rickandmortyapi.data.db.converters.toEpisodeWithCharactersDbModel
 import com.example.rickandmortyapi.data.network.converters.appendCharactersList
 import com.example.rickandmortyapi.data.network.converters.toEpisodeDetailsModel
 import com.example.rickandmortyapi.data.network.service.EpisodesApiService
@@ -10,7 +9,6 @@ import com.example.rickandmortyapi.domain.models.EpisodeDetailsModel
 import com.example.rickandmortyapi.domain.repository.CharactersApiRepository
 import com.example.rickandmortyapi.domain.repository.EpisodeDetailsApiRepository
 import com.example.rickandmortyapi.domain.repository.EpisodesDbRepository
-import com.example.rickandmortyapi.presenter.State
 import javax.inject.Inject
 
 class EpisodeDetailsApiRepositoryImpl @Inject
@@ -38,7 +36,7 @@ constructor(private val episodesApiService: EpisodesApiService,
 
             episodesDbRepository
                 .upsertEpisodeWithCharactersIntoDb(episodeDetails
-                    .toCharacterWithEpisodesDbModel())
+                    .toEpisodeWithCharactersDbModel())
         }
         catch (e:Exception){
              episodeDetails = episodesDbRepository

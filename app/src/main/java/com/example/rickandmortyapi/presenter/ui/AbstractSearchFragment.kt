@@ -18,12 +18,6 @@ abstract class AbstractSearchFragment : Fragment(R.layout.fragment_search) {
 
     protected abstract var viewModelFactory: ViewModelProvider.Factory
 
-
-    protected val component: MainActivityComponent by lazy {
-        (activity as MainActivity).activityComponent
-    }
-
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentSearchBinding.bind(view)

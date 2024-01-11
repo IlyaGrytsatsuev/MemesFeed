@@ -6,7 +6,7 @@ import com.example.rickandmortyapi.domain.models.CharacterModel
 import com.example.rickandmortyapi.domain.repository.CharactersDbRepository
 import com.example.rickandmortyapi.data.db.converters.toCharacterDetailsModel
 import com.example.rickandmortyapi.data.db.converters.toCharacterModel
-import com.example.rickandmortyapi.data.db.converters.toCharacterWithEpisodesDbModel
+import com.example.rickandmortyapi.data.db.converters.toEpisodeWithCharactersDbModel
 import com.example.rickandmortyapi.data.db.converters.toDbEntity
 import com.example.rickandmortyapi.data.db.entities.CharacterEntity
 import com.example.rickandmortyapi.domain.models.CharacterDetailsModel
@@ -40,8 +40,7 @@ class CharactersDbRepositoryImpl @Inject constructor
             characterModelsList =
                 charactersDbList.map {
                     it.toCharacterModel()
-            }
-        Log.d("netList", "db list = $charactersDbList")
+                }
         return characterModelsList
     }
 
@@ -63,6 +62,6 @@ class CharactersDbRepositoryImpl @Inject constructor
                 (characterDetailsModel: CharacterDetailsModel) {
         characterDao
             .upsertCharacterWithEpisodes(
-                characterDetailsModel.toCharacterWithEpisodesDbModel())
+                characterDetailsModel.toEpisodeWithCharactersDbModel())
     }
 }

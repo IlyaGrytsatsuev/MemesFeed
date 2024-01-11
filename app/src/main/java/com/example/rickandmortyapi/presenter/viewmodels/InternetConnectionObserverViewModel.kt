@@ -43,4 +43,6 @@ class InternetConnectionObserverViewModel @Inject constructor(
         }
     }
 
+    //TODO fix internet observer emit from start
+
 }
