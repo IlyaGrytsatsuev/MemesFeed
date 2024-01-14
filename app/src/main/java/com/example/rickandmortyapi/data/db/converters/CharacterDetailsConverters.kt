@@ -9,13 +9,12 @@ import com.example.rickandmortyapi.domain.models.CharacterDetailsModel
 import com.example.rickandmortyapi.domain.models.CharacterModelLocation
 import com.example.rickandmortyapi.domain.models.CharacterModelOrigin
 import com.example.rickandmortyapi.domain.models.EpisodeModel
+import com.example.rickandmortyapi.utils.NullReceivedException
 
 fun CharacterDetailsModel.toEpisodeWithCharactersDbModel() : CharacterWithEpisodes {
-    val episodes = mutableListOf<EpisodeEntity>()
-    this.episode.forEach {
-        episodes.add(it.toDbEntity())
+    val episodes = this.episode.map {
+        it.toDbEntity()
     }
-
     val resultCharacter = CharacterEntity(
         created = this.created,
         gender = this.gender,
@@ -36,26 +35,26 @@ fun CharacterDetailsModel.toEpisodeWithCharactersDbModel() : CharacterWithEpisod
 }
 
 fun CharacterWithEpisodes?.toCharacterDetailsModel(): CharacterDetailsModel {
-    val character = this?.characterEntity
-    var episodes = this?.episodes?.map {
+    if(this == null)
+        throw NullReceivedException()
+    val character = this.characterEntity
+    val episodes = this.episodes.map {
         it.toEpisodeDomainModel()
-    }?: emptyList()
+    }
     return CharacterDetailsModel(
-        created = character?.created?:"",
-        isNullReceived = this == null,
+        created = character.created,
         episodeIds = emptyList(),
         episode = episodes,
-        gender = character?.gender?:"",
-        id = character?.id?:0,
-        image = character?.image?:"",
-        location = character?.location?.toDomainModel()
-            ?: CharacterModelLocation(),
-        name = character?.name?:"",
-        origin = character?.origin?.toDomainModel()
-            ?: CharacterModelOrigin(),
-        species = character?.species?:"",
-        status = character?.status?:"",
-        type = character?.type?:"",
-        url = character?.url?:""
+        gender = character.gender,
+        id = character.id,
+        image = character.image,
+        location = character.location.toDomainModel(),
+        name = character.name,
+        origin = character.origin.toDomainModel(),
+        species = character.species,
+        status = character.status,
+        type = character.type,
+        url = character.url,
+        listSize = episodes.size
     )
 }

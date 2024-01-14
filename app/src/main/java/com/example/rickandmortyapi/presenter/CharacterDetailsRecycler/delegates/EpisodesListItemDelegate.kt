@@ -5,8 +5,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rickandmortyapi.databinding.CharacterDetailsEpisodesListItemBinding
 import com.example.rickandmortyapi.domain.models.CharacterDetailsModel
+import com.example.rickandmortyapi.domain.models.DetailsModel
 import com.example.rickandmortyapi.domain.models.EpisodeModel
 import com.example.rickandmortyapi.domain.models.RecyclerModel
+import com.example.rickandmortyapi.presenter.commonRecyclerUtils.DetailsRecyclerItemDelegate
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.EpisodeListItemViewHolder
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerItemDelegate
 
@@ -30,7 +32,7 @@ class EpisodesListItemDelegate(
         if(item is CharacterDetailsModel) {
             if(item.episode.isEmpty())
                 (viewHolder as EpisodeListItemViewHolder)
-                    .onBind(EpisodeModel(), itemChoiceFun)
+                    .onBind(EpisodeModel.newEmptyInstance(), itemChoiceFun)
             else
                 (viewHolder as EpisodeListItemViewHolder)
                     .onBind(item.episode[position ?: 0], itemChoiceFun)

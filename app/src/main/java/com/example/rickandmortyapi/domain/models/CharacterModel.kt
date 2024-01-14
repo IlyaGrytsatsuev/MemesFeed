@@ -12,14 +12,26 @@ class CharacterModel(val created: String,
                      val type: String,
                      val url: String,
 
-) : RecyclerModel()
+) : RecyclerModel(id)
+
 
 data class CharacterModelLocation(
-    val name: String = "",
-    val url: String = ""
-)
+    val name: String,
+    val url: String
+){
+    companion object{
+        fun newEmptyInstance(): CharacterModelLocation =
+            CharacterModelLocation(name = "", url = "")
+    }
+}
+
 data class CharacterModelOrigin(
-    val name: String = "",
-    val url: String = ""
-)
+    val name: String,
+    val url: String
+) {
+    companion object{
+        fun newEmptyInstance(): CharacterModelOrigin =
+            CharacterModelOrigin(name = "", url = "")
+    }
+}
 

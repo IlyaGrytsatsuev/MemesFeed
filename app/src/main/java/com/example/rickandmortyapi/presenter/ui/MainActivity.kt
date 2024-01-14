@@ -62,7 +62,6 @@ class MainActivity : AppCompatActivity(), FragmentNavigator {
     private fun addInitialListFragment(){
         supportFragmentManager.commit {
             add(R.id.fragment_container, fragmentsList.first())
-            //TODO check if not null
             currentVisibleFragment = fragmentsList.first()
             setReorderingAllowed(true)
         }
@@ -94,9 +93,6 @@ class MainActivity : AppCompatActivity(), FragmentNavigator {
                 addToBackStack(fragment::javaClass.name)
                 setReorderingAllowed(true)
             }
-        //TODO filters and search fragments bug with emitting values
-    // resolved by using activityViewModel and injecting it in activity
-
     }
 
 
@@ -125,8 +121,6 @@ class MainActivity : AppCompatActivity(), FragmentNavigator {
 
                 show(fragment)
 
-                //TODO white screen after onBackPressed call and then switching
-                // to popped fragment if show is not called question?
                 hide(currentVisibleFragment)
 
                 previousVisibleFragment = currentVisibleFragment
@@ -156,7 +150,6 @@ class MainActivity : AppCompatActivity(), FragmentNavigator {
                 binding.bottomNavbar.selectedItemId =
                     recyclerFragmentsIconsIds[previousVisibleFragment]
                         ?:R.id.characters_navbar_button
-                //TODO map nullable Int question
             }
         }
     }

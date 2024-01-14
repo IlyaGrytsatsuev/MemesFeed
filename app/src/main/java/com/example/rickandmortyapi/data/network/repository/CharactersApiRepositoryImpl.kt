@@ -15,9 +15,9 @@ import com.example.rickandmortyapi.domain.repository.CharactersApiRepository
 import com.example.rickandmortyapi.domain.repository.CharactersDbRepository
 import com.example.rickandmortyapi.domain.repository.EpisodesApiRepository
 import com.example.rickandmortyapi.domain.repository.PaginationDataRepository
-import com.example.rickandmortyapi.presenter.State
 import com.example.rickandmortyapi.utils.CharacterGender
 import com.example.rickandmortyapi.utils.CharacterStatus
+import com.example.rickandmortyapi.utils.NullReceivedException
 import javax.inject.Inject
 
 
@@ -35,6 +35,9 @@ class CharactersApiRepositoryImpl @Inject constructor
             resultList = getCharactersApiData(name = name, status = status,
                 gender = gender)
         }
+        catch (n:NullReceivedException){
+            throw NullReceivedException()
+        }
         catch (e:Exception){
             resultList = getDbCharactersData(name = name, status = status,
                 gender = gender)
@@ -46,7 +49,6 @@ class CharactersApiRepositoryImpl @Inject constructor
             }
 
         }
-
         return resultList
     }
 
@@ -146,6 +148,9 @@ class CharactersApiRepositoryImpl @Inject constructor
             characterDetails.appendEpisodesDetails(episodesList)
             charactersDbRepository
                 .upsertCharacterWithEpisodesIntoDb(characterDetails)
+        }
+        catch(n:NullReceivedException){
+            throw NullReceivedException()
         }
         catch (e:Exception){
             characterDetails = charactersDbRepository

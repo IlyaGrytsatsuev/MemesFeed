@@ -9,8 +9,8 @@ import retrofit2.http.Query
 interface EpisodesApiService {
 
     @GET("episode/{id}")
-    suspend fun getEpisodeById(@Path("id") id:Int): SingleEpisodeResponse
+    suspend fun getEpisodeById(@Path("id") id:Int): SingleEpisodeResponse?
 
     @GET("episode")
-    suspend fun getEpisodes(@Query("page") page:Int): EpisodesResponse
+    suspend fun getEpisodes(@Query("page") page:Int): EpisodesResponse?
 }

@@ -10,6 +10,7 @@ import com.example.rickandmortyapi.domain.models.CharacterModel
 import com.example.rickandmortyapi.domain.models.CharacterModelLocation
 import com.example.rickandmortyapi.domain.models.CharacterModelOrigin
 import com.example.rickandmortyapi.domain.models.EpisodeModel
+import com.example.rickandmortyapi.utils.NullReceivedException
 import org.junit.Assert.*
 
 import org.junit.Test
@@ -17,7 +18,7 @@ import org.junit.Test
 
 class CharacterResponseConvertersKtTest {
 
-    private lateinit var multiCharacterResponse: CharactersResponse
+    private var multiCharacterResponse: CharactersResponse? = null
 
     private lateinit var characterModel: CharacterModel
 
@@ -27,31 +28,29 @@ class CharacterResponseConvertersKtTest {
 
     private lateinit var characterDetailsModel: CharacterDetailsModel
 
-    private lateinit var responseLocation: ResponseLocation
+    private var responseLocation: ResponseLocation? = null
 
-    private lateinit var responseOrigin: ResponseOrigin
+    private var responseOrigin: ResponseOrigin? = null
 
     private lateinit var characterModelLocation: CharacterModelLocation
 
     private lateinit var characterModelOrigin: CharacterModelOrigin
 
 
-    private fun setUpNullableInitialCharactersData() {
-        responseLocation = ResponseLocation(null, null)
-        characterModelLocation = CharacterModelLocation()
-        responseOrigin = ResponseOrigin(null, null)
-        characterModelOrigin = CharacterModelOrigin()
-        multiCharacterResponse = CharactersResponse(
-            null, listOf(
-                CharactersResult(
-                    null, null, null,
-                    null, null, null,
-                    null, null, null,
-                    null, null, null
-                )
-            )
-        )
+    private fun setUpNullablePropertiesInResponsesData(){
 
+        responseLocation = ResponseLocation(null, null)
+
+        responseOrigin = ResponseOrigin(null, null)
+
+        multiCharacterResponse = CharactersResponse(null,
+            listOf(CharactersResult( null, null, null,
+                null, null, null,
+                null, null, null,
+                null, null, null)
+            )
+
+        )
         singleCharacterResponse = SingleCharacterResponse(
             null,
             null, null, null,
@@ -62,7 +61,32 @@ class CharacterResponseConvertersKtTest {
 
         episodeModelsList = emptyList()
 
-        characterDetailsModel = CharacterDetailsModel()
+        characterDetailsModel = CharacterDetailsModel.newEmptyInstance()
+
+        characterModel = CharacterModel(
+            "", "", 0,
+            "", CharacterModelLocation("", ""),
+            "", CharacterModelOrigin("", ""),
+            "", "", "", ""
+        )
+
+        characterModelLocation = CharacterModelLocation.newEmptyInstance()
+        characterModelOrigin = CharacterModelOrigin.newEmptyInstance()
+
+
+    }
+    private fun setUpNullableInitialCharactersData() {
+        responseLocation = null
+        characterModelLocation = CharacterModelLocation.newEmptyInstance()
+        responseOrigin = null
+        characterModelOrigin = CharacterModelOrigin.newEmptyInstance()
+        multiCharacterResponse = null
+
+        singleCharacterResponse = null
+
+        episodeModelsList = emptyList()
+
+        characterDetailsModel = CharacterDetailsModel.newEmptyInstance()
 
         characterModel = CharacterModel(
             "", "", 0,
@@ -120,15 +144,23 @@ class CharacterResponseConvertersKtTest {
             location = characterModelLocation,
             name = "name", origin = characterModelOrigin,
             species = "species", status = "status",
-            type = "type", image = "url"
+            type = "type", image = "url",
+            listSize = episodeModelsList.size
         )
 
     }
 
 
-    @Test
-    fun responseToDomainCharactersModelsListWithNullableDataTest() {
+    @Test(expected = NullReceivedException::class)
+    fun responseToDomainCharactersModelsListWithNullableResponseTest() {
         setUpNullableInitialCharactersData()
+        val executionResult = multiCharacterResponse
+            .toDomainCharactersModelsList()
+    }
+
+    @Test
+    fun responseToDomainCharactersModelsListWithNullablePropertiesTest() {
+        setUpNullablePropertiesInResponsesData()
         val executionResult = multiCharacterResponse
             .toDomainCharactersModelsList().firstOrNull()
         assertEquals(characterModel, executionResult)
@@ -142,11 +174,16 @@ class CharacterResponseConvertersKtTest {
         assertEquals(characterModel, executionResult)
     }
 
-    @Test
+    @Test(expected = NullReceivedException::class)
     fun singleCharacterResponseToCharacterDetailsDomainModelWithNullableDataTest() {
         setUpNullableInitialCharactersData()
-        val executionResult = singleCharacterResponse
-            ?.toCharacterDetailsDomainModel()
+        val executionResult = singleCharacterResponse.toCharacterDetailsDomainModel()
+    }
+
+    @Test()
+    fun singleCharacterResponseToCharacterDetailsDomainModelWithNullablePropertiesTest() {
+        setUpNullablePropertiesInResponsesData()
+        val executionResult = singleCharacterResponse.toCharacterDetailsDomainModel()
         assertEquals(characterDetailsModel, executionResult)
     }
 
@@ -158,9 +195,15 @@ class CharacterResponseConvertersKtTest {
         assertEquals(characterDetailsModel, executionResult)
     }
 
-    @Test
+    @Test(expected = NullReceivedException::class)
     fun singleCharacterResponseToCharacterModelWithNullableDataTest() {
         setUpNullableInitialCharactersData()
+        val executionResult = singleCharacterResponse.toCharacterModel()
+    }
+
+    @Test()
+    fun singleCharacterResponseToCharacterModelWithNullablePropertiesTest() {
+        setUpNullablePropertiesInResponsesData()
         val executionResult = singleCharacterResponse.toCharacterModel()
         assertEquals(characterModel, executionResult)
     }
@@ -193,9 +236,17 @@ class CharacterResponseConvertersKtTest {
         assertEquals(episodeModelsList.size, executionResult.listSize)
     }
 
-    @Test
+    @Test(expected = NullReceivedException::class)
     fun responseToCharacterLocationWithNullableDataTest() {
         setUpNullableInitialCharactersData()
+        val executionResult = responseLocation
+            .toCharacterLocation()
+        assertEquals(characterModelLocation, executionResult)
+    }
+
+    @Test()
+    fun responseToCharacterLocationWithNullablePropertiesTest() {
+        setUpNullablePropertiesInResponsesData()
         val executionResult = responseLocation
             .toCharacterLocation()
         assertEquals(characterModelLocation, executionResult)
@@ -209,16 +260,24 @@ class CharacterResponseConvertersKtTest {
         assertEquals(characterModelLocation, executionResult)
     }
 
-    @Test
-    fun responseToCharacterOriginWithNullableData() {
+    @Test(expected = NullReceivedException::class)
+    fun responseToCharacterOriginWithNullableDataTest() {
         setUpNullableInitialCharactersData()
         val executionResult = responseOrigin
             .toCharacterOrigin()
         assertEquals(characterModelOrigin, executionResult)
     }
 
+    @Test()
+    fun responseToCharacterOriginWithNullablePropertiesTest() {
+        setUpNullablePropertiesInResponsesData()
+        val executionResult = responseOrigin
+            .toCharacterOrigin()
+        assertEquals(characterModelOrigin, executionResult)
+    }
+
     @Test
-    fun responseToCharacterOriginWithRegularData() {
+    fun responseToCharacterOriginWithRegularDataTest() {
         setUpRegularInitialCharactersData()
         val executionResult = responseOrigin
             .toCharacterOrigin()

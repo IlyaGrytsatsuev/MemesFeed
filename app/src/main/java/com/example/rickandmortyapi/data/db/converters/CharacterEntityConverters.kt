@@ -6,8 +6,11 @@ import com.example.rickandmortyapi.data.db.entities.CharacterEntity
 import com.example.rickandmortyapi.domain.models.CharacterModel
 import com.example.rickandmortyapi.domain.models.CharacterModelLocation
 import com.example.rickandmortyapi.domain.models.CharacterModelOrigin
+import com.example.rickandmortyapi.utils.NullReceivedException
 
-fun CharacterEntity.toCharacterModel() : CharacterModel {
+fun CharacterEntity?.toCharacterModel() : CharacterModel {
+    if(this == null)
+        throw NullReceivedException()
     val character = this
     return CharacterModel(
         created = character.created,
@@ -24,15 +27,25 @@ fun CharacterEntity.toCharacterModel() : CharacterModel {
     )
 }
 
-fun CharacterDBLocation.toDomainModel(): CharacterModelLocation =
-    CharacterModelLocation(this.name, this.url)
+fun CharacterDBLocation?.toDomainModel(): CharacterModelLocation {
+    if(this == null)
+        throw NullReceivedException()
+    return CharacterModelLocation(this.name, this.url)
+}
 
-fun CharacterModelLocation.toDBModel(): CharacterDBLocation =
+
+fun CharacterModelLocation.toDBModel(): CharacterDBLocation  =
     CharacterDBLocation(this.name, this.url)
 
 
-fun CharacterDBOrigin.toDomainModel() : CharacterModelOrigin =
-    CharacterModelOrigin(this.name, this.url)
+
+
+fun CharacterDBOrigin?.toDomainModel() : CharacterModelOrigin {
+    if(this == null)
+        throw NullReceivedException()
+    return CharacterModelOrigin(this.name, this.url)
+}
+
 
 fun CharacterModelOrigin.toDBModel() : CharacterDBOrigin =
     CharacterDBOrigin(this.name, this.url)

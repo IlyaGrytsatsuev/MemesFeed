@@ -13,7 +13,7 @@ interface EpisodesDbRepository {
     suspend fun getEpisodesList(): List<EpisodeModel>
 
     suspend fun upsertEpisodeWithCharactersIntoDb
-                (episodeWithCharacters: EpisodeWithCharacters)
+                (episodeDetailsModel: EpisodeDetailsModel)
 
     suspend fun getEpisodeWithCharactersFromDB(id:Int):EpisodeDetailsModel
 }

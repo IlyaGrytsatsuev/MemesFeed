@@ -9,6 +9,7 @@ import com.example.rickandmortyapi.domain.models.EpisodeModel
 import com.example.rickandmortyapi.domain.repository.EpisodesApiRepository
 import com.example.rickandmortyapi.domain.repository.EpisodesDbRepository
 import com.example.rickandmortyapi.domain.repository.PaginationDataRepository
+import com.example.rickandmortyapi.utils.NullReceivedException
 import javax.inject.Inject
 
 class EpisodesApiRepositoryImpl @Inject
@@ -26,6 +27,9 @@ constructor(private val episodesApiService: EpisodesApiService,
         var resultList:List<EpisodeModel> = listOf()
         try {
             resultList = getEpisodesApiData()
+        }
+        catch (n:NullReceivedException){
+            throw NullReceivedException()
         }
         catch (e:Exception){
             resultList = getEpisodesDbData()

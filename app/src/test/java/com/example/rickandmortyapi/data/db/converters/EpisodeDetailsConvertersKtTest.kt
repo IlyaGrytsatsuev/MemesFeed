@@ -9,6 +9,7 @@ import com.example.rickandmortyapi.domain.models.CharacterModel
 import com.example.rickandmortyapi.domain.models.CharacterModelLocation
 import com.example.rickandmortyapi.domain.models.CharacterModelOrigin
 import com.example.rickandmortyapi.domain.models.EpisodeDetailsModel
+import com.example.rickandmortyapi.utils.NullReceivedException
 import org.junit.Assert
 
 import org.junit.Test
@@ -17,30 +18,29 @@ class EpisodeDetailsConvertersKtTest {
 
     private lateinit var episodeDetailsModel : EpisodeDetailsModel
 
-    private lateinit var episodeWithCharacters: EpisodeWithCharacters
+    private var episodeWithCharacters: EpisodeWithCharacters? = null
 
-    private lateinit var episodeEntity: EpisodeEntity
+    private var episodeEntity: EpisodeEntity? = null
 
     private lateinit var charactersEntityList: List<CharacterEntity>
 
     private lateinit var charactersModelsList: List<CharacterModel>
 
-    private lateinit var characterDBLocation: CharacterDBLocation
+    private var characterDBLocation: CharacterDBLocation? = null
 
-    private lateinit var characterDBOrigin: CharacterDBOrigin
+    private var characterDBOrigin: CharacterDBOrigin? = null
 
     private lateinit var characterModelLocation: CharacterModelLocation
 
     private lateinit var characterModelOrigin: CharacterModelOrigin
 
     private fun initNullableData(){
-        episodeDetailsModel = EpisodeDetailsModel()
-        episodeWithCharacters = EpisodeWithCharacters()
+        episodeDetailsModel = EpisodeDetailsModel.newEmptyInstance()
+        episodeWithCharacters = null
     }
 
     private fun initRegularData(){
-        episodeDetailsModel = EpisodeDetailsModel(2, false,
-            "name", "episode", listOf(1, 2))
+
         episodeEntity = EpisodeEntity(2, "name", "episode")
 
         characterDBLocation =
@@ -55,14 +55,14 @@ class EpisodeDetailsConvertersKtTest {
 
         charactersEntityList = listOf(CharacterEntity(
             "24.10.23",
-            "male", 1, "url", characterDBLocation,
-            "name", characterDBOrigin, "species",
+            "male", 1, "url", characterDBLocation!!,
+            "name", characterDBOrigin!!, "species",
             "status", "type", "url"
         ),
             CharacterEntity(
                 "24.02.23",
-                "male", 2, "url", characterDBLocation,
-                "name", characterDBOrigin, "species",
+                "male", 2, "url", characterDBLocation!!,
+                "name", characterDBOrigin!!, "species",
                 "status", "type", "url"
             ))
         charactersModelsList = listOf(
@@ -79,19 +79,14 @@ class EpisodeDetailsConvertersKtTest {
                 "status", "type", "url"
             )
         )
-        episodeWithCharacters = EpisodeWithCharacters(episodeEntity, charactersEntityList)
-        episodeDetailsModel = EpisodeDetailsModel(2, false,
-            "name", "episode", listOf(1, 2), charactersModelsList)
+        episodeWithCharacters = EpisodeWithCharacters(episodeEntity!!, charactersEntityList)
+        episodeDetailsModel = EpisodeDetailsModel(2,
+            "name", "episode", listOf(1, 2),
+            charactersModelsList, charactersModelsList.size)
     }
 
 
 
-    @Test
-    fun domainModelToCharacterWithEpisodesDbModelWithNullableDataTest() {
-        initNullableData()
-        val executionResult = episodeDetailsModel.toEpisodeWithCharactersDbModel()
-        Assert.assertEquals(episodeWithCharacters, executionResult)
-    }
 
     @Test
     fun domainModelToCharacterWithEpisodesDbModelWithRegularDataTest() {
@@ -100,11 +95,10 @@ class EpisodeDetailsConvertersKtTest {
         Assert.assertEquals(episodeWithCharacters, executionResult)
     }
 
-    @Test
+    @Test(expected = NullReceivedException::class)
     fun episodeWithCharactersDbModelToEpisodeDetailsDomainModelWithNullableDataTest() {
         initNullableData()
         val executionResult = episodeWithCharacters.toEpisodeDetailsModel()
-        Assert.assertEquals(episodeDetailsModel, executionResult)
     }
 
     @Test

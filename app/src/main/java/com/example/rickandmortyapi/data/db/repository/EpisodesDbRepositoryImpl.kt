@@ -1,8 +1,10 @@
 package com.example.rickandmortyapi.data.db.repository
 
+import android.webkit.RenderProcessGoneDetail
 import com.example.rickandmortyapi.data.db.converters.toDbEntity
 import com.example.rickandmortyapi.data.db.converters.toEpisodeDetailsModel
 import com.example.rickandmortyapi.data.db.converters.toEpisodeDomainModel
+import com.example.rickandmortyapi.data.db.converters.toEpisodeWithCharactersDbModel
 import com.example.rickandmortyapi.data.db.dao.EpisodeDao
 import com.example.rickandmortyapi.data.db.entities.EpisodeWithCharacters
 import com.example.rickandmortyapi.domain.models.EpisodeDetailsModel
@@ -36,8 +38,9 @@ constructor(private val episodeDao: EpisodeDao,
     }
 
     override suspend fun upsertEpisodeWithCharactersIntoDb
-                (episodeWithCharacters: EpisodeWithCharacters) {
-        episodeDao.upsertEpisodeWithCharacters(episodeWithCharacters)
+                (episodeDetailsModel: EpisodeDetailsModel) {
+        episodeDao.upsertEpisodeWithCharacters(episodeDetailsModel
+            .toEpisodeWithCharactersDbModel())
     }
 
     override suspend fun getEpisodeWithCharactersFromDB(id: Int): EpisodeDetailsModel {

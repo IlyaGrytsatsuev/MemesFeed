@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
+//todo сделать абстрактным, сделать метод для переопределения в наследниках
 @Singleton
 class InternetConnectionObserverViewModel @Inject constructor(
     private val internetConnectionObserver: InternetConnectionObserver
@@ -25,6 +26,8 @@ class InternetConnectionObserverViewModel @Inject constructor(
     init{
         observeInternetConnection()
     }
+
+    //todo перенесьти логику во вьюмодель
     fun isInternetConnectionRestored(): Boolean =
         privateConnectionState.replayCache.firstOrNull() == false &&
                 privateConnectionState.replayCache.lastOrNull() == true
@@ -42,7 +45,4 @@ class InternetConnectionObserverViewModel @Inject constructor(
                 .emit(internetConnectionObserver.getInitialNetworkStatus())
         }
     }
-
-    //TODO fix internet observer emit from start
-
 }

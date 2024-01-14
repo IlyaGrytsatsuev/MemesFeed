@@ -11,7 +11,10 @@ import com.example.rickandmortyapi.domain.usecases.ResetPaginationDataUseCase
 import com.example.rickandmortyapi.presenter.State
 import com.example.rickandmortyapi.utils.CharacterGender
 import com.example.rickandmortyapi.utils.CharacterStatus
+import com.example.rickandmortyapi.utils.InternetConnectionObserver
+import com.example.rickandmortyapi.utils.NullReceivedException
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
@@ -62,6 +65,16 @@ class CharactersFeedViewModel @Inject constructor(
 
     val nameState: Flow<String?> = privateNameState
 
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        viewModelScope.launch {
+            privateCharactersList.emit(
+                when(throwable){
+                    is NullReceivedException -> State.Empty()
+                    else -> State.Error()
+                }
+            )
+        }
+    }
     init{
         getCharacters()
         Log.d("netlist", "init is called")
@@ -93,32 +106,25 @@ class CharactersFeedViewModel @Inject constructor(
         .replayCache.lastOrNull() is State.Loading
 
     fun getCharacters(){
-        pageLoadJob = viewModelScope.launch(Dispatchers.IO) {
+        pageLoadJob = viewModelScope.launch(Dispatchers.IO + exceptionHandler) {
             privateCharactersList.emit(State.Loading())
-            try {
-                Log.d("netlist","statusFilter before request " +
-                        "= ${privateNameState.replayCache.lastOrNull()}")
 
-                val loadedList = getCharactersListUseCase.execute(
-                    name = privateNameState.replayCache.lastOrNull(),
-                    status = privateCharacterStatusFilter.replayCache.lastOrNull(),
-                    gender = privateCharacterGenderFilter.replayCache.lastOrNull()
-                ) as List<RecyclerModel>
+            Log.d("netlist","statusFilter before request " +
+                    "= ${privateNameState.replayCache.lastOrNull()}")
 
-                val loadedListState = if(loadedList.isEmpty())
-                    State.Empty() else State
-                    .Success(loadedList)
-                privateCharactersList.emit(loadedListState)
-                Log.d("netlist", "emitted List " +
-                        "${privateCharactersList.replayCache.first()}")
-            }
-            catch (c:CancellationException){
-                Log.d("netList", "cancelled")
-            }
-            catch (e:Exception){
-                privateCharactersList.emit(State
-                    .Error())
-            }
+            val loadedList = getCharactersListUseCase.execute(
+                name = privateNameState.replayCache.lastOrNull(),
+                status = privateCharacterStatusFilter.replayCache.lastOrNull(),
+                gender = privateCharacterGenderFilter.replayCache.lastOrNull()
+            ) as List<RecyclerModel>
+
+            val loadedListState = if(loadedList.isEmpty())
+                State.Empty() else State.Success(loadedList)
+            privateCharactersList.emit(loadedListState)
+            Log.d("netlist", "emitted List " +
+                    "${privateCharactersList.replayCache.first()}")
+
+
         }
     }
 

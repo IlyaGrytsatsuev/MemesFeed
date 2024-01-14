@@ -8,13 +8,14 @@ import com.example.rickandmortyapi.data.network.responseModels.ResponseOrigin
 import com.example.rickandmortyapi.domain.models.CharacterModel
 import com.example.rickandmortyapi.domain.models.CharacterModelLocation
 import com.example.rickandmortyapi.domain.models.CharacterModelOrigin
+import com.example.rickandmortyapi.utils.NullReceivedException
 import org.junit.Assert.*
 
 import org.junit.Test
 
 class CharacterEntityConvertersKtTest {
 
-    private lateinit var characterEntity: CharacterEntity
+    private var characterEntity: CharacterEntity? = null
 
     private lateinit var characterModel: CharacterModel
 
@@ -22,22 +23,20 @@ class CharacterEntityConvertersKtTest {
 
     private lateinit var characterModelOrigin: CharacterModelOrigin
 
-    private lateinit var characterDBLocation: CharacterDBLocation
+    private var characterDBLocation: CharacterDBLocation? = null
 
-    private lateinit var characterDBOrigin: CharacterDBOrigin
+    private var characterDBOrigin: CharacterDBOrigin? = null
 
     private fun initNullableData(){
-        characterEntity = CharacterEntity()
+        characterEntity = null
 
         characterModelLocation =
-            CharacterModelLocation()
+            CharacterModelLocation.newEmptyInstance()
         characterModelOrigin =
-            CharacterModelOrigin()
+            CharacterModelOrigin.newEmptyInstance()
 
-        characterDBLocation =
-            CharacterDBLocation()
-        characterDBOrigin =
-            CharacterDBOrigin()
+        characterDBLocation = null
+        characterDBOrigin = null
 
         characterModel = CharacterModel(
             "", "", 0,
@@ -62,8 +61,8 @@ class CharacterEntityConvertersKtTest {
 
         characterEntity = CharacterEntity(
             "24.10.23",
-            "male", 2, "url", characterDBLocation,
-            "name", characterDBOrigin, "species",
+            "male", 2, "url", characterDBLocation!!,
+            "name", characterDBOrigin!!, "species",
             "status", "type", "url"
         )
 
@@ -75,11 +74,10 @@ class CharacterEntityConvertersKtTest {
         )
     }
 
-    @Test
+    @Test(expected = NullReceivedException::class )
     fun dbEntityToCharacterModelWithNullableDataTest() {
         initNullableData()
-        val executionResult =  characterEntity.toCharacterModel()
-        assertEquals(characterModel, executionResult)
+        val executionResult = characterEntity.toCharacterModel()
     }
 
     @Test
@@ -89,11 +87,10 @@ class CharacterEntityConvertersKtTest {
         assertEquals(characterModel, executionResult)
     }
 
-    @Test
+    @Test(expected = NullReceivedException::class)
     fun dbLocationModelToDomainModelWithNullableDataTest() {
         initNullableData()
         val executionResult =  characterDBLocation.toDomainModel()
-        assertEquals(characterModelLocation, executionResult)
     }
 
     @Test
@@ -104,24 +101,16 @@ class CharacterEntityConvertersKtTest {
     }
 
     @Test
-    fun domainLocationModelToDBModelWithNullableDataTest() {
-        initNullableData()
-        val executionResult = characterModelLocation.toDBModel()
-        assertEquals(characterDBLocation, executionResult)
-    }
-
-    @Test
     fun domainLocationModelToDBModelWithRegularDataTest() {
         initRegularData()
         val executionResult = characterModelLocation.toDBModel()
         assertEquals(characterDBLocation, executionResult)
     }
 
-    @Test
+    @Test(expected = NullReceivedException::class)
     fun dbOriginModelToDomainModelWithNullableDataTest() {
         initNullableData()
         val executionResult = characterDBOrigin.toDomainModel()
-        assertEquals(characterModelOrigin, executionResult)
     }
 
     @Test
@@ -131,12 +120,6 @@ class CharacterEntityConvertersKtTest {
         assertEquals(characterModelOrigin, executionResult)
     }
 
-    @Test
-    fun domainOriginModelToDBModelWithNullableDataTest() {
-        initNullableData()
-        val executionResult = characterModelOrigin.toDBModel()
-        assertEquals(characterDBOrigin, executionResult)
-    }
 
     @Test
     fun domainOriginModelToDBModelWithRegularDataTest() {
@@ -145,13 +128,6 @@ class CharacterEntityConvertersKtTest {
         assertEquals(characterDBOrigin, executionResult)
     }
 
-
-    @Test
-    fun characterModelToDbEntityWithNullableDataTest() {
-        initNullableData()
-        val executionResult = characterModel.toDbEntity()
-        assertEquals(characterEntity, executionResult)
-    }
 
     @Test
     fun characterModelToDbEntityWithRegularDataTest() {

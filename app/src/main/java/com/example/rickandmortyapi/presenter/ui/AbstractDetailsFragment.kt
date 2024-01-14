@@ -10,9 +10,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rickandmortyapi.R
 import com.example.rickandmortyapi.databinding.FragmentDetailsBinding
+import com.example.rickandmortyapi.domain.models.DetailsModel
 import com.example.rickandmortyapi.domain.models.RecyclerModel
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.DetailsRecyclerAdapter
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.DetailsRecyclerItemDecorator
+import com.example.rickandmortyapi.presenter.commonRecyclerUtils.DetailsRecyclerItemDelegate
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerItemDelegate
 import com.example.rickandmortyapi.presenter.viewmodels.InternetConnectionObserverViewModel
 import com.google.android.material.snackbar.Snackbar
@@ -65,7 +67,7 @@ abstract class AbstractDetailsFragment: Fragment(R.layout.fragment_details){
     }
     abstract fun reloadDetails()
 
-    private fun moveToAdapter(data : RecyclerModel?){
+    private fun moveToAdapter(data : DetailsModel?){
         data?.let {
             (binding.detailsRecycler.adapter as DetailsRecyclerAdapter)
                 .setCharacterDetailsModel(it)
@@ -89,7 +91,7 @@ abstract class AbstractDetailsFragment: Fragment(R.layout.fragment_details){
     }
 
     protected fun executeSuccessState
-                (data: RecyclerModel?){
+                (data: DetailsModel?){
         moveToAdapter(data)
         hideProgressBar()
         setUpToolBarInformation() }

@@ -7,6 +7,7 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 
+//todo nullable
 interface CharactersApiService {
 
     @GET("character/")
@@ -14,10 +15,10 @@ interface CharactersApiService {
                                   @Query("name")name:String?,
                                   @Query("status")status:String?,
                                   @Query("gender")gender:String?)
-    : CharactersResponse
+    : CharactersResponse?
 
     @GET("character/{id}")
-    suspend fun getCharacterById(@Path("id") id:Int): SingleCharacterResponse
+    suspend fun getCharacterById(@Path("id") id:Int): SingleCharacterResponse?
 
 
 

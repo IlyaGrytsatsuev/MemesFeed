@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rickandmortyapi.databinding.CharacterDetailsParameterItemBinding
+import com.example.rickandmortyapi.domain.models.DetailsModel
 import com.example.rickandmortyapi.domain.models.RecyclerModel
 import com.example.rickandmortyapi.presenter.CharacterDetailsRecycler.viewHolders.CharacterParameterItemViewHolder
 import com.example.rickandmortyapi.presenter.commonRecyclerUtils.RecyclerItemDelegate

@@ -3,6 +3,7 @@ package com.example.rickandmortyapi.data.db.converters
 import com.example.rickandmortyapi.data.db.entities.EpisodeEntity
 import com.example.rickandmortyapi.data.db.entities.EpisodeWithCharacters
 import com.example.rickandmortyapi.domain.models.EpisodeDetailsModel
+import com.example.rickandmortyapi.utils.NullReceivedException
 
 fun EpisodeDetailsModel.toEpisodeWithCharactersDbModel() : EpisodeWithCharacters {
     val characters = this.characters.map {
@@ -20,17 +21,19 @@ fun EpisodeDetailsModel.toEpisodeWithCharactersDbModel() : EpisodeWithCharacters
 }
 
 fun EpisodeWithCharacters?.toEpisodeDetailsModel(): EpisodeDetailsModel {
-    val characters = this?.characters?.map {
+    if(this == null)
+        throw NullReceivedException()
+    val characters = this.characters.map {
         it.toCharacterModel()
     }
-    val episode = this?.episodeEntity
+    val episode = this.episodeEntity
 
     return EpisodeDetailsModel(
-        id = episode?.id ?: 0,
-        isNullReceived = this == null,
-        name = episode?.name ?: "",
-        episode = episode?.episode ?: "",
+        id = episode.id,
+        name = episode.name,
+        episode = episode.episode,
         charactersIds = emptyList(),
-        characters = characters ?: emptyList()
+        characters = characters,
+        listSize = characters.size
     )
 }

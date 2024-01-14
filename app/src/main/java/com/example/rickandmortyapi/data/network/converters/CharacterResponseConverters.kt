@@ -9,8 +9,11 @@ import com.example.rickandmortyapi.domain.models.CharacterModel
 import com.example.rickandmortyapi.domain.models.CharacterModelLocation
 import com.example.rickandmortyapi.domain.models.CharacterModelOrigin
 import com.example.rickandmortyapi.domain.models.EpisodeModel
+import com.example.rickandmortyapi.utils.NullReceivedException
 
-fun CharactersResponse.toDomainCharactersModelsList(): List<CharacterModel> {
+fun CharactersResponse?.toDomainCharactersModelsList(): List<CharacterModel> {
+    if(this == null)
+        throw NullReceivedException()
     val result = this.results?.map { result1 ->
         CharacterModel(
             created = result1.created?:"",
@@ -18,10 +21,10 @@ fun CharactersResponse.toDomainCharactersModelsList(): List<CharacterModel> {
             id = result1.id?:0,
             image = result1.image?:"",
             location = result1.responseLocation?.toCharacterLocation()
-                ?: CharacterModelLocation("",""),
+                ?: CharacterModelLocation.newEmptyInstance(),
             name = result1.name?:"",
             origin = result1.responseOrigin?.toCharacterOrigin()
-                ?: CharacterModelOrigin("",""),
+                ?: CharacterModelOrigin.newEmptyInstance(),
             species = result1.species?:"",
             status = result1.status?:"",
             type = result1.type?:"",
@@ -31,12 +34,16 @@ fun CharactersResponse.toDomainCharactersModelsList(): List<CharacterModel> {
     return result
 }
 
-fun SingleCharacterResponse.toCharacterDetailsDomainModel(): CharacterDetailsModel {
+fun SingleCharacterResponse?.toCharacterDetailsDomainModel(): CharacterDetailsModel {
 
-    val episodeIds = this.episode?.map {
+    val episodeIds = this?.episode?.map {
         it.substringAfterLast("/")
             .toInt()
     }?: emptyList()
+
+    if(this == null)
+        throw NullReceivedException()
+
     return  CharacterDetailsModel(
         created = this.created?:"",
         episodeIds = episodeIds,
@@ -52,45 +59,51 @@ fun SingleCharacterResponse.toCharacterDetailsDomainModel(): CharacterDetailsMod
         species = this.species?:"",
         status = this.status?:"",
         type = this.type?:"",
-        url = this.url?:""
+        url = this.url?:"",
+        listSize = episodeIds.size
     )
 }
 
 fun SingleCharacterResponse?.toCharacterModel(): CharacterModel {
-
+    if(this == null)
+        throw NullReceivedException()
     return CharacterModel(
-        created = this?.created?:"",
-        gender = this?.gender?:"",
-        id = this?.id?:0,
-        image = this?.image?:"",
-        location = this?.responseLocation?.toCharacterLocation()
+        created = this.created?:"",
+        gender = this.gender?:"",
+        id = this.id?:0,
+        image = this.image?:"",
+        location = this.responseLocation?.toCharacterLocation()
             ?: CharacterModelLocation("",""),
-        name = this?.name?:"",
-        origin = this?.responseOrigin?.toCharacterOrigin()
+        name = this.name?:"",
+        origin = this.responseOrigin?.toCharacterOrigin()
             ?: CharacterModelOrigin("",""),
-        species = this?.species?:"",
-        status = this?.status?:"",
-        type = this?.type?:"",
-        url = this?.url?:""
+        species = this.species?:"",
+        status = this.status?:"",
+        type = this.type?:"",
+        url = this.url?:""
     )
 }
 
 fun CharacterDetailsModel.appendEpisodesDetails(episodes:List<EpisodeModel>){
     this.episode = episodes.toList()
-    this.listSize = episodes.size
 }
 
-fun ResponseLocation.toCharacterLocation(): CharacterModelLocation {
+fun ResponseLocation?.toCharacterLocation(): CharacterModelLocation {
+    if(this == null)
+        throw NullReceivedException()
     return CharacterModelLocation(
         name = this.name ?: "",
         url = this.url ?: ""
     )
 }
 
-fun ResponseOrigin.toCharacterOrigin(): CharacterModelOrigin =
-    CharacterModelOrigin(
-        name = this.name?:"",
-        url = this.url?:""
+fun ResponseOrigin?.toCharacterOrigin(): CharacterModelOrigin {
+    if(this == null)
+        throw NullReceivedException()
+    return CharacterModelOrigin(
+        name = this.name ?: "",
+        url = this.url ?: ""
     )
+}
 
-fun CharactersResponse.getPagesNum() = this.info?.pages ?: 0
+fun CharactersResponse?.getPagesNum() = this?.info?.pages ?: 0

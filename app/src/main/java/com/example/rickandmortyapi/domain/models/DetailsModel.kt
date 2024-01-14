@@ -1,6 +1,6 @@
 package com.example.rickandmortyapi.domain.models
 
-abstract class RecyclerModel(open val id:Int) {
+abstract class DetailsModel(override val id:Int, open val listSize:Int): RecyclerModel(id) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -16,5 +16,4 @@ abstract class RecyclerModel(open val id:Int) {
     override fun hashCode(): Int {
         return id
     }
-
 }

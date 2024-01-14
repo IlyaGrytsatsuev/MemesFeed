@@ -12,7 +12,7 @@ class EpisodeListItemViewHolder(
 
     fun onBind(item: RecyclerModel,
                itemChoiceFun:((episodeId:Int)->Unit)?){
-        if(item != EpisodeModel()) {
+        if(item != EpisodeModel.newEmptyInstance()) {
             binding.episodeName.text = (item as EpisodeModel).name
             binding.episodeSerial.text = (item as EpisodeModel).episode
             itemView.setOnClickListener {

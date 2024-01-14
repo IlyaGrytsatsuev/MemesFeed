@@ -3,14 +3,15 @@ package com.example.rickandmortyapi.presenter.commonRecyclerUtils
 import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.rickandmortyapi.domain.models.DetailsModel
 import com.example.rickandmortyapi.domain.models.RecyclerModel
 
 class DetailsRecyclerAdapter (private val delegates: List<RecyclerItemDelegate>, )
     : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private var detailsModel:RecyclerModel? = null
+    private var detailsModel: DetailsModel? = null
 
-    fun setCharacterDetailsModel(value:RecyclerModel){
+    fun setCharacterDetailsModel(value:DetailsModel){
         detailsModel = value
         notifyDataSetChanged()
     }

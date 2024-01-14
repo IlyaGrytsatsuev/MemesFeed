@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.rickandmortyapi.R
-import com.example.rickandmortyapi.data.db.converters.toDbEntity
 import com.example.rickandmortyapi.databinding.FragmentFeedBinding
 import com.example.rickandmortyapi.di.daggerComponents.MainActivityComponent
 import com.example.rickandmortyapi.domain.models.RecyclerModel

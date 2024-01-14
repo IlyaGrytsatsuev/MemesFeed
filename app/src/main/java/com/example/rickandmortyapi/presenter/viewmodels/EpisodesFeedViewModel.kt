@@ -9,7 +9,9 @@ import com.example.rickandmortyapi.domain.usecases.GetDisplayedItemsNumUseCase
 import com.example.rickandmortyapi.domain.usecases.GetEpisodesListUseCase
 import com.example.rickandmortyapi.domain.usecases.ResetPaginationDataUseCase
 import com.example.rickandmortyapi.presenter.State
+import com.example.rickandmortyapi.utils.NullReceivedException
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
@@ -34,27 +36,30 @@ class EpisodesFeedViewModel @Inject constructor(
 
     private var pageLoadJob: Job? = null
 
+    private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        viewModelScope.launch {
+            privateEpisodesList.emit(
+                when(throwable){
+                    is NullReceivedException -> State.Empty()
+                    else -> State.Error()
+                }
+            )
+        }
+    }
+
     init {
         getEpisodes()
     }
     fun getEpisodes(){
-        pageLoadJob = viewModelScope.launch(Dispatchers.IO) {
+        pageLoadJob = viewModelScope.launch(Dispatchers.IO + exceptionHandler) {
             privateEpisodesList.emit(State.Loading())
-            try{
                 val loadedList = getEpisodesListUseCase.execute()
                  as List<RecyclerModel>
                 val loadedListState = if(loadedList.isEmpty())
                     State.Empty() else State
                     .Success(loadedList)
                 privateEpisodesList.emit(loadedListState)
-            }
-            catch (c:CancellationException){
-                Log.d("netList", "cancelled")
-            }
-            catch (e:Exception){
-                privateEpisodesList.emit(State
-                    .Error())
-            }
+
         }
     }
 

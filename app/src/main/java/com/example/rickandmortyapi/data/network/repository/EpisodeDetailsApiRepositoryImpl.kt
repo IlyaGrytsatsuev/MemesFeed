@@ -9,6 +9,7 @@ import com.example.rickandmortyapi.domain.models.EpisodeDetailsModel
 import com.example.rickandmortyapi.domain.repository.CharactersApiRepository
 import com.example.rickandmortyapi.domain.repository.EpisodeDetailsApiRepository
 import com.example.rickandmortyapi.domain.repository.EpisodesDbRepository
+import com.example.rickandmortyapi.utils.NullReceivedException
 import javax.inject.Inject
 
 class EpisodeDetailsApiRepositoryImpl @Inject
@@ -35,8 +36,10 @@ constructor(private val episodesApiService: EpisodesApiService,
             episodeDetails.appendCharactersList(charactersList)
 
             episodesDbRepository
-                .upsertEpisodeWithCharactersIntoDb(episodeDetails
-                    .toEpisodeWithCharactersDbModel())
+                .upsertEpisodeWithCharactersIntoDb(episodeDetails)
+        }
+        catch (n:NullReceivedException){
+            throw NullReceivedException()
         }
         catch (e:Exception){
              episodeDetails = episodesDbRepository
