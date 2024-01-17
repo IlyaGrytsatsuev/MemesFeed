@@ -68,11 +68,11 @@ class MainActivity : AppCompatActivity(), FragmentNavigator {
     }
 
     private fun setUpInternetConnectionObserver(){
-        viewModel.getInitialNetworkStatus()
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED){
                 viewModel.connectionState.collect{
-                        if(!it)
+                        if(it is InternetState.NoInternet ||
+                            it is InternetState.InternetLost)
                             showSnackBar(
                                 getString(R.string.no_internet_message))
                 }

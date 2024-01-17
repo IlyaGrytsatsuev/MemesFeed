@@ -42,8 +42,7 @@ abstract class AbstractFeedFragment : Fragment(R.layout.fragment_feed) {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
                 internetObserverViewModel
                     .connectionState.collect {
-                        if (internetObserverViewModel
-                            .isInternetConnectionRestored())
+                        if (it is InternetState.InternetRestored)
                             showSnackBarWithAction(
                                 getString(R.string.internet_available_message),
                                 getString(R.string.reload_page_snackbar_button))

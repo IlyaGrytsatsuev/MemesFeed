@@ -6,7 +6,6 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
@@ -16,6 +15,8 @@ class InternetConnectionObserver @Inject constructor(val context: Context) {
 
     private val connectivityManager = context
         .getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+
     fun observe(): Flow<Boolean> {
         return callbackFlow {
             val callback = object : ConnectivityManager.NetworkCallback() {
@@ -44,10 +45,11 @@ class InternetConnectionObserver @Inject constructor(val context: Context) {
             awaitClose {
                 connectivityManager.unregisterNetworkCallback(callback)
             }
-        }
-            //.distinctUntilChanged()
+        }.distinctUntilChanged()
     }
-    fun getInitialNetworkStatus():Boolean{
+
+
+    fun getInitialNetworkStatus(): Boolean {
         val network = connectivityManager.activeNetwork
         val capabilities = connectivityManager.getNetworkCapabilities(network)
         return capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true

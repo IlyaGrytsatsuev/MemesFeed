@@ -39,7 +39,7 @@ class CharactersFeedFragment() : AbstractFeedFragment() {
     private val viewModel: CharactersFeedViewModel by activityViewModels  {viewModelFactory}
 
     override val internetObserverViewModel: InternetConnectionObserverViewModel
-    by viewModels {viewModelFactory}
+    by activityViewModels {viewModelFactory}
 
 
     private val component: MainActivityComponent by lazy{

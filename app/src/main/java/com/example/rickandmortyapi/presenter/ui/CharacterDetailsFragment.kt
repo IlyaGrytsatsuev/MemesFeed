@@ -3,6 +3,7 @@ package com.example.rickandmortyapi.presenter.ui
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -40,7 +41,7 @@ class CharacterDetailsFragment() : AbstractDetailsFragment() {
     by viewModels { viewModelFactory }
 
     override val internetObserverViewModel: InternetConnectionObserverViewModel
-    by viewModels { viewModelFactory }
+    by activityViewModels { viewModelFactory }
 
 
     private val component: CharacterDetailsFragmentComponent by lazy {

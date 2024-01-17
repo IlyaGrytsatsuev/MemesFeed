@@ -2,7 +2,9 @@ package com.example.rickandmortyapi.presenter.ui
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
@@ -28,7 +30,7 @@ class EpisodeDetailsFragment() : AbstractDetailsFragment() {
     @Inject
     override lateinit var viewModelFactory: ViewModelProvider.Factory
     override val internetObserverViewModel: InternetConnectionObserverViewModel
-    by viewModels {viewModelFactory}
+    by activityViewModels {viewModelFactory}
 
     private val viewModel: EpisodeDetailsViewModel
     by viewModels {viewModelFactory}
@@ -55,7 +57,6 @@ private val component: EpisodeDetailsFragmentComponent by lazy {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         binding = FragmentDetailsBinding.bind(view)
         initializeDetailsRecycler()
         setUpDetailsStateObserver()
